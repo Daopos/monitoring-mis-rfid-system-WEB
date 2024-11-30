@@ -1,0 +1,28 @@
+body {
+    display: flex;
+}
+
+aside {
+    width: 20vw;
+    background: linear-gradient(180deg, #85C1E7 0%, #2F80ED 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 50px 10px 10px 10px;
+}
+
+
+section {
+    width: 100%;
+}
+.line {
+    height: 1px;
+    width: 100%;
+    background-color: black;
+    margin-bottom: 20px;
+}
+
+aside a {
+    text-decoration: none;
+    color: white;
+}

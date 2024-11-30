@@ -1,0 +1,50 @@
+body {
+    background: linear-gradient(180deg, #85C1E7 0%, #2F80ED 100%);
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.logincard {
+    padding: 20px 35px;
+    background-color: rgb(47, 128, 237, 0.80);
+    border-radius: 15px;
+}
+
+.logincard form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+
+}
+
+form input {
+    padding: 10px;
+    width: 300px;
+    border: 1px solid black;
+    border-radius: 10px;
+
+}
+
+form button {
+    margin-top: 20px;
+    border: none;
+    border-radius: 50px;
+    padding: 5px 30px;
+}
+
+.logo {
+    position: absolute;
+    z-index: -1;
+    top: 0;
+}
+
+.building {
+    position: absolute;
+    z-index: -1;
+    bottom: 0;
+}

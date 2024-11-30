@@ -1,0 +1,53 @@
+
+.todo{
+   
+    height: 130px;
+    background-color: #278F7D;
+    padding: 15px;
+    height: 60px;
+    
+  
+    
+}
+.todo1{
+    height: 130px;
+    background-color: #266D31;
+    padding: 15px;
+    height: 60px;
+}
+.collecting{
+    border-style: groove;
+    padding: 10px;
+}
+.todolist-container{
+    padding: 25px;
+    padding-right:30px ;
+    background-color: #C8C8C8;
+    min-height: 100vh;
+    align-items: center;
+}
+.reg-nav{
+    padding-bottom: 20px;
+}
+
+.todolist-container .garbage{
+    border-style: groove;
+}
+.collecting-container{
+    border: 1px solid black;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    
+}
+
+.collecting-box {
+    background-color: white;
+    border-radius: 20px;
+    padding: 10px;
+    display: flex;
+    
+    align-items: center;
+}
+

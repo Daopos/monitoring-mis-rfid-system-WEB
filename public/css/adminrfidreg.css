@@ -1,0 +1,55 @@
+/* .reg-nav {
+    background-color: black;
+    color: white;
+}
+
+.registration-body {
+    background-color: #545454;
+    min-height: 100%;
+}
+.reg{
+    color: white;
+
+}
+.rfidbox input{
+    width: 250px;
+    padding: 5px;
+}
+.regbox{
+    margin-left: 20px;
+}
+.phasebox {
+    width: 120px;
+}
+.buttonbox button{
+width: 100px
+}
+.buttonbox .submit{
+    background-color: green;
+    color: white;
+}
+.buttonbox .reset{
+    background-color: gray;
+    color: white;
+
+} */
+
+body {
+    background: #f7f7f7;
+  }
+
+  .form-box {
+    max-width: 500px;
+    margin: auto;
+    padding: 50px;
+    background: #ffffff;
+    border: 10px solid #f2f2f2;
+  }
+
+  h1, p {
+    text-align: center;
+  }
+
+  input, textarea {
+    width: 100%;
+  }

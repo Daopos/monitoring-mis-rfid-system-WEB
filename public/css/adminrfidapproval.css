@@ -1,0 +1,36 @@
+.reg-nav {
+    background-color: black;
+    color: white;
+}
+
+.registration-body {
+    background-color: #545454;
+    min-height: 100%;
+}
+.approval-container{
+    border: 1px solid black;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.approval-box {
+    background-color: white;
+    border-radius: 20px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between ;
+    align-items: center;
+}
+.approval-wow{
+    padding-left: 300px;
+    display: flex;
+    justify-content: space-between ;
+    align-items: center;
+}
+.approval-wow1{
+    padding-left: 490px;
+    display: flex;
+    
+}
