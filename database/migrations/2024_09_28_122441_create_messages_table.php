@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('home_owner_id')->references('id')->on('home_owners')->onDelete('cascade');
             $table->string('sender_role');
             $table->string('recipient_role' )->nullable();
+            $table->boolean('is_seen')->default(false); // Tracks if the message has been seen
             $table->timestamps();
         });
     }

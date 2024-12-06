@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\HomeOwner;
+use App\Notifications\ApprovalNotification;
+use App\Rules\UniqueRfid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -30,14 +32,14 @@ class HomeOwnerController extends Controller
             'mname' => 'nullable|string',
             'birthdate' => 'required|date',
             'gender' => 'required|string',
-            'rfid' => 'nullable|string|unique:home_owners,rfid',
+            'rfid' => ['nullable', 'string', new UniqueRfid()], // Pass $id to the custom rule
             'image' => 'nullable|image|max:2048', // Optional, with max size 2MB
             'position' => 'nullable|string', // Optional, but will default to 'Resident'
             'password' => 'required|string|min:8',
             'phase' => 'required|string',
             'block' => 'required|string',
             'lot' => 'required|string',
-            'document_image' => 'nullable|image|max:2048', // Optional, with max size 2MB for document image
+            'document_image' => 'required|image|max:2048', // Optional, with max size 2MB for document image
         ]);
 
         if ($validator->fails()) {
@@ -88,7 +90,7 @@ public function update(Request $request, $id)
         'mname' => 'nullable|string',
         'birthdate' => 'required|date',
         'gender' => 'required|string',
-        'rfid' => 'nullable|string|unique:home_owners,rfid,' . $id, // Ignore current RFID for uniqueness check
+        'rfid' => ['nullable', 'string', new UniqueRfid($id)], // Pass $id to the custom rule
         'image' => 'nullable|image|max:2048', // Optional with max size 2MB
         'position' => 'nullable|string',
         'password' => 'nullable|string|min:8', // Optional password update
@@ -189,6 +191,10 @@ public function getHomeOwnerPending() {
         $homeowner->status = 'confirmed';
         $homeowner->save();
 
+
+        $notification = new ApprovalNotification($homeowner);
+        $notification->sendLoginNotification();
+
         // Redirect back with a success message
         return redirect()->back()->with('success', 'Homeowner confirmed successfully.');
     }
@@ -234,11 +240,14 @@ public function getHomeOwnerPending() {
     // Function to update the profile name
     public function updateProfileAPI(Request $request)
 {
+
+    $id = Auth::user()->id;
+
     $request->validate([
         'fname' => 'required|string|max:255',
         'lname' => 'required|string|max:255',
         'phone' => 'nullable|string|max:20',
-        'email' => 'nullable|email|max:255',
+        'email' => 'required|email|unique:home_owners,email,' . $id, // Ignore current email for uniqueness check
         'birthdate' => 'nullable|date',
         'gender' => 'nullable|string|max:10',
         'extension' => 'nullable|string|max:10',
@@ -252,7 +261,6 @@ public function getHomeOwnerPending() {
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240', // Validate as image
     ]);
 
-    $id = Auth::user()->id;
     $homeOwner = HomeOwner::find($id);
 
     if (!$homeOwner) {

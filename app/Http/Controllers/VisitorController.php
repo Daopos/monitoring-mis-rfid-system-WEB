@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\HomeOwner;
+use App\Models\HomeownerNotification;
 use App\Models\Visitor;
 use App\Models\VisitorRfidRequest;
+use App\Rules\UniqueRfid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,7 +26,10 @@ public function index()
 
 public function approve(Request $request, $visitorId)
 {
-    $request->validate(['rfid' => 'required|string']);
+     // Validate the RFID input
+     $request->validate([
+        'rfid' => ['required', 'string', new UniqueRfid($visitorId)], // Pass $visitorId to exclude current visitor
+    ]);
 
     // Find the visitor and update RFID status to approved
     $visitor = Visitor::findOrFail($visitorId);
@@ -111,6 +116,18 @@ public function approveGuard(Request $request, $visitorId)
         'status' => 'approved',
     ]);
 
+
+    // Retrieve the homeowner associated with the visitor
+    $homeOwnerId = $visitor->home_owner_id;
+
+    // Create a notification for the homeowner
+    HomeownerNotification::create([
+        'home_owner_id' => $homeOwnerId,
+        'title' => 'Visitor Approved',
+        'message' => "Your visitor, {$visitor->name}, has been approved by the guard.",
+        'is_read' => false,
+    ]);
+
     return redirect()->route('guard.visitor')->with('success', 'RFID approved successfully.');
 }
 
@@ -124,6 +141,20 @@ public function denyGuard($id)
 }
 
 
+public function ReturnVisitorGuard($id)
+{
+    // Find the visitor by ID or fail
+    $visitor = Visitor::findOrFail($id);
+
+    // Update the status to 'return' and set RFID to null
+    $visitor->update([
+        'status' => 'return',
+        'rfid' => null, // Ensure the RFID column is set to null
+    ]);
+
+    // Redirect back with a success message
+    return redirect()->route('guard.visitor')->with('success', 'RFID return successfully.');
+}
 
 public function deleteVisitorGuard($id)
 {

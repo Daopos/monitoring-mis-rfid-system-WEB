@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" />
     <title>Admin</title>
     <link rel="stylesheet" href="/css/index.css">
     <link rel="stylesheet" href="/css/admin.css">
@@ -14,190 +15,144 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
-
-
-<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
 </head>
 
 <body>
+    <!-- Header -->
+    <header class="header bg-primary text-white">
+        <div class="container-fluid d-flex justify-content-between align-items-center p-2">
+            <button id="burger-menu" class="side-btn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <h3 class="m-0">Admin Panel</h3>
+        </div>
+    </header>
+    <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="d-flex justify-content-center">
-            <img class="" src="/img/user.png" alt="" width="100">
+        <div class="text-center py-3">
+            <img src="/img/user.png" alt="User Image" class="rounded-circle" width="80">
+            <h5 class="mt-2 text-white">Admin</h5>
+            <p class="m-0 text-white">admin@gmail.com</p>
 
         </div>
-        <div class="d-flex justify-content-between align-items-center">
-            <h3 style="color: white">Admin</h2>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
+        <hr class="text-light">
+        <nav class="px-3">
+            <a href="{{ route('admin.dashboard') }}"
+            class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('admin.dashboard') ? 'active' : '' }}">
+             <i class="fa-solid fa-house"></i>
+             Dashboard
+             <span class="ms-auto dropdown-arrow">&#9656;</span>
+         </a>
+         <a href="{{ route('admin.messages') }}"
+            class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('admin.messages') ? 'active' : '' }}">
+            <i class="fa-solid fa-message"></i>
+            Messages
+             <span class="ms-auto dropdown-arrow">&#9656;</span>
+         </a><a href="{{ route('eventdos.index') }}"
+         class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('eventdos.index') ? 'active' : '' }}">
+         <i class="fa-solid fa-calendar"></i>
+          Activities
+          <span class="ms-auto dropdown-arrow">&#9656;</span>
+      </a>
+      <a href="{{ route('admin.households') }}"
+         class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('admin.households') ? 'active' : '' }}">
+         <i class="fa-solid fa-user-group"></i>
+          Households
+          <span class="ms-auto dropdown-arrow">&#9656;</span>
+      </a>
+      <a href="{{ route('visitors.index') }}"
+         class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('visitors.index') ? 'active' : '' }}">
+         <i class="fa-solid fa-people-group"></i>
+          Visitors
+          <span class="ms-auto dropdown-arrow">&#9656;</span>
+      </a>
+            <!-- Dropdown -->
+            <div class="sidebar-dropdown mt-3 {{ Request::routeIs('admin.gatelist', 'admin.outsiders', 'admin.visitors', 'admin.householdentry') ? 'open' : '' }}">
+                <button class="sidebar-dropdown-btn d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-door-open"></i>
+                    Gate Entry/Exit
+                    <span class="ms-auto dropdown-arrow">&#9662;</span>
+                </button>
+                <ul class="sidebar-dropdown-menu">
+                    <li>
+                        <a href="{{ route('admin.gatelist') }}"
+                           class="dropdown-item {{ Request::routeIs('admin.gatelist') ? 'active' : '' }}">
+                           Homeowners
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.outsiders') }}"
+                           class="dropdown-item {{ Request::routeIs('admin.outsiders') ? 'active' : '' }}">
+                           Outsiders
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.visitors') }}"
+                           class="dropdown-item {{ Request::routeIs('admin.visitors') ? 'active' : '' }}">
+                           Visitors
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.householdentry') }}"
+                           class="dropdown-item {{ Request::routeIs('admin.householdentry') ? 'active' : '' }}">
+                           Households
+                        </a>
+                    </li>
+                </ul>
 
-        </div>
-        <div>
-            <p style="color: white">admin@gmail.com</p>
-        </div>
-        <div class="line mt-1"></div>
-        <div class="mt-2">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/menu 8.png" alt="">
-                    <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        {{-- <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/registration.png" alt="">
-                    <a href="{{ route('admin.homeownerform') }}">Rfid registration</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div> --}}
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/inout.png" alt="">
-                    <a href="{{ route('admin.homeownerlist') }}">Homeowner List</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/inout.png" alt="">
-                    <a href="{{ route('admin.homeownerpending') }}">Homeowner Pending</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/inout.png" alt="">
-                    <a href="{{ route('admin.gatelist') }}">Gate Entry / Exit </a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/inout.png" alt="">
-                    <a href="{{ route('admin.outsiders') }}">Outsider Gate Entry / Exit </a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/inout.png" alt="">
-                    <a href="{{ route('admin.visitors') }}">Visitor Gate Entry / Exit </a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        {{-- <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/reminder.png" alt="">
-                    <a href="{{ route('admin.adminpaymentreminder') }}">Payment reminder</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div> --}}
-        {{-- <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/reminder.png" alt="">
-                    <a href="{{ route('visitors.index') }}">Visitors</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div> --}}
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/todo.png" alt="">
-                    <a href="{{ route('eventdos.index') }}">Activites</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        {{-- <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/calendar.png" alt="">
-                    <a href="Dashboard">Calendar</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div> --}}
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/message.png" alt="">
-                    <a href="{{ route('admin.messages') }}">Messages</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        {{-- <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/approved.png" alt="">
-                    <a href="{{ route('admin.rfidapproval') }}">Rfid approval</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div> --}}
-        {{-- <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/settings.png" alt="">
-                    <a href="Dashboard">Settings</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div> --}}
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/back.png" alt="Back Icon">
 
-                    <!-- Logout form -->
-                    <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="btn btn-link p-0" style="color: white; text-decoration: none;">Log out</button>
-                    </form>
-                </div>
-                <img src="/img/next.png" alt="Next Icon" width="20px" height="20px">
             </div>
-            <div class="line"></div>
-        </div>
+             <!-- Dropdown -->
+             <div class="sidebar-dropdown mt-3 {{ Request::routeIs('admin.homeownerlist', 'admin.homeownerpending') ? 'open' : '' }}">
+                <button class="sidebar-dropdown-btn d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-users"></i>
+                    Homeowner List
+                    <span class="ms-auto dropdown-arrow">&#9662;</span>
+                </button>
+                <ul class="sidebar-dropdown-menu">
+                    <li>
+                        <a href="{{ route('admin.homeownerlist') }}"
+                           class="dropdown-item {{ Request::routeIs('admin.homeownerlist') ? 'active' : '' }}">
+                           Homeowners
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.homeownerpending') }}"
+                           class="dropdown-item {{ Request::routeIs('admin.homeownerpending') ? 'active' : '' }}">
+                           Pending Homeowners
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
+            <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" class="mt-3">
+                @csrf
+                <button type="submit" class="btn btn-link text-white p-0">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    Logout
+                </button>
+            </form>
+        </nav>
     </aside>
-    <section>
+
+    <!-- Main Content -->
+    <section id="content" class="p-3">
         @yield('content')
     </section>
 
+    <script>
+        // Toggle Sidebar on small screens
+        document.getElementById('burger-menu').addEventListener('click', function () {
+            document.querySelector('.sidebar').classList.toggle('show-sidebar');
+        });
 
+        document.querySelectorAll('.sidebar-dropdown-btn').forEach((button) => {
+    button.addEventListener('click', function () {
+        const parent = this.closest('.sidebar-dropdown');
+        parent.classList.toggle('open');
+    });
+});
+    </script>
 </body>
 
 </html>

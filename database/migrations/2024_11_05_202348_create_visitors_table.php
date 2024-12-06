@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('relationship')->nullable();
             $table->date('date_visit')->nullable();
             $table->string('number_vistiors')->nullable();
-            $table->enum('status', ['pending', 'approved', 'denied', 'requested'])->default('pending');
+            $table->enum('status', ['pending', 'approved', 'denied', 'requested', 'return'])->default('pending');
             $table->boolean('guard')->default(false);
             $table->timestamps();
         });

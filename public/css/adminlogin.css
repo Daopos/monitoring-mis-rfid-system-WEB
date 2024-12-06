@@ -48,3 +48,23 @@ form button {
     z-index: -1;
     bottom: 0;
 }
+
+
+@media only screen and (max-width: 1210px) {
+    .building img {
+        width: 800px;
+    }
+  }
+
+
+
+@media only screen and (max-width: 800px) {
+    .building img {
+        width: 400px;
+    }
+
+    .logo img {
+        width: 400px;
+    }
+  }
+

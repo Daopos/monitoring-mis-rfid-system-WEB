@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Admin;
 use App\Models\Eventdo;
 use App\Models\HomeOwner;
+use App\Models\Household;
+use App\Models\Visitor;
 use App\Notifications\TestNotif;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -147,12 +149,21 @@ public function logoutTreasurer()
         // Get total number of homeowners without RFID
         $homeownersWithoutRFID = HomeOwner::whereNull('rfid')->count();
 
+        $household = Household::count();
+
+
+        $visitor = Visitor::count();
+
+
         // Return the data to the view
         return view('admin.admindashboard', [
             'totalHomeowners' => $totalHomeowners,
             'totalEvents' => $totalEvents,
             'homeownersWithRFID' => $homeownersWithRFID,
-            'homeownersWithoutRFID' => $homeownersWithoutRFID
+            'homeownersWithoutRFID' => $homeownersWithoutRFID,
+            'household' => $household,
+            'visitor' => $visitor
+
         ]);
     }
 

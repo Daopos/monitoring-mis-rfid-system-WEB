@@ -37,6 +37,42 @@
                     });
                 </script>
             @endif
+            @if (session('visitor'))
+    <div class="homeowner-info" id="visitor-info">
+        @if (session('visitor')->image_url)
+            <img src="{{ session('visitor')->image_url }}" alt="Visitor Image" class="homeowner-image">
+        @endif
+        <h5>Name: <span id="visitor-name">{{ session('visitor')->name }} </span></h5>
+        <h5>Visiting Homeowner: <span id="visitor-homeowner">{{ session('homeowner')->fname ?? 'Unknown' }} {{ session('homeowner')->lname ?? '' }}</span></h5>
+        <h5>Entry Time: <span id="visitor-in-time">{{ session('visitor')->created_at ?? 'N/A' }}</span></h5>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('#visitor-info').fadeIn();
+            setTimeout(function() {
+                $('#visitor-info').fadeOut();
+            }, 10000);
+        });
+    </script>
+@endif
+@if (session('household'))
+    <div class="homeowner-info" id="household-info">
+        @if (session('household')->image_url)
+            <img src="{{ session('household')->image_url }}" alt="Household Image" class="household-image">
+        @endif
+        <h5>Name: <span id="household-name">{{ session('household')->name }}</span></h5>
+        <h5>Head of the family: <span id="household-address">{{ session('household')->homeOwner->fname ?? 'N/A' }} {{ session('household')->homeOwner->lname ?? 'N/A' }}</span></h5>
+        {{-- <h5>Entry Time: <span id="household-in-time">{{ session('householdGateMonitor')->in ?? 'N/A' }}</span></h5> --}}
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('#household-info').fadeIn();
+            setTimeout(function() {
+                $('#household-info').fadeOut();
+            }, 10000);
+        });
+    </script>
+@endif
         @endif
     </div>
     <form id="rfid-form" method="POST" action="{{ route('gate-monitors.store') }}">

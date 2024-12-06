@@ -119,6 +119,32 @@
         .message-form button:hover {
             background-color: #0056b3;
         }
+
+        #searchBar {
+}
+
+.new-message-indicator {
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border-radius: 50%;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.user-item {
+    position: relative; /* Ensure the red dot appears in the top-right corner */
+}
+
+.user-item.active {
+    background-color: #e7e7e7;
+}
+
+/* Hide user items that don't match the search */
+.user-item.hidden {
+    display: none;
+}
     </style>
 @endsection
 
@@ -127,15 +153,35 @@
         <div class="messages-container">
             <!-- Homeowners List (Left Sidebar) -->
             <div class="user-list">
-                @foreach($homeOwners as $hOwner)
-                    <div class="user-item {{ isset($homeOwner) && $homeOwner->id == $hOwner->id ? 'active' : '' }}"
-                         onclick="window.location.href='{{ route('admin.messages.show', $hOwner->id) }}'">
-                        <div class="user-info">
-                            <span class="name">{{ $hOwner->fname }} {{ $hOwner->lname }}</span>
-                        </div>
+                <form id="searchForm" class="mb-3">
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            id="searchBar"
+                            class="form-control"
+                            placeholder="Search homeowners..."
+                            name="query"
+                        />
+                        <button type="submit" class="btn btn-primary">Search</button>
                     </div>
-                @endforeach
+                </form>
+
+                @foreach($homeOwners as $hOwner)
+                <div class="user-item {{ isset($homeOwner) && $homeOwner->id == $hOwner->id ? 'active' : '' }} {{ $hOwner->hasUnreadMessages('admin') || $hOwner->hasUnreadMessages('guard') ? 'has-new-message' : '' }}"
+                    onclick="window.location.href='{{ route('admin.messages.show', $hOwner->id) }}'">
+                    <div class="user-info">
+                        <span class="name">{{ $hOwner->fname }} {{ $hOwner->lname }}</span>
+                        @if($hOwner->hasUnreadMessages('admin') || $hOwner->hasUnreadMessages('guard'))
+                            <span class="new-message-indicator"></span> <!-- Red dot -->
+                        @endif
+                    </div>
+                </div>
+            @endforeach
+
             </div>
+
+
+
 
             <!-- Message Window (Right Side) -->
             @if(isset($homeOwner))
@@ -144,13 +190,22 @@
 
                     <!-- Messages list -->
                     <div class="messages">
-                        @foreach($messages as $message)
+                        @foreach($messages as $index => $message)
                             <div class="message {{ $message->sender_role == 'admin' ? 'sent' : 'received' }}">
-                                {{ $message->message }}
+                                <p>{{ $message->message }}</p>
+
+                                <!-- Display date and time -->
+                                <small class="text-muted">
+                                    {{ $message->created_at->format('d M Y, h:i A') }}
+                                </small>
+
+                                <!-- Show "Seen" only for the admin messages that are seen -->
+                                @if($message->sender_role === 'admin' && $message->is_seen)
+                                    <small class="text-success">Seen</small>
+                                @endif
                             </div>
                         @endforeach
                     </div>
-
                     <!-- Message form -->
                     <form class="message-form" action="{{ route('admin.messages.send', $homeOwner->id) }}" method="POST">
                         @csrf
@@ -166,4 +221,64 @@
         </div>
 
     </div>
+
+
+<script>
+     document.addEventListener("DOMContentLoaded", function () {
+        // Function to filter homeowners
+        function filterHomeowners(event) {
+            event.preventDefault(); // Prevent form from submitting and reloading the page
+            const query = document.getElementById('searchBar').value.toLowerCase();
+            const homeowners = document.querySelectorAll('.user-item');
+
+            homeowners.forEach(function (homeowner) {
+                const name = homeowner.querySelector('.name').textContent.toLowerCase();
+                if (name.includes(query)) {
+                    homeowner.style.display = ''; // Show matching items
+                } else {
+                    homeowner.style.display = 'none'; // Hide non-matching items
+                }
+            });
+        }
+
+        // Attach filter function to the form submit event
+        const searchForm = document.getElementById('searchForm');
+        searchForm.addEventListener('submit', filterHomeowners);
+
+
+    });
+
+
+document.querySelector('.message-form').addEventListener('submit', function (e) {
+    e.preventDefault(); // Prevent form from reloading the page
+
+    const messageInput = this.querySelector('input[name="message"]');
+    const message = messageInput.value.trim();
+    if (!message) return;
+
+    fetch(this.action, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        },
+        body: JSON.stringify({ message }),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            // Add the new message to the message list
+            const messagesContainer = document.querySelector('.messages');
+            messagesContainer.innerHTML += `
+                <div class="message sent">
+                    <p>${data.message}</p>
+                    <small class="text-muted">${new Date(data.created_at).toLocaleString()}</small>
+                </div>
+            `;
+
+            messageInput.value = ''; // Clear the input
+        })
+        .catch((error) => console.error('Error:', error));
+});
+
+</script>
 @endsection

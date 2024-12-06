@@ -22,118 +22,114 @@
 </head>
 
 <body>
+    <header class="header bg-primary text-white">
+        <div class="container-fluid d-flex justify-content-between align-items-center p-2">
+            <button id="burger-menu" class="side-btn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <h3 class="m-0">Guard Panel</h3>
+        </div>
+    </header>
+
+
+    <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="d-flex justify-content-center">
-            <img class="" src="/img/user.png" alt="" width="100">
-        </div>
-        <div class="d-flex justify-content-between align-items-center">
-            <h3 style="color: white">Guard</h2>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-        </div>
-        <div>
-            <p style="color: white">guard@gmail.com</p>
-        </div>
-        <div class="line mt-1"></div>
-        <div class="mt-2">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/menu 8.png" alt="">
-                    <a href="{{ route('guard.dashboard') }}">Dashboard</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/registration.png" alt="">
-                    <a href="{{ route('guard.homeownerlist') }}">HomeOwner List</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/registration.png" alt="">
-                    <a href="{{ route('guard.gatelist') }}">Gate In & out</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/registration.png" alt="">
-                    <a href="{{ route('guard.visitorgatelist') }}">Visitor Gate In & out</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/registration.png" alt="">
-                    <a href="{{ route('guard.householdentry') }}">Household Gate In & out</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/registration.png" alt="">
-                    <a href="{{ route('guard.visitor') }}">Visitors</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/registration.png" alt="">
-                    <a href="{{ route('outsiders.index') }}">Deliveries and Vendors</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/inout.png" alt="">
-                    <a href="{{ route('guard.messages') }}">Message</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/back.png" alt="Back Icon">
+        <div class="text-center py-3">
+            <img src="/img/user.png" alt="User Image" class="rounded-circle" width="80">
+            <h5 class="mt-2 text-white">Guard</h5>
+            <p class="m-0 text-white">guard@gmail.com</p>
 
-                    <!-- Logout form -->
-                    <form id="logout-form" action="{{ route('guard.logout') }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="btn btn-link p-0" style="color: white; text-decoration: none;">Log out</button>
-                    </form>
-                </div>
-                <img src="/img/next.png" alt="Next Icon" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
         </div>
+        <hr class="text-light">
+        <nav class="px-3">
+            <a href="{{ route('guard.dashboard') }}"
+            class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('guard.dashboard') ? 'active' : '' }}">
+             <i class="fa-solid fa-house"></i>
+             Dashboard
+             <span class="ms-auto dropdown-arrow">&#9656;</span>
+            </a>
+         <a href="{{ route('guard.homeownerlist') }}"
+            class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('guard.homeownerlist') ? 'active' : '' }}">
+            <i class="fa-solid fa-message"></i>
+            HomeOwner
+             <span class="ms-auto dropdown-arrow">&#9656;</span>
+         </a>
+         <a href="{{ route('guard.visitor') }}"
+         class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('guard.visitor') ? 'active' : '' }}">
+         <i class="fa-solid fa-calendar"></i>
+          Visitors
+          <span class="ms-auto dropdown-arrow">&#9656;</span>
+      </a>
+      <a href="{{ route('guard.messages') }}"
+         class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('guard.messages') ? 'active' : '' }}">
+         <i class="fa-solid fa-calendar"></i>
+          Message
+          <span class="ms-auto dropdown-arrow">&#9656;</span>
+      </a>
+            <!-- Dropdown -->
+            <div class="sidebar-dropdown mt-3 {{ Request::routeIs('guard.gatelist', 'outsiders.index', 'guard.visitorgatelist', 'guard.householdentry') ? 'open' : '' }}">
+                <button class="sidebar-dropdown-btn d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-door-open"></i>
+                    Gate Entry/Exit
+                    <span class="ms-auto dropdown-arrow">&#9662;</span>
+                </button>
+                <ul class="sidebar-dropdown-menu">
+                    <li>
+                        <a href="{{ route('guard.gatelist') }}"
+                           class="dropdown-item {{ Request::routeIs('guard.gatelist') ? 'active' : '' }}">
+                           Homeowners
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('outsiders.index') }}"
+                           class="dropdown-item {{ Request::routeIs('outsiders.index') ? 'active' : '' }}">
+                           Deliveries and Vendors
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('guard.visitorgatelist') }}"
+                           class="dropdown-item {{ Request::routeIs('guard.visitorgatelist') ? 'active' : '' }}">
+                           Visitors
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('guard.householdentry') }}"
+                           class="dropdown-item {{ Request::routeIs('guard.householdentry') ? 'active' : '' }}">
+                           Household
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
+
+            <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" class="mt-3">
+                @csrf
+                <button type="submit" class="btn btn-link text-white p-0">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    Logout
+                </button>
+            </form>
+        </nav>
     </aside>
-    <section>
+
+    <!-- Main Content -->
+    <section id="content" class="p-3">
         @yield('content')
     </section>
+
+    <script>
+        // Toggle Sidebar on small screens
+        document.getElementById('burger-menu').addEventListener('click', function () {
+            document.querySelector('.sidebar').classList.toggle('show-sidebar');
+        });
+
+        document.querySelectorAll('.sidebar-dropdown-btn').forEach((button) => {
+    button.addEventListener('click', function () {
+        const parent = this.closest('.sidebar-dropdown');
+        parent.classList.toggle('open');
+    });
+});
+    </script>
 
 
 </body>

@@ -70,7 +70,7 @@ class AuthController extends Controller
     public function homeOwnerRegister(Request $request) {
         // Validate the incoming request
         $fields = $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|email|unique:home_owners,email',
             'password' => 'required',
             'fname' => 'required',
             'lname' => 'required',

@@ -6,10 +6,10 @@
 
 @section('content')
     <div class="container mt-5">
-        <h1 class="mb-4">List of HomeOwners</h1>
+        <h1 class="mb-4">List of Homeowners</h1>
 
         <div class="p-2 w-25">
-            <form action="{{ route('admin.homeownerlist') }}" method="GET" class="d-flex mb-3">
+            <form action="{{ route('guard.homeownerlist') }}" method="GET" class="d-flex mb-3">
                 <input type="text" name="search" class="form-control me-2" placeholder="Search by name or email" aria-label="Search" value="{{ request('search') }}">
                 <button type="submit" class="btn btn-primary">Search</button>
             </form>
@@ -23,7 +23,7 @@
 
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">HomeOwners</h5>
+                <h5 class="mb-0">Homeowners</h5>
             </div>
             <div class="card-body">
                 <table class="table table-striped table-bordered">
@@ -48,6 +48,8 @@
                             <td>
                                 <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#vehiclesModal{{ $homeowner->id }}">Vehicles</button>
                                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#visitorsModal{{ $homeowner->id }}">Visitors</button>
+                                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#householdModal{{ $homeowner->id }}">Household</button>
+
                             </td>
                         </tr>
 
@@ -118,6 +120,39 @@
                                </div>
                            </div>
                        </div>
+
+                                              <!-- Modal for Household Members -->
+<div class="modal fade" id="householdModal{{ $homeowner->id }}" tabindex="-1" aria-labelledby="householdModalLabel{{ $homeowner->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="householdModalLabel{{ $homeowner->id }}">Household Members of {{ $homeowner->fname }} {{ $homeowner->lname }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Household Members List -->
+                @if ($homeowner->households->isEmpty())
+                    <p>No household members found for this homeowner.</p>
+                @else
+                    <ul class="list-group">
+                        @foreach ($homeowner->households as $household)
+                            <li class="list-group-item">
+                                <strong>Name:</strong> {{ $household->name }}<br>
+                                <strong>Relationship:</strong> {{ $household->relationship }}<br>
+                                <strong>Age:</strong> {{ $household->age }}<br>
+                                <strong>Gender:</strong> {{ $household->gender }}<br>
+
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
                         @endforeach
                     </tbody>
                 </table>

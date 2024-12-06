@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\VisitorGateMonitor;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class VisitorGateMonitorController extends Controller
@@ -125,4 +126,36 @@ public function indexAdmin(Request $request)
     {
         //
     }
+    public function generatePdf(Request $request)
+{
+    // Fetch the filtered data (reusing your index logic)
+    $query = VisitorGateMonitor::with('visitor')
+        ->join('visitors', 'visitor_gate_monitors.visitor_id', '=', 'visitors.id')
+        ->select('visitor_gate_monitors.*');
+
+    if ($request->has('search') && $request->search) {
+        $query->where(function ($q) use ($request) {
+            $q->where('visitors.name', 'like', '%' . $request->search . '%');
+        });
+    }
+
+    if ($request->has('status') && $request->status) {
+        $query->where('visitors.status', $request->status);
+    }
+
+    if ($request->has('from_date') && $request->has('to_date')) {
+        $query->whereBetween('visitor_gate_monitors.in', [
+            $request->from_date . ' 00:00:00',
+            $request->to_date . ' 23:59:59'
+        ]);
+    }
+
+    $gateMonitors = $query->get();
+
+    // Pass data to the PDF view
+    $pdf = Pdf::loadView('guard.pdf_visitor', compact('gateMonitors'));
+
+    // Download the PDF file
+    return $pdf->download('visitor_gate_entry_list.pdf');
+}
 }

@@ -22,68 +22,73 @@
 </head>
 
 <body>
+
+     <!-- Header -->
+     <header class="header bg-primary text-white">
+        <div class="container-fluid d-flex justify-content-between align-items-center p-2">
+            <button id="burger-menu" class="side-btn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <h3 class="m-0">Admin Panel</h3>
+        </div>
+    </header>
+    <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="d-flex justify-content-center">
-            <img class="" src="/img/user.png" alt="" width="100">
-        </div>
-        <div class="d-flex justify-content-between align-items-center">
-            <h3 style="color: white">Treasurer</h2>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-        </div>
-        <div>
-            <p style="color: white">treasurer@gmail.com</p>
-        </div>
-        <div class="line mt-1"></div>
-        <div class="mt-2">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/menu 8.png" alt="">
-                    <a href="{{ route('treasurer.dashboard') }}">Dashboard</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/registration.png" alt="">
-                    <a href="{{ route('payment_reminders.index') }}">Payment Reminder</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/inout.png" alt="">
-                    <a href="{{ route('treasurer.paidlist') }}">Paid List</a>
-                </div>
-                <img src="/img/next.png" alt="" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
-        </div>
-        <div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="/img/back.png" alt="Back Icon">
+        <div class="text-center py-3">
+            <img src="/img/user.png" alt="User Image" class="rounded-circle" width="80">
+            <h5 class="mt-2 text-white">Treasurer</h5>
+            <p class="m-0 text-white">treasurer@gmail.com</p>
 
-                    <!-- Logout form -->
-                    <form id="logout-form" action="{{ route('treasurer.logout') }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="btn btn-link p-0" style="color: white; text-decoration: none;">Log out</button>
-                    </form>
-                </div>
-                <img src="/img/next.png" alt="Next Icon" width="20px" height="20px">
-            </div>
-            <div class="line"></div>
         </div>
+        <hr class="text-light">
+        <nav class="px-3">
+            <a href="{{ route('treasurer.dashboard') }}"
+            class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('admin.dashboard') ? 'active' : '' }}">
+             <i class="fa-solid fa-house"></i>
+             Dashboard
+             <span class="ms-auto dropdown-arrow">&#9656;</span>
+         </a>
+         <a href="{{ route('payment_reminders.index') }}"
+            class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('admin.messages') ? 'active' : '' }}">
+            <i class="fa-solid fa-message"></i>
+            Payment Reminder
+             <span class="ms-auto dropdown-arrow">&#9656;</span>
+         </a><a href="{{ route('treasurer.paidlist') }}"
+         class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('eventdos.index') ? 'active' : '' }}">
+         <i class="fa-solid fa-calendar"></i>
+         Paid List
+          <span class="ms-auto dropdown-arrow">&#9656;</span>
+      </a>
 
+
+            <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" class="mt-3">
+                @csrf
+                <button type="submit" class="btn btn-link text-white p-0">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    Logout
+                </button>
+            </form>
+        </nav>
     </aside>
-    <section>
+
+    <!-- Main Content -->
+    <section id="content" class="p-3">
         @yield('content')
     </section>
+
+    <script>
+        // Toggle Sidebar on small screens
+        document.getElementById('burger-menu').addEventListener('click', function () {
+            document.querySelector('.sidebar').classList.toggle('show-sidebar');
+        });
+
+        document.querySelectorAll('.sidebar-dropdown-btn').forEach((button) => {
+    button.addEventListener('click', function () {
+        const parent = this.closest('.sidebar-dropdown');
+        parent.classList.toggle('open');
+    });
+});
+    </script>
 
 
 </body>

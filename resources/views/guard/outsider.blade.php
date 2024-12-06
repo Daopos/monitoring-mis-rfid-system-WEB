@@ -17,8 +17,11 @@
     @endif
 
     <div class="card">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between">
             <h5 class="mb-0">Outsiders</h5>
+            <a href="{{ route('guard.generateOutsiderPdf', request()->all()) }}" class="btn btn-success">
+                <i class="fas fa-file-pdf"></i> Download PDF
+            </a>
         </div>
         <div class="card-body">
 

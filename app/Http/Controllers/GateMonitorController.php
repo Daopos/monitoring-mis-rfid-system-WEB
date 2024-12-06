@@ -8,6 +8,7 @@ use App\Models\Household;
 use App\Models\HouseholdGateMonitor;
 use App\Models\Visitor;
 use App\Models\VisitorGateMonitor;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -323,5 +324,39 @@ public function getAllEntryAPI()
     }
 }
 
+
+public function generatePDF(Request $request)
+    {
+        // Fetch data based on filters
+        $query = GateMonitor::with('owner');
+
+        // Apply filters
+        if ($request->has('status') && $request->input('status') == 'in') {
+            $query->whereNull('out');
+        }
+
+        if ($request->has('from_date') && $request->has('to_date')) {
+            $query->whereBetween('in', [
+                \Carbon\Carbon::parse($request->input('from_date'))->startOfDay(),
+                \Carbon\Carbon::parse($request->input('to_date'))->endOfDay()
+            ]);
+        }
+
+        if ($request->has('search') && $request->input('search') != '') {
+            $searchTerm = $request->input('search');
+            $query->whereHas('owner', function ($q) use ($searchTerm) {
+                $q->where('fname', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('lname', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        $gateMonitors = $query->orderBy('in', 'desc')->get();
+
+        // Generate PDF
+        $pdf = Pdf::loadView('guard.pdf_report', compact('gateMonitors'));
+
+        // Return the PDF for download
+        return $pdf->download('gate_entry_report.pdf');
+    }
 
 }

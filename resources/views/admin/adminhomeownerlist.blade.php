@@ -69,7 +69,7 @@
                                 </form>
                                 <!-- Vehicles Button -->
                                 <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#vehiclesModal{{ $homeowner->id }}">Vehicles</button>
-                                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#householdModal{{ $homeowner->id }}">Household</button>
+                                {{-- <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#householdModal{{ $homeowner->id }}">Household</button> --}}
 
                             </td>
                         </tr>

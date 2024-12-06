@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventdoController;
 use App\Http\Controllers\GateMonitorController;
 use App\Http\Controllers\HomeOwnerController;
+use App\Http\Controllers\HomeownerNotificationController;
 use App\Http\Controllers\HouseholdController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PaymentReminderController;
@@ -21,7 +24,7 @@ Route::get('/all/entry', [GateMonitorController::class, 'getAllEntryAPI'])->midd
 
 Route::post('/home-owner/register', [AuthController::class, 'homeOwnerRegister']);
 Route::post('/home-owner/login', [AuthController::class, 'homeOwnerLogin']);
-Route::post('/home-owner/logout', [AuthController::class, 'homeOwnerLogout']);
+Route::post('/home-owner/logout', [AuthController::class, 'homeOwnerLogout'])->middleware('auth:sanctum');
 
 Route::get('/home-owner/message/guard', [MessageController::class, 'getMessageGuardAPI'])->middleware('auth:sanctum');
 Route::post('/home-owner/message/guard', [MessageController::class, 'sendMessageGuardAPI'])->middleware('auth:sanctum');
@@ -61,3 +64,14 @@ Route::post('/households', [HouseholdController::class, 'createMemberAPI'])->mid
 Route::put('/households/{id}', [HouseholdController::class, 'updateMemberAPI'])->middleware('auth:sanctum');
 Route::delete('/households/{id}', [HouseholdController::class, 'deleteMemberAPI'])->middleware('auth:sanctum');
 Route::get('/households', [HouseholdController::class, 'getMembersAPI'])->middleware('auth:sanctum');
+
+
+//seen message
+Route::post('/messages/mark-as-seen', [MessageController::class, 'markAsSeen'])->middleware('auth:sanctum');
+
+Route::get('/homeowner/notifications', [HomeownerNotificationController::class, 'index'])->middleware('auth:sanctum');
+
+// Password reset routes
+Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');

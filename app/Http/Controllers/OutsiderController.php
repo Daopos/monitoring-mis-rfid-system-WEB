@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Outsider;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class OutsiderController extends Controller
@@ -131,4 +132,28 @@ class OutsiderController extends Controller
     return redirect()->route('outsiders.index')->with('success', 'Out time updated successfully!');
 }
 
+
+public function generatePdf(Request $request)
+{
+    $query = Outsider::query();
+
+    // Apply search and filters
+    if ($request->has('search') && $request->search) {
+        $query->where('name', 'like', '%' . $request->search . '%');
+    }
+    if ($request->has('from_date') && $request->has('to_date')) {
+        $query->whereBetween('in', [
+            $request->from_date . ' 00:00:00',
+            $request->to_date . ' 23:59:59'
+        ]);
+    }
+
+    $outsiders = $query->get(); // Fetch all matching outsiders
+
+    // Load the view for PDF
+    $pdf = Pdf::loadView('guard.outsiders-pdf', compact('outsiders'));
+
+    // Download or Stream the PDF
+    return $pdf->download('outsiders_list.pdf');
+}
 }

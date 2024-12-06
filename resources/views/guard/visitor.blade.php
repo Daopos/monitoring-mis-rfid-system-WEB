@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container mt-5">
-    <h1 class="mb-4">Visitor Requests</h1>
+    <h1 class="mb-4">Visitors</h1>
     <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addVisitorModal">
         Add Visitor
     </button>
@@ -12,7 +12,7 @@
     @endif
 
     <!-- Search Form -->
-    <form action="{{ route('guard.visitor') }}" method="GET" >
+    <form action="{{ route('guard.visitor') }}" method="GET">
         <div class="row mb-3">
             <div class="col-md-4">
                 <input type="text" name="search" class="form-control" placeholder="Search by name" value="{{ request('search') }}">
@@ -23,10 +23,9 @@
         </div>
     </form>
 
-
     <div class="card">
         <div class="card-header">
-            <h5 class="mb-0">Pending Visitor Requests</h5>
+            <h5 class="mb-0">Visitors</h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -48,22 +47,28 @@
                                 <td>{{ $visitor->plate_number ?? 'N/A' }}</td>
                                 <td>{{ $visitor->homeowner ? $visitor->homeowner->fname . ' ' . $visitor->homeowner->lname : 'N/A' }}</td>
                                 <td>{{ $visitor->relationship ?? 'N/A' }}</td>
-                                <td>{{ $visitor->status ?? 'N/A' }}</td>
+                                <td>{{ ucfirst($visitor->status) }}</td>
                                 <td>
                                     @if ($visitor->status === 'pending')
+                                        <!-- Approve and Reject Actions -->
                                         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ $visitor->id }}">Approve</button>
-
                                         <form action="{{ route('guard.deny', $visitor->id) }}" method="POST" style="display:inline;">
                                             @csrf
                                             <button type="submit" class="btn btn-danger">Reject</button>
                                         </form>
                                     @elseif ($visitor->status === 'requested')
+                                        <!-- Delete Action -->
                                         <form action="{{ route('guard.delete', $visitor->id) }}" method="POST" style="display:inline;">
                                             @csrf
                                             <button type="submit" class="btn btn-warning">Delete</button>
                                         </form>
+                                    @elseif ($visitor->status === 'return')
+                                        <!-- Approve New RFID for Returning Visitor -->
+                                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#approveModal{{ $visitor->id }}">
+                                            Assign New RFID
+                                        </button>
                                     @else
-                                        <form action="{{ route('guard.delete', $visitor->id) }}" method="POST" style="display:inline;">
+                                        <form action="{{ route('guard.return', $visitor->id) }}" method="POST" style="display:inline;">
                                             @csrf
                                             <button type="submit" class="badge bg-secondary">Already Processed</button>
                                         </form>
@@ -71,12 +76,18 @@
                                 </td>
                             </tr>
 
-                            <!-- Approve Modal -->
+                            <!-- Approve/Assign RFID Modal -->
                             <div class="modal fade" id="approveModal{{ $visitor->id }}" tabindex="-1" aria-labelledby="approveModalLabel{{ $visitor->id }}" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="approveModalLabel{{ $visitor->id }}">Approve RFID for {{ $visitor->name }}</h5>
+                                            <h5 class="modal-title" id="approveModalLabel{{ $visitor->id }}">
+                                                @if ($visitor->status === 'return')
+                                                    Assign New RFID for {{ $visitor->name }}
+                                                @else
+                                                    Approve RFID for {{ $visitor->name }}
+                                                @endif
+                                            </h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
@@ -86,7 +97,13 @@
                                                     <label for="rfid" class="form-label">RFID</label>
                                                     <input type="text" name="rfid" class="form-control" required>
                                                 </div>
-                                                <button type="submit" class="btn btn-primary">Approve</button>
+                                                <button type="submit" class="btn btn-primary">
+                                                    @if ($visitor->status === 'return')
+                                                        Assign RFID
+                                                    @else
+                                                        Approve
+                                                    @endif
+                                                </button>
                                             </form>
                                         </div>
                                     </div>
@@ -128,7 +145,6 @@
                         <label for="plate_number" class="form-label">Plate Number</label>
                         <input type="text" name="plate_number" id="plate_number" class="form-control">
                     </div>
-
                     <div class="mb-3">
                         <label for="relationship" class="form-label">Relationship</label>
                         <select name="relationship" id="relationship" class="form-control" required>
@@ -140,7 +156,6 @@
                             <option value="Other">Other</option>
                         </select>
                     </div>
-
                     <div class="mb-3">
                         <label for="number_vistiors" class="form-label">Number of Visitors</label>
                         <input type="number" name="number_vistiors" id="number_vistiors" class="form-control">

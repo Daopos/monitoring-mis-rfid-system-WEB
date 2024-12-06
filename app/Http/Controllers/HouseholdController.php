@@ -3,19 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Models\Household;
+use App\Rules\UniqueRfid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class HouseholdController extends Controller
 {
 
     public function updateRfid(Household $household, Request $request)
-{
-    $household->rfid = $request->input('rfid');
-    $household->save();
+    {
+        // Validate the RFID input
+        $validator = Validator::make($request->all(), [
+            'rfid' => ['nullable', 'string', new UniqueRfid($household->id)], // Pass $household->id to exclude current record
+        ]);
 
-    return back()->with('success', 'RFID updated successfully.');
-}
+        // Check if validation fails
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        // Update the RFID if validation passes
+        $household->rfid = $request->input('rfid');
+        $household->save();
+
+        return back()->with('success', 'RFID updated successfully.');
+    }
   // Create a new household
   public function createMemberAPI(Request $request)
 {
@@ -101,4 +114,40 @@ public function getMembersAPI()
         'data' => $households,
     ], 200);
 }
+
+
+public function adminIndexHousehold(Request $request)
+{
+    // Retrieve search and RFID filter inputs
+    $search = $request->input('search');
+    $rfidFilter = $request->input('rfid_filter');
+
+    // Query households with homeowner relationship
+    $query = Household::with('homeowner');
+
+    // Filter by search (household name or homeowner name)
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', '%' . $search . '%')
+              ->orWhereHas('homeowner', function ($q) use ($search) {
+                  $q->where('fname', 'like', '%' . $search . '%')
+                    ->orWhere('lname', 'like', '%' . $search . '%');
+              });
+        });
+    }
+
+    // Filter by RFID status
+    if ($rfidFilter === 'with_rfid') {
+        $query->whereNotNull('rfid');
+    } elseif ($rfidFilter === 'without_rfid') {
+        $query->whereNull('rfid');
+    }
+
+    // Fetch filtered results
+    $households = $query->get();
+
+    // Pass data to the Blade view
+    return view('admin.households', compact('households'));
+}
+
 }

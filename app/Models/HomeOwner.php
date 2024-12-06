@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
-class HomeOwner extends Model
+use Illuminate\Auth\Passwords\CanResetPassword as CanResetPasswordTrait;
+class HomeOwner extends Model implements CanResetPassword
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens, CanResetPasswordTrait;
 
     protected $fillable = [
         'fname',
@@ -91,5 +92,14 @@ public function households()
 {
     return $this->hasMany(Household::class, 'home_owner_id');
 }
+
+public function hasUnreadMessages()
+{
+    return $this->messages()
+        ->where('sender_role', 'home_owner') // Only homeowner messages
+        ->where('is_seen', false) // Only unread messages
+        ->exists();
+}
+
 
 }

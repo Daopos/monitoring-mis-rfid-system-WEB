@@ -99,6 +99,11 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\Admin::class, // your Guard model
         ],
+
+        'home_owners' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\HomeOwner::class, // Update to your model path
+        ],
     ],
 
     /*
@@ -126,6 +131,13 @@ return [
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,
+        ],
+
+        'home_owners' => [
+        'provider' => 'home_owners',
+        'table' => 'password_resets',
+        'expire' => 60,
+        'throttle' => 60,
         ],
     ],
 

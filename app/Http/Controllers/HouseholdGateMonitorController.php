@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\HouseholdGateMonitor;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class HouseholdGateMonitorController extends Controller
@@ -40,6 +41,40 @@ class HouseholdGateMonitorController extends Controller
         $totalEntries = $query->count();
 
         return view('guard.householdentry', compact('gateMonitors', 'totalEntries'));  // Note: 'gateMonitors' here
+    }
+
+
+
+    public function indexHousehold(Request $request)
+    {
+        $query = HouseholdGateMonitor::with('household.homeOwner') // Eager load 'homeOwner' of 'household'
+            ->join('households', 'household_gate_monitors.household_id', '=', 'households.id')
+            ->select('household_gate_monitors.*');
+
+        // Search by homeowner name (first name or last name)
+        if ($request->has('search') && $request->search) {
+            $query->whereHas('household', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Filter by status (e.g., active or inactive)
+        if ($request->has('status') && $request->status) {
+            $query->where('households.status', $request->status);
+        }
+
+        // Filter by date range for entry
+        if ($request->has('from_date') && $request->has('to_date')) {
+            $query->whereBetween('household_gate_monitors.in', [
+                $request->from_date . ' 00:00:00',
+                $request->to_date . ' 23:59:59'
+            ]);
+        }
+
+        $gateMonitors = $query->paginate(10);
+        $totalEntries = $query->count();
+
+        return view('admin.household', compact('gateMonitors', 'totalEntries'));  // Note: 'gateMonitors' here
     }
 
 
@@ -90,4 +125,39 @@ class HouseholdGateMonitorController extends Controller
     {
         //
     }
+
+    public function generatePdf(Request $request)
+{
+    $query = HouseholdGateMonitor::with('household.homeOwner') // Eager load 'homeOwner'
+        ->join('households', 'household_gate_monitors.household_id', '=', 'households.id')
+        ->select('household_gate_monitors.*');
+
+    // Search by household name
+    if ($request->has('search') && $request->search) {
+        $query->whereHas('household', function ($q) use ($request) {
+            $q->where('name', 'like', '%' . $request->search . '%');
+        });
+    }
+
+    // Filter by status
+    if ($request->has('status') && $request->status) {
+        $query->where('households.status', $request->status);
+    }
+
+    // Filter by date range for entry
+    if ($request->has('from_date') && $request->has('to_date')) {
+        $query->whereBetween('household_gate_monitors.in', [
+            $request->from_date . ' 00:00:00',
+            $request->to_date . ' 23:59:59'
+        ]);
+    }
+
+    $gateMonitors = $query->get();
+
+    // Generate PDF
+    $pdf = Pdf::loadView('guard.pdf_household', compact('gateMonitors'));
+
+    // Return the PDF file as a download
+    return $pdf->download('household_entry_list.pdf');
+}
 }

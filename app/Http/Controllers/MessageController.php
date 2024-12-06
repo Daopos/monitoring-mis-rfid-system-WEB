@@ -18,28 +18,47 @@ public function adminMessageIndex() {
     return view('admin.adminmessages', compact('homeOwners', 'messages'));
 }
 
-public function adminShowMessage(HomeOwner $homeOwner) {
-    // Ensure only confirmed homeowners are available
+public function adminShowMessage(HomeOwner $homeOwner)
+{
     if ($homeOwner->status !== 'confirmed') {
         return redirect()->route('admin.messages.index')->with('error', 'Homeowner not found or not confirmed.');
     }
 
-    $homeOwners = HomeOwner::where('status', 'confirmed')->get(); // Fetch confirmed homeowners
+    // Fetch confirmed homeowners, prioritizing those with unread messages
+    $homeOwners = HomeOwner::where('status', 'confirmed')
+        ->orderByDesc(function ($query) {
+            $query->selectRaw('count(*)')
+                ->from('messages')
+                ->whereColumn('messages.home_owner_id', 'home_owners.id')
+                ->where('messages.is_seen', false)
+                ->where('messages.sender_role', 'home_owner');
+        })
+        ->get();
 
-    // Fetch only messages between the admin and the specified homeowner
+    // Fetch messages for the selected homeowner
     $messages = Message::where('home_owner_id', $homeOwner->id)
         ->where(function ($query) {
             $query->where('sender_role', 'admin')
-                  ->where('recipient_role', 'home_owner') // Admin to homeowner
+                ->where('recipient_role', 'home_owner')
                 ->orWhere(function ($subQuery) {
                     $subQuery->where('sender_role', 'home_owner')
-                             ->where('recipient_role', 'admin'); // Homeowner to admin
+                        ->where('recipient_role', 'admin');
                 });
         })
         ->get();
 
+    // Mark homeowner's messages as seen
+    Message::where('home_owner_id', $homeOwner->id)
+        ->where('sender_role', 'home_owner') // Only homeowner's messages
+        ->where('is_seen', false) // Only unseen messages
+        ->update(['is_seen' => true]);
+
     return view('admin.adminmessages', compact('homeOwners', 'homeOwner', 'messages'));
 }
+
+
+
+
 
 // Admin: Send a message from the admin to the home owner
 public function adminSendMessages(Request $request, HomeOwner $homeOwner) {
@@ -68,11 +87,20 @@ public function guardMessageIndex() {
 // Guard: Show all messages between the authenticated guard and the home owner
 public function guardShowMessage(HomeOwner $homeOwner) {
     // Ensure only confirmed homeowners are available
-    if ($homeOwner->status !== 'confirmed') {
+       if ($homeOwner->status !== 'confirmed') {
         return redirect()->route('guard.messages.index')->with('error', 'Homeowner not found or not confirmed.');
     }
 
-    $homeOwners = HomeOwner::where('status', 'confirmed')->get(); // Fetch confirmed homeowners
+    // Fetch confirmed homeowners, prioritizing those with unread messages
+    $homeOwners = HomeOwner::where('status', 'confirmed')
+        ->orderByDesc(function ($query) {
+            $query->selectRaw('count(*)')
+                ->from('messages')
+                ->whereColumn('messages.home_owner_id', 'home_owners.id')
+                ->where('messages.is_seen', false)
+                ->where('messages.sender_role', 'home_owner'); // Only unread messages from the homeowner
+        })
+        ->get();
 
     // Fetch only messages between the guard and the selected homeowner
     $messages = Message::where('home_owner_id', $homeOwner->id)
@@ -85,6 +113,11 @@ public function guardShowMessage(HomeOwner $homeOwner) {
                 });
         })
         ->get();
+
+        Message::where('home_owner_id', $homeOwner->id)
+        ->where('sender_role', 'home_owner') // Only homeowner's messages
+        ->where('is_seen', false) // Only unseen messages
+        ->update(['is_seen' => true]);
 
     return view('guard.message', compact('homeOwners', 'homeOwner', 'messages'));
 }
@@ -235,4 +268,21 @@ public function guardSendMessages(Request $request, HomeOwner $homeOwner) {
         // Return a success response
         return response()->json(['success' => 'Message sent to guard successfully!']);
     }
+
+    public function markAsSeen(Request $request)
+{
+    $messageId = $request->input('message_id');
+
+    // Find the message and mark it as seen
+    $message = Message::find($messageId);
+    if ($message) {
+        $message->is_seen = true;
+        $message->save();
+
+        return response()->json(['success' => true, 'message' => 'Message marked as seen.']);
+    }
+
+    return response()->json(['success' => false, 'message' => 'Message not found.'], 404);
+}
+
 }
