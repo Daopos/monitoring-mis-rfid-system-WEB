@@ -67,9 +67,8 @@
                         <tr>
                             <td>{{ $outsider->name }}</td>
                             <td>{{ $outsider->type }}</td>
-                            <td>{{ $outsider->in }}</td>
-                            <td>{{ $outsider->out }}</td>
-
+                            <td>{{ \Carbon\Carbon::parse($outsider->in)->format('F j, Y g:i A') }}</td>
+                            <td>{{ $outsider->out ? \Carbon\Carbon::parse($outsider->out)->format('F j, Y g:i A') : 'N/A' }}</td>
                             <td>
                                 <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewOutsiderModal{{ $outsider->id }}">
                                     View Details

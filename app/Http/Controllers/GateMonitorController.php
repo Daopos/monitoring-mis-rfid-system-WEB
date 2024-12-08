@@ -206,9 +206,17 @@ public function getAllEntry(Request $request)
     // Initialize the query
     $query = GateMonitor::with('owner');
 
-    // Filter by those who haven't exited yet
-    if ($request->has('status') && $request->input('status') == 'in') {
-        $query->whereNull('out');
+      // Filter by those who haven't exited yet
+      if ($request->has('status')) {
+        $status = $request->input('status');
+
+        if ($status == 'in') {
+            // Homeowners who are inside
+            $query->whereNull('out');
+        } else if ($status == 'out') {
+            // Homeowners who are outside
+            $query->whereNotNull('out');
+        }
     }
 
     // Search by owner's name
@@ -356,7 +364,7 @@ public function generatePDF(Request $request)
         $pdf = Pdf::loadView('guard.pdf_report', compact('gateMonitors'));
 
         // Return the PDF for download
-        return $pdf->download('gate_entry_report.pdf');
+        return $pdf->stream('gate_entry_report.pdf');
     }
 
 }

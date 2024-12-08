@@ -47,7 +47,7 @@ class ApprovalNotification extends Notification
 
     protected function buildMessage()
     {
-        return "Hello ,\n\n" .
+        return "Hello! ,\n\n" .
                "We are pleased to inform you that your account has been successfully approved.\n" .
                "You can now access the app.\n\n" .
                "Thank you!";

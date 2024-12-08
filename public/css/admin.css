@@ -84,6 +84,8 @@ body {
     .sidebar {
         transform: translateX(-100%);
         width: 60vw;
+    padding-top: 40px; /* To avoid overlap with the header */
+
     }
 
     .sidebar.show-sidebar {

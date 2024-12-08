@@ -84,8 +84,8 @@ class AuthController extends Controller
             'block' => 'nullable|string',
             'lot' => 'nullable|string',
             'number' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // Validate as an image
-            'document_image' => 'required|image|mimes:jpg,jpeg,png|max:2048', // Validate document as an image, make it nullable
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:20048', // Validate as an image
+            'document_image' => 'required|image|mimes:jpg,jpeg,png|max:20048', // Validate document as an image, make it nullable
         ], [
             'email.required' => 'Please provide your email address.',
             'password.required' => 'A password is required.',

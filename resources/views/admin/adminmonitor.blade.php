@@ -12,8 +12,11 @@
         </div>
 
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between">
                 <h5 class="mb-0">Search and Filter</h5>
+                <a href="{{ route('guard.generatePdf', request()->all()) }}" class="btn btn-success">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                </a>
             </div>
             <div class="card-body">
                 <div class="list">
@@ -35,7 +38,9 @@
                             <div class="col-md-4">
                                 <select name="status" class="form-control" onchange="document.getElementById('statusFilterForm').submit();">
                                     <option value="">All</option>
-                                    <option value="in" {{ request('status') == 'in' ? 'selected' : '' }}>Currently In</option>
+                                    <option value="in" {{ request('status') == 'in' ? 'selected' : '' }}>Currently Inside</option>
+                                    <option value="out" {{ request('status') == 'out' ? 'selected' : '' }}>Currently Outside</option>
+
                                 </select>
                             </div>
                         </div>

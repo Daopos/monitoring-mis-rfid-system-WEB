@@ -163,7 +163,7 @@ public function getAllHomeOwner(Request $request) {
                 return $query->whereNull('rfid');
             }
         })
-        ->get();
+        ->paginate(10); // Paginate by 10
 
     return view('admin.adminhomeownerlist', compact('homeowners'));
 }
@@ -304,19 +304,41 @@ public function getHomeOwnerPending() {
 
     //guard
 
-    public function getAllHomeOwnerGuard(Request $request) {
-        // Get the search query from the request
+    public function getAllHomeOwnerGuard(Request $request)
+    {
+        // Get the search query and status filter from the request
         $search = $request->input('search');
-        // Query homeowners with status 'confirmed', applying the search filter if provided
+        $statusFilter = $request->input('status'); // 'in' or 'out'
+
+        // Query homeowners with their status determined by the latest gate monitor entry
         $homeowners = HomeOwner::where('status', 'confirmed')
             ->when($search, function ($query, $search) {
-                return $query->where('fname', 'like', "%{$search}%")
-                             ->orWhere('email', 'like', "%{$search}%");
+                return $query->where(function ($q) use ($search) {
+                    $q->where('fname', 'like', "%{$search}%")
+                      ->orWhere('lname', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
             })
-            ->get();
+            ->with(['gateMonitors' => function ($query) {
+                $query->orderBy('in', 'desc'); // Get the latest gate monitor entry
+            }])
+            ->get()
+            ->filter(function ($homeowner) use ($statusFilter) {
+                // Determine the status based on the latest gate monitor entry
+                $latestMonitor = $homeowner->gateMonitors->first();
+
+                if ($statusFilter == 'in') {
+                    return $latestMonitor && is_null($latestMonitor->out); // Homeowner is "inside"
+                } elseif ($statusFilter == 'out') {
+                    return $latestMonitor && !is_null($latestMonitor->out); // Homeowner is "outside"
+                }
+
+                return true; // No filter applied, include all homeowners
+            });
 
         return view('guard.homeowner')->with('homeowners', $homeowners);
     }
+
 
 
     public function rfidlist()

@@ -6,7 +6,7 @@
 
     <div class="p-2 w-25">
         <!-- Search Form -->
-        <form action="{{ route('admin.households') }}" method="GET" class="d-flex mb-3">
+        <form action="{{ route('visitors.index') }}" method="GET" class="d-flex mb-3">
             <input type="text" name="search" class="form-control me-2" placeholder="Search by household or homeowner name" aria-label="Search" value="{{ request('search') }}">
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
@@ -40,7 +40,7 @@
                                 <td>{{ $visitor->name }}</td>
                                 {{-- <td>{{ $visitor->plate_number }}</td> --}}
                                 <td>{{ $visitor->homeowner ? $visitor->homeowner->fname . ' ' . $visitor->homeowner->lname : 'N/A' }}</td>
-                                <td>{{ $visitor->number_visitors ?? 'N/A' }}</td>
+                                <td>{{ $visitor->number_vistiors ?? 'N/A' }}</td>
                                 <td>{{ $visitor->date_visit ?? 'N/A' }}</td>
 
                                 <td>{{ $visitor->status ?? 'N/A' }}</td>

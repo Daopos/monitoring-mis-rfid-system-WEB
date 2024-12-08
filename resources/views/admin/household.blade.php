@@ -13,13 +13,16 @@
         </div>
 
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between">
                 <h5 class="mb-0">Search and Filter</h5>
+                <a href="{{ route('guard.householdentry.pdf', request()->all()) }}" class="btn btn-success">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                </a>
             </div>
             <div class="card-body">
                 <div class="list">
                     <!-- Search Form -->
-                    <form method="GET" action="{{ route('guard.householdentry') }}" id="searchForm">
+                    <form method="GET" action="{{ route('admin.householdentry') }}" id="searchForm">
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <input type="text" name="search" class="form-control" placeholder="Search by name" value="{{ request('search') }}">
@@ -32,7 +35,7 @@
 
 
                     <!-- Date Filter Form -->
-                    <form method="GET" action="{{ route('guard.householdentry') }}" id="dateFilterForm">
+                    <form method="GET" action="{{ route('admin.householdentry') }}" id="dateFilterForm">
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <input type="date" name="from_date" class="form-control" value="{{ request('from_date') }}">

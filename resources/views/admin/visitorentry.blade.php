@@ -13,13 +13,16 @@
         </div>
 
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between">
                 <h5 class="mb-0">Search and Filter</h5>
+                <a href="{{ route('guard.visitorgatelist.pdf', request()->all()) }}" class="btn btn-success">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                </a>
             </div>
             <div class="card-body">
                 <div class="list">
                     <!-- Search Form -->
-                    <form method="GET" action="{{ route('guard.visitorgatelist') }}" id="searchForm">
+                    <form method="GET" action="{{ route('admin.visitors') }}" id="searchForm">
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <input type="text" name="search" class="form-control" placeholder="Search by name" value="{{ request('search') }}">
@@ -31,7 +34,7 @@
                     </form>
 
                     <!-- Status Filter Form -->
-                    <form method="GET" action="{{ route('guard.visitorgatelist') }}" id="statusFilterForm">
+                    <form method="GET" action="{{ route('admin.visitors') }}" id="statusFilterForm">
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <select name="status" class="form-control" onchange="document.getElementById('statusFilterForm').submit();">
@@ -43,7 +46,7 @@
                     </form>
 
                     <!-- Date Filter Form -->
-                    <form method="GET" action="{{ route('guard.visitorgatelist') }}" id="dateFilterForm">
+                    <form method="GET" action="{{ route('admin.visitors') }}" id="dateFilterForm">
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <input type="date" name="from_date" class="form-control" value="{{ request('from_date') }}">

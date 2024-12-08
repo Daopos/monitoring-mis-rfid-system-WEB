@@ -10,33 +10,36 @@ class OutsiderController extends Controller
 {
 
     public function indexAdmin(Request $request)
-{
-    $query = Outsider::query();
+    {
+        $query = Outsider::query();
 
-    // Search by name
-    if ($request->has('search') && $request->search) {
-        $query->where('name', 'like', '%' . $request->search . '%');
-    }
+        // Search by name
+        if ($request->has('search') && $request->search) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
 
-    // Filter by date range
-    if ($request->has('from_date') && $request->has('to_date')) {
-        $query->whereBetween('in', [
-            $request->from_date . ' 00:00:00',
-            $request->to_date . ' 23:59:59'
+        // Filter by date range
+        if ($request->has('from_date') && $request->has('to_date')) {
+            $query->whereBetween('in', [
+                $request->from_date . ' 00:00:00',
+                $request->to_date . ' 23:59:59'
+            ]);
+        }
+
+        // Sort by the latest entry first
+        $query->orderBy('in', 'desc');
+
+        // Fetch outsiders with pagination, preserving search and filter parameters
+        $outsiders = $query->paginate(10);
+
+        // Return view with the query parameters for search and filters
+        return view('admin.outsiderentry', [
+            'outsiders' => $outsiders,
+            'search' => $request->search,
+            'from_date' => $request->from_date,
+            'to_date' => $request->to_date
         ]);
     }
-
-    // Fetch outsiders with pagination, preserving search and filter parameters
-    $outsiders = $query->paginate(10);
-
-    // Return view with the query parameters for search and filters
-    return view('admin.outsiderentry', [
-        'outsiders' => $outsiders,
-        'search' => $request->search,
-        'from_date' => $request->from_date,
-        'to_date' => $request->to_date
-    ]);
-}
 
     public function index(Request $request)
 {
@@ -55,6 +58,9 @@ class OutsiderController extends Controller
         ]);
     }
 
+    // Sort by the latest entry first
+    $query->orderBy('in', 'desc');
+
     // Fetch outsiders with pagination, preserving search and filter parameters
     $outsiders = $query->paginate(10);
 
@@ -66,7 +72,6 @@ class OutsiderController extends Controller
         'to_date' => $request->to_date
     ]);
 }
-
 
     public function store(Request $request)
     {
@@ -154,6 +159,6 @@ public function generatePdf(Request $request)
     $pdf = Pdf::loadView('guard.outsiders-pdf', compact('outsiders'));
 
     // Download or Stream the PDF
-    return $pdf->download('outsiders_list.pdf');
+    return $pdf->stream('outsiders_list.pdf');
 }
 }

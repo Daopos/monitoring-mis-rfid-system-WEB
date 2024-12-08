@@ -56,10 +56,15 @@ class HomeOwner extends Model implements CanResetPassword
         ];
     }
 
+    // public function gateMonitors()
+    // {
+    //     return $this->hasMany(GateMonitor::class);
+    // }
+
     public function gateMonitors()
-    {
-        return $this->hasMany(GateMonitor::class);
-    }
+{
+    return $this->hasMany(GateMonitor::class, 'owner_id');
+}
 
     public function sentMessages()
     {

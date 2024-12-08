@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" />
     <title>Admin</title>
+    <link rel="shortcut icon" href="/img/agllogo.png" type="image/x-icon">
     <link rel="stylesheet" href="/css/index.css">
     <link rel="stylesheet" href="/css/admin.css">
     @yield('styles')

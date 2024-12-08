@@ -6,10 +6,13 @@ use App\Models\Admin;
 use App\Models\Eventdo;
 use App\Models\HomeOwner;
 use App\Models\Household;
+use App\Models\Message;
 use App\Models\Visitor;
+use App\Models\VisitorGateMonitor;
 use App\Notifications\TestNotif;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 class AdminController extends Controller
@@ -152,19 +155,27 @@ public function logoutTreasurer()
         $household = Household::count();
 
 
-        $visitor = Visitor::count();
+        $currentVisitors = VisitorGateMonitor::whereNotNull('in')
+        ->whereNull('out')
+        ->count();
 
-
-        // Return the data to the view
-        return view('admin.admindashboard', [
-            'totalHomeowners' => $totalHomeowners,
-            'totalEvents' => $totalEvents,
-            'homeownersWithRFID' => $homeownersWithRFID,
-            'homeownersWithoutRFID' => $homeownersWithoutRFID,
-            'household' => $household,
-            'visitor' => $visitor
-
-        ]);
+// Count unread messages for admin
+$unreadMessages = Message::with('homeOwner') // Eager load the homeowner relationship
+    ->where('recipient_role', 'admin')
+    ->where('is_seen', false)
+    ->orderBy('created_at', 'desc')
+    ->take(5) // Fetch only the top 5 messages
+    ->get();
+// Pass data to the view
+return view('admin.admindashboard', [
+'totalHomeowners' => $totalHomeowners,
+'totalEvents' => $totalEvents,
+'homeownersWithRFID' => $homeownersWithRFID,
+'homeownersWithoutRFID' => $homeownersWithoutRFID,
+'household' => $household,
+'visitor' => $currentVisitors,
+'unreadMessages' => $unreadMessages, // Pass the unread message count
+]);
     }
 
 
@@ -174,7 +185,28 @@ public function logoutTreasurer()
     }
 
     public function getTreasurerDashboard() {
-        return view('treasurer.dashboard');
+        // Fetch all distinct years where payments exist
+        $years = DB::table('payment_reminders')
+            ->selectRaw('YEAR(created_at) as year')
+            ->groupBy('year')
+            ->orderBy('year', 'asc')
+            ->pluck('year');
 
+        // Fetch the current year data (or default to the latest year)
+        $selectedYear = request('year', now()->year);
+
+        $monthlyCollections = DB::table('payment_reminders')
+            ->selectRaw('MONTH(created_at) as month, SUM(amount) as total_collected')
+            ->where('status', 'paid')
+            ->whereYear('created_at', $selectedYear)
+            ->groupBy('month')
+            ->orderBy('month', 'asc')
+            ->get();
+
+        return view('treasurer.dashboard', [
+            'monthlyCollections' => $monthlyCollections,
+            'years' => $years,
+            'selectedYear' => $selectedYear,
+        ]);
     }
 }

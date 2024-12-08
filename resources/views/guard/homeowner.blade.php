@@ -10,10 +10,18 @@
 
         <div class="p-2 w-25">
             <form action="{{ route('guard.homeownerlist') }}" method="GET" class="d-flex mb-3">
-                <input type="text" name="search" class="form-control me-2" placeholder="Search by name or email" aria-label="Search" value="{{ request('search') }}">
+                    <input type="text" name="search" class="form-control me-2" placeholder="Search by name or email" aria-label="Search" value="{{ request('search') }}">
+
+                <select name="status" class="form-control me-2" onchange="this.form.submit()">
+                    <option value="">All</option>
+                    <option value="in" {{ request('status') == 'in' ? 'selected' : '' }}>Inside</option>
+                    <option value="out" {{ request('status') == 'out' ? 'selected' : '' }}>Outside</option>
+                </select>
+
                 <button type="submit" class="btn btn-primary">Search</button>
             </form>
         </div>
+
 
         @if(session('success'))
             <div class="alert alert-success">
@@ -34,6 +42,7 @@
                             <th>Phase</th>
                             <th>Email</th>
                             <th>Contact</th>
+                            <th>Status</th> <!-- Add a Status column -->
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -45,6 +54,19 @@
                             <td>{{ $homeowner->phase }}</td>
                             <td>{{ $homeowner->email }}</td>
                             <td>{{ $homeowner->phone }}</td>
+                            <td>
+                                @php
+                                    $latestMonitor = $homeowner->gateMonitors->first();
+                                @endphp
+                                @if ($latestMonitor && is_null($latestMonitor->out))
+                                    <span class="badge bg-success">Inside</span>
+                                @elseif ($latestMonitor)
+                                    <span class="badge bg-danger">Outside</span>
+                                @else
+                                    <span class="badge bg-secondary">Unknown</span>
+                                @endif
+                            </td>
+
                             <td>
                                 <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#vehiclesModal{{ $homeowner->id }}">Vehicles</button>
                                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#visitorsModal{{ $homeowner->id }}">Visitors</button>

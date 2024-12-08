@@ -36,6 +36,7 @@ class VisitorGateMonitorController extends Controller
             $request->to_date . ' 23:59:59'
         ]);
     }
+    $query->orderBy('visitor_gate_monitors.in', 'DESC');
 
     $gateMonitors = $query->paginate(10);
     $totalEntries = $query->count();
@@ -72,6 +73,9 @@ public function indexAdmin(Request $request)
             $request->to_date . ' 23:59:59'
         ]);
     }
+
+     // Order by the latest RFID tap (descending order)
+     $query->orderBy('visitor_gate_monitors.in', 'DESC');
 
     $gateMonitors = $query->paginate(10);
     $totalEntries = $query->count();
@@ -156,6 +160,6 @@ public function indexAdmin(Request $request)
     $pdf = Pdf::loadView('guard.pdf_visitor', compact('gateMonitors'));
 
     // Download the PDF file
-    return $pdf->download('visitor_gate_entry_list.pdf');
+    return $pdf->stream('visitor_gate_entry_list.pdf');
 }
 }

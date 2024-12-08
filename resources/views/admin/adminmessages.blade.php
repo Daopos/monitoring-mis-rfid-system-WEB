@@ -246,39 +246,46 @@
         searchForm.addEventListener('submit', filterHomeowners);
 
 
+        function scrollToBottom() {
+        const messagesContainer = document.querySelector('.messages');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Automatically scroll to the bottom when the page loads
+    scrollToBottom();
     });
 
 
-document.querySelector('.message-form').addEventListener('submit', function (e) {
-    e.preventDefault(); // Prevent form from reloading the page
+// document.querySelector('.message-form').addEventListener('submit', function (e) {
+//     e.preventDefault(); // Prevent form from reloading the page
 
-    const messageInput = this.querySelector('input[name="message"]');
-    const message = messageInput.value.trim();
-    if (!message) return;
+//     const messageInput = this.querySelector('input[name="message"]');
+//     const message = messageInput.value.trim();
+//     if (!message) return;
 
-    fetch(this.action, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-        },
-        body: JSON.stringify({ message }),
-    })
-        .then((response) => response.json())
-        .then((data) => {
-            // Add the new message to the message list
-            const messagesContainer = document.querySelector('.messages');
-            messagesContainer.innerHTML += `
-                <div class="message sent">
-                    <p>${data.message}</p>
-                    <small class="text-muted">${new Date(data.created_at).toLocaleString()}</small>
-                </div>
-            `;
+//     fetch(this.action, {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+//         },
+//         body: JSON.stringify({ message }),
+//     })
+//         .then((response) => response.json())
+//         .then((data) => {
+//             // Add the new message to the message list
+//             const messagesContainer = document.querySelector('.messages');
+//             messagesContainer.innerHTML += `
+//                 <div class="message sent">
+//                     <p>${data.message}</p>
+//                     <small class="text-muted">${new Date(data.created_at).toLocaleString()}</small>
+//                 </div>
+//             `;
 
-            messageInput.value = ''; // Clear the input
-        })
-        .catch((error) => console.error('Error:', error));
-});
+//             messageInput.value = ''; // Clear the input
+//         })
+//         .catch((error) => console.error('Error:', error));
+// });
 
 </script>
 @endsection

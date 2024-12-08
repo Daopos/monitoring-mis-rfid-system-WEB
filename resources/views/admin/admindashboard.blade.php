@@ -9,15 +9,6 @@
     <div class="dashboard-body  p-3">
         <div class="d-flex justify-content-between ">
             <h3>Dashboard Overview</h3>
-            {{-- <div class="d-flex gap-2">
-                <input type="text" placeholder="category, services, customers, employee">
-                <div>
-
-                    <img src="/img/notification.png" alt="">
-                    <img src="/img/human.png" alt="">
-                </div>
-
-            </div> --}}
         </div>
         <div class="d-flex gap-5 mt-4 flex-wrap">
             <div class="dashboardcard">
@@ -40,7 +31,7 @@
                         <h2>{{ $homeownersWithRFID }}</h2>
                     </div>
                 </div>
-                <a href="{{ route('admin.homeownerlist') }}">VIEW ALL</a>
+                <a href="{{ route('admin.homeownerlist', ['rfid_filter' => 'with_rfid']) }}">VIEW ALL</a>
 
             </div>
 
@@ -53,7 +44,7 @@
                         <h2>{{ $homeownersWithoutRFID }}</h2>
                     </div>
                 </div>
-                <a href="{{ route('admin.homeownerlist') }}">VIEW ALL</a>
+                <a href="{{ route('admin.homeownerlist', ['rfid_filter' => 'without_rfid']) }}">VIEW ALL</a>
 
             </div>
 
@@ -77,7 +68,7 @@
 
                     </div>
                 </div>
-                <a href="{{ route('admin.homeownerlist') }}">VIEW ALL</a>
+                <a href="{{ route('admin.households') }}">VIEW ALL</a>
 
             </div>
 
@@ -90,8 +81,43 @@
 
                     </div>
                 </div>
-                <a href="{{ route('admin.homeownerlist') }}">VIEW ALL</a>
+                <a href="{{ route('admin.visitors') }}">VIEW ALL</a>
             </div>
+        </div>
+
+        <div class="dashboard-section mt-5">
+            <h5>Unread Messages</h5>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Sender</th>
+                            <th>Message</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($unreadMessages as $message)
+                            <tr>
+                                <td> {{ $message->homeOwner ? $message->homeOwner->fname . ' ' . $message->homeOwner->lname : 'Unknown Sender' }}</td>
+                                <td>{{ Str::limit($message->message, 50) }}</td> <!-- Limit message length -->
+                                <td>{{ $message->created_at->format('Y-m-d H:i') }}</td>
+                                <td>
+                                    <a href="{{ route('admin.messages.show', $message->home_owner_id) }}" class="btn btn-sm btn-primary">
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="text-center">No unread messages</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <a href="{{ route('admin.messages') }}" class="btn btn-link mt-3">View All Messages</a>
         </div>
     </div>
 @endsection

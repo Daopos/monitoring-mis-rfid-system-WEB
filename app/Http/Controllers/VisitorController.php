@@ -14,15 +14,27 @@ class VisitorController extends Controller
 {
     // Inside VisitorController.php
 
-public function index()
-{
-    // Eager load visitors with their homeowner, ordered by created_at descending
-    $visitors = Visitor::with('homeowner')
-        ->orderBy('created_at', 'desc')
-        ->get();
+    public function index(Request $request)
+    {
+        // Get the search query from the request
+        $search = $request->input('search');
 
-    return view('admin.visitors', compact('visitors'));
-}
+        // Query visitors with homeowner and apply search filter
+        $visitors = Visitor::with('homeowner')
+            ->where(function ($query) use ($search) {
+                if ($search) {
+                    $query->where('name', 'like', '%' . $search . '%') // Search visitor name
+                          ->orWhereHas('homeowner', function ($q) use ($search) {
+                              $q->whereRaw("CONCAT(fname, ' ', lname) LIKE ?", ['%' . $search . '%']); // Search homeowner's full name
+                          });
+                }
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('admin.visitors', compact('visitors', 'search'));
+    }
+
 
 public function approve(Request $request, $visitorId)
 {

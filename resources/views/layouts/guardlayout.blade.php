@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Guard</title>
+    <link rel="shortcut icon" href="/img/agllogo.png" type="image/x-icon">
     <link rel="stylesheet" href="/css/index.css">
     <link rel="stylesheet" href="/css/admin.css">
     @yield('styles')
@@ -14,7 +15,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
-
 
 <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
@@ -51,7 +51,7 @@
          <a href="{{ route('guard.homeownerlist') }}"
             class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('guard.homeownerlist') ? 'active' : '' }}">
             <i class="fa-solid fa-message"></i>
-            HomeOwner
+            Homeowner
              <span class="ms-auto dropdown-arrow">&#9656;</span>
          </a>
          <a href="{{ route('guard.visitor') }}"

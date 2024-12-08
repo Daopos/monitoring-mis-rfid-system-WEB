@@ -237,7 +237,13 @@
            const searchForm = document.getElementById('searchForm');
            searchForm.addEventListener('submit', filterHomeowners);
 
+           function scrollToBottom() {
+        const messagesContainer = document.querySelector('.messages');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
 
+    // Automatically scroll to the bottom when the page loads
+    scrollToBottom();
        });
 
 

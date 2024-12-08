@@ -36,6 +36,7 @@ class HouseholdGateMonitorController extends Controller
                 $request->to_date . ' 23:59:59'
             ]);
         }
+        $query->orderBy('household_gate_monitors.in', 'DESC');
 
         $gateMonitors = $query->paginate(10);
         $totalEntries = $query->count();
@@ -70,6 +71,7 @@ class HouseholdGateMonitorController extends Controller
                 $request->to_date . ' 23:59:59'
             ]);
         }
+        $query->orderBy('household_gate_monitors.in', 'DESC');
 
         $gateMonitors = $query->paginate(10);
         $totalEntries = $query->count();
@@ -158,6 +160,6 @@ class HouseholdGateMonitorController extends Controller
     $pdf = Pdf::loadView('guard.pdf_household', compact('gateMonitors'));
 
     // Return the PDF file as a download
-    return $pdf->download('household_entry_list.pdf');
+    return $pdf->stream('household_entry_list.pdf');
 }
 }
