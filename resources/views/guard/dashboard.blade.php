@@ -44,7 +44,7 @@
         @endif
         <h5>Name: <span id="visitor-name">{{ session('visitor')->name }} </span></h5>
         <h5>Visiting Homeowner: <span id="visitor-homeowner">{{ session('homeowner')->fname ?? 'Unknown' }} {{ session('homeowner')->lname ?? '' }}</span></h5>
-        <h5>Entry Time: <span id="visitor-in-time">{{ session('visitor')->created_at ?? 'N/A' }}</span></h5>
+        {{-- <h5>Entry Time: <span id="visitor-in-time">{{ session('visitor')->created_at ?? 'N/A' }}</span></h5> --}}
     </div>
     <script>
         $(document).ready(function() {

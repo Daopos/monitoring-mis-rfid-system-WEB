@@ -167,11 +167,11 @@
                 </form>
 
                 @foreach($homeOwners as $hOwner)
-                <div class="user-item {{ isset($homeOwner) && $homeOwner->id == $hOwner->id ? 'active' : '' }} {{ $hOwner->hasUnreadMessages('admin') || $hOwner->hasUnreadMessages('guard') ? 'has-new-message' : '' }}"
+                <div class="user-item {{ isset($homeOwner) && $homeOwner->id == $hOwner->id ? 'active' : '' }} {{ $hOwner->hasUnreadMessages('admin')  ? 'has-new-message' : '' }}"
                     onclick="window.location.href='{{ route('admin.messages.show', $hOwner->id) }}'">
                     <div class="user-info">
                         <span class="name">{{ $hOwner->fname }} {{ $hOwner->lname }}</span>
-                        @if($hOwner->hasUnreadMessages('admin') || $hOwner->hasUnreadMessages('guard'))
+                        @if($hOwner->hasUnreadMessages('admin') )
                             <span class="new-message-indicator"></span> <!-- Red dot -->
                         @endif
                     </div>
@@ -179,10 +179,6 @@
             @endforeach
 
             </div>
-
-
-
-
             <!-- Message Window (Right Side) -->
             @if(isset($homeOwner))
                 <div class="message-window">
@@ -227,19 +223,19 @@
      document.addEventListener("DOMContentLoaded", function () {
         // Function to filter homeowners
         function filterHomeowners(event) {
-            event.preventDefault(); // Prevent form from submitting and reloading the page
-            const query = document.getElementById('searchBar').value.toLowerCase();
-            const homeowners = document.querySelectorAll('.user-item');
+    event.preventDefault(); // Prevent form from submitting and reloading the page
+    const query = document.getElementById('searchBar').value.toLowerCase();
+    const homeowners = document.querySelectorAll('.user-item');
 
-            homeowners.forEach(function (homeowner) {
-                const name = homeowner.querySelector('.name').textContent.toLowerCase();
-                if (name.includes(query)) {
-                    homeowner.style.display = ''; // Show matching items
-                } else {
-                    homeowner.style.display = 'none'; // Hide non-matching items
-                }
-            });
+    homeowners.forEach(function (homeowner) {
+        const name = homeowner.querySelector('.name').textContent.toLowerCase();
+        if (name.includes(query)) {
+            homeowner.style.display = ''; // Show matching items
+        } else {
+            homeowner.style.display = 'none'; // Hide non-matching items
         }
+    });
+}
 
         // Attach filter function to the form submit event
         const searchForm = document.getElementById('searchForm');

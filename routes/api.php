@@ -70,6 +70,7 @@ Route::get('/households', [HouseholdController::class, 'getMembersAPI'])->middle
 Route::post('/messages/mark-as-seen', [MessageController::class, 'markAsSeen'])->middleware('auth:sanctum');
 
 Route::get('/homeowner/notifications', [HomeownerNotificationController::class, 'index'])->middleware('auth:sanctum');
+Route::post('/homeowner/notifications/delete/{id}', [HomeownerNotificationController::class, 'destroy'])->middleware('auth:sanctum');
 
 // Password reset routes
 Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail']);

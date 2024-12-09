@@ -187,7 +187,7 @@ return view('admin.admindashboard', [
     public function getTreasurerDashboard() {
         // Fetch all distinct years where payments exist
         $years = DB::table('payment_reminders')
-            ->selectRaw('YEAR(created_at) as year')
+            ->selectRaw('YEAR(updated_at) as year')
             ->groupBy('year')
             ->orderBy('year', 'asc')
             ->pluck('year');
@@ -196,9 +196,9 @@ return view('admin.admindashboard', [
         $selectedYear = request('year', now()->year);
 
         $monthlyCollections = DB::table('payment_reminders')
-            ->selectRaw('MONTH(created_at) as month, SUM(amount) as total_collected')
+            ->selectRaw('MONTH(updated_at) as month, SUM(amount) as total_collected')
             ->where('status', 'paid')
-            ->whereYear('created_at', $selectedYear)
+            ->whereYear('updated_at', $selectedYear)
             ->groupBy('month')
             ->orderBy('month', 'asc')
             ->get();

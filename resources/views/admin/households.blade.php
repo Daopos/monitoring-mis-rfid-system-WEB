@@ -2,9 +2,9 @@
 
 @section('content')
 <div class="container mt-5">
-    <h1 class="mb-4">Households</h1>
+    <h1 class="mb-4 display-4">Households</h1>
 
-    <div class="p-2 w-25">
+    <div class="col-md-5">
         <!-- Search Form -->
         <form action="{{ route('admin.households') }}" method="GET" class="d-flex mb-3">
             <input type="text" name="search" class="form-control me-2" placeholder="Search by household or homeowner name" aria-label="Search" value="{{ request('search') }}">
@@ -39,6 +39,7 @@
                 <table class="table table-striped table-bordered mb-0">
                     <thead class="table-light">
                         <tr>
+                            <th>No</th>
                             <th>Name</th>
                             <th>Relationship</th>
                             <th>Age</th>
@@ -51,6 +52,7 @@
                     <tbody>
                         @foreach ($households as $household)
                             <tr>
+                            <td>{{ $loop->iteration + ($households->currentPage() - 1) * $households->perPage() }}</td>
                                 <td>{{ $household->name }}</td>
                                 <td>{{ $household->relationship }}</td>
                                 <td>{{ $household->age }}</td>
@@ -92,6 +94,9 @@
                         @endforeach
                     </tbody>
                 </table>
+                <div class="mt-3 d-flex justify-content-center">
+                    {{ $households->links() }}
+                </div>
             </div>
         </div>
     </div>

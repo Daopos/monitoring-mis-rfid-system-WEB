@@ -44,87 +44,91 @@
              Dashboard
              <span class="ms-auto dropdown-arrow">&#9656;</span>
          </a>
-         <a href="{{ route('admin.messages') }}"
-            class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('admin.messages') ? 'active' : '' }}">
-            <i class="fa-solid fa-message"></i>
-            Messages
-             <span class="ms-auto dropdown-arrow">&#9656;</span>
-         </a><a href="{{ route('eventdos.index') }}"
+        <!-- Dropdown -->
+       <!-- Homeowner List Dropdown -->
+<div class="sidebar-dropdown {{ Request::routeIs('admin.homeownerlist', 'admin.homeownerpending') ? 'open' : '' }}">
+    <button class="sidebar-dropdown-btn d-flex align-items-center gap-2">
+        <i class="fa-solid fa-users"></i>
+        Homeowner List
+        <span class="ms-auto dropdown-arrow">&#9662;</span>
+    </button>
+    <ul class="sidebar-dropdown-menu">
+        <li>
+            <a href="{{ route('admin.homeownerlist') }}"
+               class="dropdown-item {{ Request::routeIs('admin.homeownerlist') ? 'active' : '' }}">
+               Homeowners
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('admin.homeownerpending') }}"
+               class="dropdown-item {{ Request::routeIs('admin.homeownerpending') ? 'active' : '' }}">
+               Pending Homeowners
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+       <a href="{{ route('admin.households') }}"
+       class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('admin.households') ? 'active' : '' }}">
+       <i class="fa-solid fa-user-group"></i>
+        Households
+        <span class="ms-auto dropdown-arrow">&#9656;</span>
+    </a>
+        <!-- Dropdown -->
+        <div class="sidebar-dropdown {{ Request::routeIs('admin.gatelist', 'admin.outsiders', 'admin.visitors', 'admin.householdentry') ? 'open' : '' }}">
+            <button class="sidebar-dropdown-btn d-flex align-items-center gap-2">
+                <i class="fa-solid fa-door-open"></i>
+                Gate Entry/Exit
+                <span class="ms-auto dropdown-arrow">&#9662;</span>
+            </button>
+            <ul class="sidebar-dropdown-menu">
+                <li>
+                    <a href="{{ route('admin.gatelist') }}"
+                       class="dropdown-item {{ Request::routeIs('admin.gatelist') ? 'active' : '' }}">
+                       Homeowners
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.outsiders') }}"
+                       class="dropdown-item {{ Request::routeIs('admin.outsiders') ? 'active' : '' }}">
+                       Deliveries and Vendors
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.visitors') }}"
+                       class="dropdown-item {{ Request::routeIs('admin.visitors') ? 'active' : '' }}">
+                       Visitors
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.householdentry') }}"
+                       class="dropdown-item {{ Request::routeIs('admin.householdentry') ? 'active' : '' }}">
+                       Households
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <a href="{{ route('visitors.index') }}"
+        class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('visitors.index') ? 'active' : '' }}">
+        <i class="fa-solid fa-people-group"></i>
+         Visitors
+         <span class="ms-auto dropdown-arrow">&#9656;</span>
+     </a>
+
+     <a href="{{ route('admin.messages') }}"
+     class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('admin.messages') ? 'active' : '' }}">
+     <i class="fa-solid fa-message"></i>
+     Messages
+      <span class="ms-auto dropdown-arrow">&#9656;</span>
+  </a>
+        <a href="{{ route('eventdos.index') }}"
          class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('eventdos.index') ? 'active' : '' }}">
          <i class="fa-solid fa-calendar"></i>
           Activities
           <span class="ms-auto dropdown-arrow">&#9656;</span>
       </a>
-      <a href="{{ route('admin.households') }}"
-         class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('admin.households') ? 'active' : '' }}">
-         <i class="fa-solid fa-user-group"></i>
-          Households
-          <span class="ms-auto dropdown-arrow">&#9656;</span>
-      </a>
-      <a href="{{ route('visitors.index') }}"
-         class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('visitors.index') ? 'active' : '' }}">
-         <i class="fa-solid fa-people-group"></i>
-          Visitors
-          <span class="ms-auto dropdown-arrow">&#9656;</span>
-      </a>
-            <!-- Dropdown -->
-            <div class="sidebar-dropdown mt-3 {{ Request::routeIs('admin.gatelist', 'admin.outsiders', 'admin.visitors', 'admin.householdentry') ? 'open' : '' }}">
-                <button class="sidebar-dropdown-btn d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-door-open"></i>
-                    Gate Entry/Exit
-                    <span class="ms-auto dropdown-arrow">&#9662;</span>
-                </button>
-                <ul class="sidebar-dropdown-menu">
-                    <li>
-                        <a href="{{ route('admin.gatelist') }}"
-                           class="dropdown-item {{ Request::routeIs('admin.gatelist') ? 'active' : '' }}">
-                           Homeowners
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('admin.outsiders') }}"
-                           class="dropdown-item {{ Request::routeIs('admin.outsiders') ? 'active' : '' }}">
-                           Outsiders
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('admin.visitors') }}"
-                           class="dropdown-item {{ Request::routeIs('admin.visitors') ? 'active' : '' }}">
-                           Visitors
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('admin.householdentry') }}"
-                           class="dropdown-item {{ Request::routeIs('admin.householdentry') ? 'active' : '' }}">
-                           Households
-                        </a>
-                    </li>
-                </ul>
 
-
-            </div>
-             <!-- Dropdown -->
-             <div class="sidebar-dropdown mt-3 {{ Request::routeIs('admin.homeownerlist', 'admin.homeownerpending') ? 'open' : '' }}">
-                <button class="sidebar-dropdown-btn d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-users"></i>
-                    Homeowner List
-                    <span class="ms-auto dropdown-arrow">&#9662;</span>
-                </button>
-                <ul class="sidebar-dropdown-menu">
-                    <li>
-                        <a href="{{ route('admin.homeownerlist') }}"
-                           class="dropdown-item {{ Request::routeIs('admin.homeownerlist') ? 'active' : '' }}">
-                           Homeowners
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('admin.homeownerpending') }}"
-                           class="dropdown-item {{ Request::routeIs('admin.homeownerpending') ? 'active' : '' }}">
-                           Pending Homeowners
-                        </a>
-                    </li>
-                </ul>
-            </div>
 
             <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" class="mt-3">
                 @csrf

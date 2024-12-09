@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" />
     <title>Guard</title>
     <link rel="shortcut icon" href="/img/agllogo.png" type="image/x-icon">
     <link rel="stylesheet" href="/css/index.css">
@@ -50,19 +51,19 @@
             </a>
          <a href="{{ route('guard.homeownerlist') }}"
             class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('guard.homeownerlist') ? 'active' : '' }}">
-            <i class="fa-solid fa-message"></i>
+            <i class="fa-solid fa-house-chimney-user"></i>
             Homeowner
              <span class="ms-auto dropdown-arrow">&#9656;</span>
          </a>
          <a href="{{ route('guard.visitor') }}"
          class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('guard.visitor') ? 'active' : '' }}">
-         <i class="fa-solid fa-calendar"></i>
+         <i class="fa-solid fa-people-group"></i>
           Visitors
           <span class="ms-auto dropdown-arrow">&#9656;</span>
       </a>
       <a href="{{ route('guard.messages') }}"
          class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('guard.messages') ? 'active' : '' }}">
-         <i class="fa-solid fa-calendar"></i>
+         <i class="fa-solid fa-message"></i>
           Message
           <span class="ms-auto dropdown-arrow">&#9656;</span>
       </a>
@@ -102,7 +103,7 @@
             </div>
 
 
-            <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" class="mt-3">
+            <form id="logout-form" action="{{ route('guard.logout') }}" method="POST" class="mt-3">
                 @csrf
                 <button type="submit" class="btn btn-link text-white p-0">
                     <i class="fa-solid fa-right-to-bracket"></i>

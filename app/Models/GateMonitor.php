@@ -15,4 +15,9 @@ class GateMonitor extends Model
     {
         return $this->belongsTo(HomeOwner::class);
     }
+
+    // public function homeOwner()
+    // {
+    //     return $this->belongsTo(HomeOwner::class, 'owner_id');
+    // }
 }

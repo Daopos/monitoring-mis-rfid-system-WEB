@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\HomeOwner;
+use App\Models\HomeownerNotification;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,14 +27,19 @@ public function adminShowMessage(HomeOwner $homeOwner)
 
     // Fetch confirmed homeowners, prioritizing those with unread messages
     $homeOwners = HomeOwner::where('status', 'confirmed')
-        ->orderByDesc(function ($query) {
-            $query->selectRaw('count(*)')
-                ->from('messages')
-                ->whereColumn('messages.home_owner_id', 'home_owners.id')
-                ->where('messages.is_seen', false)
-                ->where('messages.sender_role', 'home_owner');
-        })
-        ->get();
+    ->with(['messages' => function ($query) {
+        // Fetch the most recent message
+        $query->orderByDesc('created_at')->limit(1);
+    }])
+    ->orderByDesc(function ($query) {
+        $query->selectRaw('max(messages.created_at)')
+            ->from('messages')
+            ->whereColumn('messages.home_owner_id', 'home_owners.id')
+            ->where('messages.is_seen', false)
+            ->where('messages.sender_role', 'home_owner')
+            ->where('messages.recipient_role', 'admin');
+    })
+    ->get();
 
     // Fetch messages for the selected homeowner
     $messages = Message::where('home_owner_id', $homeOwner->id)
@@ -50,6 +56,7 @@ public function adminShowMessage(HomeOwner $homeOwner)
     // Mark homeowner's messages as seen
     Message::where('home_owner_id', $homeOwner->id)
         ->where('sender_role', 'home_owner') // Only homeowner's messages
+        ->where('recipient_role', 'admin') // Only homeowner's messages
         ->where('is_seen', false) // Only unseen messages
         ->update(['is_seen' => true]);
 
@@ -73,6 +80,14 @@ public function adminSendMessages(Request $request, HomeOwner $homeOwner) {
     $message->recipient_role = 'home_owner';
     $message->save();
 
+   // Add a notification for the homeowner
+   HomeownerNotification::create([
+    'home_owner_id' => $homeOwner->id, // Ensure the correct homeowner ID is used
+    'title' => 'New Message from Admin',
+    'message' => "You have received a new message: {$message->message}",
+    'is_read' => false,
+]);
+
     return redirect()->route('admin.messages.show', $homeOwner->id);
 }
 
@@ -92,13 +107,29 @@ public function guardShowMessage(HomeOwner $homeOwner) {
     }
 
     // Fetch confirmed homeowners, prioritizing those with unread messages
-    $homeOwners = HomeOwner::where('status', 'confirmed')
+    // $homeOwners = HomeOwner::where('status', 'confirmed')
+    //     ->orderByDesc(function ($query) {
+    //         $query->selectRaw('count(*)')
+    //             ->from('messages')
+    //             ->whereColumn('messages.home_owner_id', 'home_owners.id')
+    //             ->where('messages.is_seen', false)
+    //             ->where('messages.sender_role', 'home_owner') // Only unread messages from the homeowner
+    //             ->where('messages.recipient_role', 'guard');
+    //     })
+    //     ->get();
+
+        $homeOwners = HomeOwner::where('status', 'confirmed')
+        ->with(['messages' => function ($query) {
+            // Fetch the most recent message
+            $query->orderByDesc('created_at')->limit(1);
+        }])
         ->orderByDesc(function ($query) {
-            $query->selectRaw('count(*)')
+            $query->selectRaw('max(messages.created_at)')
                 ->from('messages')
                 ->whereColumn('messages.home_owner_id', 'home_owners.id')
                 ->where('messages.is_seen', false)
-                ->where('messages.sender_role', 'home_owner'); // Only unread messages from the homeowner
+                ->where('messages.sender_role', 'home_owner')
+                ->where('messages.recipient_role', 'guard');
         })
         ->get();
 
@@ -113,9 +144,9 @@ public function guardShowMessage(HomeOwner $homeOwner) {
                 });
         })
         ->get();
-
         Message::where('home_owner_id', $homeOwner->id)
         ->where('sender_role', 'home_owner') // Only homeowner's messages
+        ->where('recipient_role', 'guard') // Only homeowner's messages
         ->where('is_seen', false) // Only unseen messages
         ->update(['is_seen' => true]);
 
@@ -134,6 +165,13 @@ public function guardSendMessages(Request $request, HomeOwner $homeOwner) {
     $message->sender_role = 'guard';
     $message->recipient_role = 'home_owner';
     $message->save();
+
+    HomeownerNotification::create([
+        'home_owner_id' => $homeOwner->id, // Ensure the correct homeowner ID is used
+        'title' => 'New Message from Guard',
+        'message' => "You have received a new message: {$message->message}",
+        'is_read' => false,
+    ]);
 
     return redirect()->route('guard.messages.show', $homeOwner->id);
 }

@@ -18,12 +18,14 @@
                     <i class="fas fa-money-bill-wave fa-3x me-3"></i>
                     <div>
                         <h5 class="card-title mb-0">Total Amount</h5>
-                        <p class="card-text h4 mb-0">₱{{ number_format($reminders->sum('amount'), 2) }}</p>
+                        <p class="card-text h4 mb-0">₱{{ number_format($totalAmount, 2) }}</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+  <!-- Button to Open the Modal -->
+
 
     <!-- Card for Payment Reminders Table -->
     <div class="card">
@@ -35,27 +37,32 @@
                 <table class="table table-striped table-bordered mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>ID</th>
+                            <th>No</th>
                             <th>Homeowner</th>
                             <th>Title</th>
                             <th>Amount</th>
                             <th>Due Date</th>
+                            <th>Date Paid</th>
                             <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($reminders as $reminder)
                             <tr>
-                                <td>{{ $reminder->id }}</td>
+                                <td>{{ $loop->iteration + ($reminders->currentPage() - 1) * $reminders->perPage() }}</td>
                                 <td>{{ $reminder->homeOwner->fname }} {{ $reminder->homeOwner->lname }}</td>
                                 <td>{{ $reminder->title }}</td>
                                 <td>{{ $reminder->amount }}</td>
                                 <td>{{ $reminder->due_date }}</td>
+                                <td>{{ $reminder->updated_at }}</td>
                                 <td>{{ $reminder->status }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
+                <div class="mt-3 d-flex justify-content-center">
+                    {{ $reminders->links() }}
+                </div>
             </div>
         </div>
     </div>

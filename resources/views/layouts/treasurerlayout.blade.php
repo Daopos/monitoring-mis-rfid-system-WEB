@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" />
     <title>Treasurer</title>
     <link rel="shortcut icon" href="/img/agllogo.png" type="image/x-icon">
-
     <link rel="stylesheet" href="/css/index.css">
     <link rel="stylesheet" href="/css/admin.css">
     @yield('styles')
@@ -45,25 +45,25 @@
         <hr class="text-light">
         <nav class="px-3">
             <a href="{{ route('treasurer.dashboard') }}"
-            class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('admin.dashboard') ? 'active' : '' }}">
+            class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('treasurer.dashboard') ? 'active' : '' }}">
              <i class="fa-solid fa-house"></i>
              Dashboard
              <span class="ms-auto dropdown-arrow">&#9656;</span>
          </a>
          <a href="{{ route('payment_reminders.index') }}"
-            class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('admin.messages') ? 'active' : '' }}">
+            class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('payment_reminders.index') ? 'active' : '' }}">
             <i class="fa-solid fa-message"></i>
             Payment Reminder
              <span class="ms-auto dropdown-arrow">&#9656;</span>
          </a><a href="{{ route('treasurer.paidlist') }}"
-         class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('eventdos.index') ? 'active' : '' }}">
+         class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('treasurer.paidlist') ? 'active' : '' }}">
          <i class="fa-solid fa-calendar"></i>
          Paid List
           <span class="ms-auto dropdown-arrow">&#9656;</span>
       </a>
 
 
-            <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" class="mt-3">
+            <form id="logout-form" action="{{ route('treasurer.logout') }}" method="POST" class="mt-3">
                 @csrf
                 <button type="submit" class="btn btn-link text-white p-0">
                     <i class="fa-solid fa-right-to-bracket"></i>

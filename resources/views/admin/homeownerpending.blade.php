@@ -14,7 +14,17 @@
                 {{ session('success') }}
             </div>
         @endif
-
+ <!-- Search Form -->
+ <form action="{{ route('admin.homeownerpending') }}" method="GET">
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <input type="text" name="search" class="form-control" placeholder="Search by Homeowner name" value="{{ request('search') }}">
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </div>
+</form>
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">Homeowner Pending Accounts</h5>
@@ -24,6 +34,7 @@
                 <table class="table table-striped table-bordered mb-0" style="width:100%">
                     <thead>
                         <tr>
+                            <th scope="col">No</th>
                             <th scope="col">Name</th>
                             {{-- <th scope="col">Position</th> --}}
                             <th scope="col">Phase</th>
@@ -34,8 +45,8 @@
                     </thead>
                     <tbody>
                         @foreach ($homeowners as $homeowner)
-
                         <tr>
+                            <td>{{ $loop->iteration + ($homeowners->currentPage() - 1) * $homeowners->perPage() }}</td>
                             <td>{{ $homeowner->fname }} {{ $homeowner->lname }}</td>
                             {{-- <td>{{ $homeowner->position }}</td> --}}
                             <td>{{ $homeowner->phase }}</td>
@@ -103,6 +114,9 @@
                         @endforeach
                     </tbody>
                 </table>
+                <div class="mt-3 d-flex justify-content-center">
+                    {{ $homeowners->links() }}
+                </div>
             </div>
         </div>
     </div>

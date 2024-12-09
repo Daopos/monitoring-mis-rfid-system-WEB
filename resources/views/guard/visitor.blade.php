@@ -15,7 +15,7 @@
     <form action="{{ route('guard.visitor') }}" method="GET">
         <div class="row mb-3">
             <div class="col-md-4">
-                <input type="text" name="search" class="form-control" placeholder="Search by name" value="{{ request('search') }}">
+                <input type="text" name="search" class="form-control" placeholder="Search by name or Homeowner name" value="{{ request('search') }}">
             </div>
             <div class="col-md-4">
                 <button type="submit" class="btn btn-primary">Search</button>
@@ -32,6 +32,7 @@
                 <table class="table table-striped table-bordered mb-0">
                     <thead class="table-light">
                         <tr>
+                            <th>No</th>
                             <th>Visitor Name</th>
                             <th>Plate Number</th>
                             <th>Homeowner Name</th>
@@ -43,6 +44,7 @@
                     <tbody>
                         @foreach ($visitors as $visitor)
                             <tr>
+                            <td>{{ $loop->iteration + ($visitors->currentPage() - 1) * $visitors->perPage() }}</td>
                                 <td>{{ $visitor->name }}</td>
                                 <td>{{ $visitor->plate_number ?? 'N/A' }}</td>
                                 <td>{{ $visitor->homeowner ? $visitor->homeowner->fname . ' ' . $visitor->homeowner->lname : 'N/A' }}</td>
@@ -112,6 +114,9 @@
                         @endforeach
                     </tbody>
                 </table>
+                <div class="mt-3 d-flex justify-content-center">
+                    {{ $visitors->links() }}
+                </div>
             </div>
         </div>
     </div>

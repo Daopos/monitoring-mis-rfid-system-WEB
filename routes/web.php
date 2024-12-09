@@ -19,10 +19,15 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect('/login');
 });
+Route::get('/treasurer', function () {
+    return redirect('/treasurer/login');
+});
+Route::get('/guard', function () {
+    return redirect('/guard/login');
+});
 
 Route::get('/login', [AdminController::class, 'showLoginForm'])->name('admin.login');
 Route::post('/login', [AdminController::class, 'login'])->name('admin.loginf');
-
 
 
 Route::middleware(['admin.auth'])->group(function () {
@@ -52,9 +57,7 @@ Route::get('/admin/messages/{homeOwner}', [MessageController::class, 'adminShowM
 Route::post('/admin/messages/{homeOwner}', [MessageController::class, 'adminSendMessages'])->name('admin.messages.send');
 
 
-Route::get('/guard/messages', [MessageController::class, 'guardMessageIndex'])->name('guard.messages');;
-Route::get('/guard/messages/{homeOwner}', [MessageController::class, 'guardShowMessage'])->name('guard.messages.show');
-Route::post('/guard/messages/{homeOwner}', [MessageController::class, 'guardSendMessages'])->name('guard.messages.send');
+
 
 
 
@@ -137,6 +140,9 @@ Route::get('/guard/outsiders/{id}/edit', [OutsiderController::class, 'edit'])->n
 Route::delete('/guard/outsiders/{id}', [OutsiderController::class, 'destroy'])->name('outsiders.destroy');
 Route::patch('/outsiders/{id}/out', [OutsiderController::class, 'updateOut'])->name('outsiders.updateOut');
 
+Route::get('/guard/messages', [MessageController::class, 'guardMessageIndex'])->name('guard.messages');;
+Route::get('/guard/messages/{homeOwner}', [MessageController::class, 'guardShowMessage'])->name('guard.messages.show');
+Route::post('/guard/messages/{homeOwner}', [MessageController::class, 'guardSendMessages'])->name('guard.messages.send');
 
 Route::get('/guard/household/gate-monitors', [HouseholdGateMonitorController::class, 'index'])->name('guard.householdentry');
 

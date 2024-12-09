@@ -9,7 +9,7 @@ class EventdoController extends Controller
 {
     public function index()
     {
-        $events = EventDo::all();
+        $events = EventDo::paginate(10);
         return view('admin.event', compact('events'));
     }
 

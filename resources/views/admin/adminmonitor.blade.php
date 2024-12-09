@@ -7,6 +7,7 @@
 @section('content')
     <div class="container mt-5">
         <div class="p-2">
+
             <h1 class="display-4">Gate Entry List</h1>
             <p class="lead">Total entries: {{ $totalEntries }}</p>
         </div>

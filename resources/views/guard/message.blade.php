@@ -165,11 +165,11 @@
                         </div>
                     </form>
                 @foreach($homeOwners as $hOwner)
-                    <div class="user-item {{ isset($homeOwner) && $homeOwner->id == $hOwner->id ? 'active' : '' }}"
+                    <div class="user-item {{ isset($homeOwner) && $homeOwner->id == $hOwner->id ? 'active' : '' }}{{ $hOwner->hasUnreadMessages('guard')  ? 'has-new-message' : '' }}"
                          onclick="window.location.href='{{ route('guard.messages.show', $hOwner->id) }}'">
                         <div class="user-info">
                             <span class="name">{{ $hOwner->fname }} {{ $hOwner->lname }}</span>
-                            @if($hOwner->hasUnreadMessages())
+                            @if($hOwner->hasUnreadMessages('guard'))
                             <span class="new-message-indicator"></span> <!-- Red dot -->
                         @endif
                         </div>
@@ -193,7 +193,7 @@
                             </small>
 
                             <!-- Show "Seen" only for the admin messages that are seen -->
-                            @if($message->sender_role === 'admin' && $message->is_seen)
+                            @if($message->sender_role === 'guard' && $message->is_seen)
                                 <small class="text-success">Seen</small>
                             @endif
                             </div>

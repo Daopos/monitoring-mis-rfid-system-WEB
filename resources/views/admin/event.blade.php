@@ -6,7 +6,8 @@
 
 @section('content')
 <div class="container mt-5">
-    <h1 class="mb-4">Activties </h1>
+    <h1 class="display-4 mb-4">Activites</h1>
+
     <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createEventModal">Create New Activity</button>
 
     @if(session('success'))
@@ -27,18 +28,21 @@
             <table class="table table-striped table-bordered">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>No</th>
                         <th>Title</th>
                         <th>Start</th>
+                        <th>End</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($events as $event)
                         <tr>
-                            <td>{{ $event->id }}</td>
+                            <td>{{ $loop->iteration + ($events->currentPage() - 1) * $events->perPage() }}</td>
+
                             <td>{{ $event->title }}</td>
                             <td>{{ $event->start }}</td>
+                            <td>{{ $event->end }}</td>
                             <td>
                                 <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editEventModal" data-id="{{ $event->id }}" data-title="{{ $event->title }}" data-start="{{ $event->start }}">Edit</button>
                                 <form action="{{ route('eventdos.destroy', $event) }}" method="POST" style="display:inline;">
@@ -51,6 +55,9 @@
                     @endforeach
                 </tbody>
             </table>
+            <div class="mt-3 d-flex justify-content-center">
+                {{ $events->links() }}
+            </div>
         </div>
     </div>
 </div>

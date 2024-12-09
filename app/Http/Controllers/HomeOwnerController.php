@@ -168,8 +168,22 @@ public function getAllHomeOwner(Request $request) {
     return view('admin.adminhomeownerlist', compact('homeowners'));
 }
 
-public function getHomeOwnerPending() {
-    $homeowners = HomeOwner::where('status', 'pending')->get();
+public function getHomeOwnerPending(Request $request) {
+    $query = HomeOwner::where('status', 'pending');
+
+    // Add search functionality for first name and last name
+    if ($request->has('search') && $request->search != '') {
+        $query->where(function ($q) use ($request) {
+            $q->where('fname', 'like', '%' . $request->search . '%')
+              ->orWhere('lname', 'like', '%' . $request->search . '%');
+        });
+    }
+
+    // Paginate the results (10 per page)
+    $homeowners = $query->paginate(10);
+
+    // Append search query to pagination links
+    $homeowners->appends(['search' => $request->search]);
 
     // Loop over the homeowners and generate image URLs if available
     foreach ($homeowners as $homeowner) {
@@ -177,10 +191,9 @@ public function getHomeOwnerPending() {
         $homeowner->document_image_url = $homeowner->document_image ? asset('storage/' . $homeowner->document_image) : null;
     }
 
-
-
     return view('admin.homeownerpending')->with('homeowners', $homeowners);
 }
+
 
     public function confirm($id)
     {
@@ -305,39 +318,40 @@ public function getHomeOwnerPending() {
     //guard
 
     public function getAllHomeOwnerGuard(Request $request)
-    {
-        // Get the search query and status filter from the request
-        $search = $request->input('search');
-        $statusFilter = $request->input('status'); // 'in' or 'out'
+{
+    // Get the search query and status filter from the request
+    $search = $request->input('search');
+    $statusFilter = $request->input('status'); // 'in' or 'out'
 
-        // Query homeowners with their status determined by the latest gate monitor entry
-        $homeowners = HomeOwner::where('status', 'confirmed')
-            ->when($search, function ($query, $search) {
-                return $query->where(function ($q) use ($search) {
-                    $q->where('fname', 'like', "%{$search}%")
-                      ->orWhere('lname', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
-                });
-            })
-            ->with(['gateMonitors' => function ($query) {
-                $query->orderBy('in', 'desc'); // Get the latest gate monitor entry
-            }])
-            ->get()
-            ->filter(function ($homeowner) use ($statusFilter) {
-                // Determine the status based on the latest gate monitor entry
-                $latestMonitor = $homeowner->gateMonitors->first();
-
-                if ($statusFilter == 'in') {
-                    return $latestMonitor && is_null($latestMonitor->out); // Homeowner is "inside"
-                } elseif ($statusFilter == 'out') {
-                    return $latestMonitor && !is_null($latestMonitor->out); // Homeowner is "outside"
-                }
-
-                return true; // No filter applied, include all homeowners
+    // Query homeowners with their status determined by the latest gate monitor entry
+    $homeowners = HomeOwner::where('status', 'confirmed')
+        ->when($search, function ($query, $search) {
+            return $query->where(function ($q) use ($search) {
+                $q->where('fname', 'like', "%{$search}%")
+                  ->orWhere('lname', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
             });
+        })
+        ->when($statusFilter, function ($query, $statusFilter) {
+            if ($statusFilter === 'in') {
+                // Filter for homeowners currently "in"
+                return $query->whereHas('gateMonitors', function ($q) {
+                    $q->whereNull('out'); // No "out" time means they are inside
+                });
+            } elseif ($statusFilter === 'out') {
+                // Filter for homeowners currently "out"
+                return $query->whereHas('gateMonitors', function ($q) {
+                    $q->whereNotNull('out'); // "Out" time means they are outside
+                });
+            }
+        })
+        ->with(['gateMonitors' => function ($query) {
+            $query->orderBy('in', 'desc'); // Get the latest gate monitor entry
+        }])
+        ->paginate(10); // Paginate results (10 items per page)
 
-        return view('guard.homeowner')->with('homeowners', $homeowners);
-    }
+    return view('guard.homeowner')->with('homeowners', $homeowners);
+}
 
 
 

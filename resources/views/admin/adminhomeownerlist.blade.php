@@ -6,9 +6,9 @@
 
 @section('content')
     <div class="container mt-5">
-        <h1 class="mb-4">List of Homeowner</h1>
+        <h1 class="display-4 mb-4">List of Homeowner</h1>
 
-        <div class="p-2 w-25">
+        <div class="col-md-4">
                 <form action="{{ route('admin.homeownerlist') }}" method="GET" class="d-flex mb-3">
                     <input type="text" name="search" class="form-control me-2" placeholder="Search by name or email" aria-label="Search" value="{{ request('search') }}">
                     <button type="submit" class="btn btn-primary">Search</button>
@@ -40,6 +40,7 @@
                 <table class="table table-striped table-bordered">
                     <thead>
                         <tr>
+                            <th>No</th>
                             <th>Name</th>
                             <th>Position</th>
                             <th>Phase</th>
@@ -52,6 +53,7 @@
                     <tbody>
                         @foreach ($homeowners as $homeowner)
                         <tr>
+                            <td>{{ $loop->iteration + ($homeowners->currentPage() - 1) * $homeowners->perPage() }}</td>
                             <td>{{ $homeowner->fname }} {{ $homeowner->lname }}</td>
                             <td>{{ $homeowner->position }}</td>
                             <td>{{ $homeowner->phase }}</td>

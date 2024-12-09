@@ -98,13 +98,12 @@ public function households()
     return $this->hasMany(Household::class, 'home_owner_id');
 }
 
-public function hasUnreadMessages()
+public function hasUnreadMessages($recipientRole)
 {
     return $this->messages()
-        ->where('sender_role', 'home_owner') // Only homeowner messages
-        ->where('is_seen', false) // Only unread messages
+        ->where('recipient_role', $recipientRole)
+        ->where('is_seen', false)
         ->exists();
 }
-
 
 }

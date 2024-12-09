@@ -6,19 +6,22 @@
 
 @section('content')
     <div class="container mt-5">
-        <h1 class="mb-4">List of Homeowners</h1>
+        <h1 class="display-4 mb-4">List of Homeowners</h1>
 
-        <div class="p-2 w-25">
-            <form action="{{ route('guard.homeownerlist') }}" method="GET" class="d-flex mb-3">
-                    <input type="text" name="search" class="form-control me-2" placeholder="Search by name or email" aria-label="Search" value="{{ request('search') }}">
+        <div class="col-md-4">
+            <form action="{{ route('guard.homeownerlist') }}" method="GET" class="mb-3">
+                    <div class="d-flex  mb-2">
+                    <input type="text" name="search" class="form-control" placeholder="Search by name or email" aria-label="Search" value="{{ request('search') }}">
 
+                <button type="submit" class="btn btn-primary">Search</button>
+
+                    </div>
                 <select name="status" class="form-control me-2" onchange="this.form.submit()">
                     <option value="">All</option>
                     <option value="in" {{ request('status') == 'in' ? 'selected' : '' }}>Inside</option>
                     <option value="out" {{ request('status') == 'out' ? 'selected' : '' }}>Outside</option>
                 </select>
 
-                <button type="submit" class="btn btn-primary">Search</button>
             </form>
         </div>
 
@@ -37,6 +40,7 @@
                 <table class="table table-striped table-bordered">
                     <thead>
                         <tr>
+                            <th>No</th>
                             <th>Name</th>
                             <th>Position</th>
                             <th>Phase</th>
@@ -49,6 +53,7 @@
                     <tbody>
                         @foreach ($homeowners as $homeowner)
                         <tr>
+                            <td>{{ $loop->iteration + ($homeowners->currentPage() - 1) * $homeowners->perPage() }}</td>
                             <td>{{ $homeowner->fname }} {{ $homeowner->lname }}</td>
                             <td>{{ $homeowner->position }}</td>
                             <td>{{ $homeowner->phase }}</td>
@@ -178,6 +183,9 @@
                         @endforeach
                     </tbody>
                 </table>
+                <div class="mt-3 d-flex justify-content-center">
+                    {{ $homeowners->links() }}
+                </div>
             </div>
         </div>
     </div>

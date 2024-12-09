@@ -2,12 +2,12 @@
 
 @section('content')
 <div class="container mt-5">
-    <h1 class="mb-4">Visitor Requests</h1>
+    <h1 class="display-4 mb-4">Visitors</h1>
 
-    <div class="p-2 w-25">
+    <div class="col-md-4">
         <!-- Search Form -->
         <form action="{{ route('visitors.index') }}" method="GET" class="d-flex mb-3">
-            <input type="text" name="search" class="form-control me-2" placeholder="Search by household or homeowner name" aria-label="Search" value="{{ request('search') }}">
+            <input type="text" name="search" class="form-control me-2" placeholder="Search by Visitor or homeowner name" aria-label="Search" value="{{ request('search') }}">
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
 
@@ -19,13 +19,14 @@
 
     <div class="card">
         <div class="card-header">
-            <h5 class="mb-0">Pending Visitor Requests</h5>
+            <h5 class="mb-0">Visitor Status</h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-striped table-bordered mb-0">
                     <thead class="table-light">
                         <tr>
+                            <th>No</th>
                             <th>Visitor Name</th>
                             <th>Homeowner Name</th>
                             <th>Number of Visitors</th>
@@ -37,6 +38,8 @@
                     <tbody>
                         @foreach ($visitors as $visitor)
                             <tr>
+                            <td>{{ $loop->iteration + ($visitors->currentPage() - 1) * $visitors->perPage() }}</td>
+
                                 <td>{{ $visitor->name }}</td>
                                 {{-- <td>{{ $visitor->plate_number }}</td> --}}
                                 <td>{{ $visitor->homeowner ? $visitor->homeowner->fname . ' ' . $visitor->homeowner->lname : 'N/A' }}</td>
@@ -84,7 +87,11 @@
                             </div>
                         @endforeach
                     </tbody>
+
                 </table>
+                <div class="mt-3 d-flex justify-content-center">
+                    {{ $visitors->links() }}
+                </div>
             </div>
         </div>
     </div>

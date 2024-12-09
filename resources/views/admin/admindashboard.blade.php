@@ -15,14 +15,12 @@
                 <div class="d-flex gap-3">
                     <img src="/img/w.png" alt="">
                     <div>
-                        <h2>Homeowners</h2>
+                        <h5>Homeowners</h5>
                         <h2>{{ $totalHomeowners }}</h2>
                     </div>
                 </div>
                 <a href="{{ route('admin.homeownerlist') }}">VIEW ALL</a>
-
             </div>
-
             <div class="dashboardcard">
                 <div class="d-flex gap-3">
                     <img src="/img/q.png" alt="">

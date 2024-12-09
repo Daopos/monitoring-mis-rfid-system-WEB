@@ -3,31 +3,54 @@
 namespace App\Http\Controllers;
 
 use App\Models\HomeOwner;
+use App\Models\HomeownerNotification;
 use App\Models\PaymentReminder;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PaymentReminderController extends Controller
 {
  // Display a list of payment reminders
- public function index()
+ public function index(Request $request)
  {
-     // Retrieve reminders with homeowner info where status is 'unpaid'
-     $reminders = PaymentReminder::with('homeOwner')->where('status', 'unpaid')->get();
+     // Get the current date
+     $today = Carbon::today();
 
-     // Only fetch confirmed homeowners
+     // Start query to get reminders
+     $query = PaymentReminder::with('homeOwner')
+         ->where('status', 'unpaid');
+
+     // Handle search for homeowner's name
+     if ($request->has('search') && $request->search != '') {
+         $query->whereHas('homeOwner', function($q) use ($request) {
+             $q->where('fname', 'like', '%' . $request->search . '%')
+               ->orWhere('lname', 'like', '%' . $request->search . '%');
+         });
+     }
+
+     // Filter by due date
+     if ($request->has('filter') && in_array($request->filter, ['due_today', 'overdue'])) {
+         if ($request->filter == 'due_today') {
+             $query->whereDate('due_date', $today);
+         } elseif ($request->filter == 'overdue') {
+             $query->whereDate('due_date', '<', $today);
+         }
+     }
+     $query->orderBy('created_at', 'desc'); // Change 'due_date' to 'created_at' if needed
+     // Paginate the results
+     $reminders = $query->paginate(10);
+
+     // Fetch confirmed homeowners
      $homeOwners = HomeOwner::where('status', 'confirmed')->get();
 
-     // Get the current date
-     $today = \Carbon\Carbon::today();
-
-     // Count the number of homeowners with reminders due today
-     $dueTodayCount = $reminders->filter(function ($reminder) use ($today) {
+     // Count the number of homeowners with reminders due today and overdue
+     $allReminders = PaymentReminder::with('homeOwner')->where('status', 'unpaid')->get();
+     $dueTodayCount = $allReminders->filter(function ($reminder) use ($today) {
          return $reminder->due_date == $today->toDateString();
      })->count();
 
-     // Count the number of homeowners with overdue reminders
-     $overdueCount = $reminders->filter(function ($reminder) use ($today) {
+     $overdueCount = $allReminders->filter(function ($reminder) use ($today) {
          return $reminder->due_date < $today->toDateString();
      })->count();
 
@@ -53,13 +76,21 @@ class PaymentReminderController extends Controller
          'due_date' => 'required|date',
      ]);
 
-     PaymentReminder::create([
-         'home_owner_id' => $request->home_owner_id,
-         'title' => $request->title,
-         'amount' => $request->amount,
-         'due_date' => $request->due_date,
-         'status' => 'unpaid', // set default status to unpaid
-     ]);
+     $paymentReminder = PaymentReminder::create([
+        'home_owner_id' => $request->home_owner_id,
+        'title' => $request->title,
+        'amount' => $request->amount,
+        'due_date' => $request->due_date,
+        'status' => 'unpaid', // Default status
+    ]);
+
+      // Add a notification for the homeowner
+    HomeownerNotification::create([
+        'home_owner_id' => $request->home_owner_id, // Use the homeowner ID from the request
+        'title' => 'New Payment Reminder',
+        'message' => "A new payment reminder has been created: {$paymentReminder->title}. Due date: {$paymentReminder->due_date}.",
+        'is_read' => false,
+    ]);
 
      return redirect()->route('payment_reminders.index')->with('success', 'Payment reminder created successfully!');
  }
@@ -72,19 +103,23 @@ class PaymentReminderController extends Controller
  }
 
  // Update a payment reminder
- public function update(Request $request, PaymentReminder $paymentReminder)
+ public function update(Request $request, $id)
  {
      $request->validate([
-         'home_owner_id' => 'required|exists:home_owners,id',
          'title' => 'required|string|max:255',
          'amount' => 'required|numeric',
          'due_date' => 'required|date',
      ]);
 
-     $paymentReminder->update($request->all());
+     $reminder = PaymentReminder::findOrFail($id);
+     $reminder->title = $request->title;
+     $reminder->amount = $request->amount;
+     $reminder->due_date = $request->due_date;
+     $reminder->save();
 
-     return redirect()->route('payment_reminders.index')->with('success', 'Payment reminder updated successfully!');
+     return redirect()->back()->with('success', 'Payment reminder updated successfully!');
  }
+
 
  // Delete a payment reminder
  public function destroy(PaymentReminder $paymentReminder)
@@ -104,14 +139,16 @@ class PaymentReminderController extends Controller
 public function indexPaid()
 {
     // Retrieve reminders with homeowner info where status is 'paid'
-    $reminders = PaymentReminder::with('homeOwner')->where('status', 'paid')->get();
+    $reminders = PaymentReminder::with('homeOwner')->where('status', 'paid')->paginate(10);
+
+    // Calculate the total amount of all reminders with 'paid' status
+    $totalAmount = PaymentReminder::where('status', 'paid')->sum('amount');
 
     // Only fetch confirmed homeowners
     $homeOwners = HomeOwner::where('status', 'confirmed')->get();
 
-    return view('treasurer.paidlist', compact('reminders', 'homeOwners'));
+    return view('treasurer.paidlist', compact('reminders', 'homeOwners', 'totalAmount'));
 }
-
 
 
 // API

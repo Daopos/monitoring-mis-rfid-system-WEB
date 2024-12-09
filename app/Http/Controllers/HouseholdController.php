@@ -142,9 +142,8 @@ public function adminIndexHousehold(Request $request)
     } elseif ($rfidFilter === 'without_rfid') {
         $query->whereNull('rfid');
     }
-
-    // Fetch filtered results
-    $households = $query->get();
+       // Paginate the results (10 items per page)
+       $households = $query->paginate(10);
 
     // Pass data to the Blade view
     return view('admin.households', compact('households'));

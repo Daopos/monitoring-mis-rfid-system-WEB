@@ -7,7 +7,7 @@
 
 @section('content')
 <div class="container mt-5">
-    <h1 class="mb-4">Outsiders</h1>
+    <h1 class="display-4">Deliveries/Vendors</h1>
     <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createOutsiderModal">Create New Outsider</button>
 
     @if(session('success'))
@@ -18,7 +18,7 @@
 
     <div class="card">
         <div class="card-header d-flex justify-content-between">
-            <h5 class="mb-0">Outsiders</h5>
+            <h5 class="mb-0">Search and Filter</h5>
             <a href="{{ route('guard.generateOutsiderPdf', request()->all()) }}" class="btn btn-success">
                 <i class="fas fa-file-pdf"></i> Download PDF
             </a>
