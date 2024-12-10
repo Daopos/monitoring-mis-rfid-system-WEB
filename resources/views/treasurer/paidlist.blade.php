@@ -82,7 +82,7 @@
                             <label for="home_owner_id">Homeowner</label>
                             <select name="home_owner_id" id="home_owner_id" class="form-control" required>
                                 @foreach($homeOwners as $owner)
-                                    <option value="{{ $owner->id }}">{{ $owner->fname }}</option>
+                                    <option value="{{ $owner->id }}">{{ $owner->fname }} {{ $owner->lname }}</option>
                                 @endforeach
                             </select>
                         </div>

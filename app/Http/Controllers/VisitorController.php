@@ -161,6 +161,14 @@ public function denyGuard($id)
     $visitor = Visitor::findOrFail($id);
     $visitor->update(['status' => 'denied']);
 
+    HomeownerNotification::create([
+        'home_owner_id' => $visitor->home_owner_id, // Ensure the correct homeowner ID is used
+        'title' => 'Visitor Denied',
+        'message' => "Your visitor, {$visitor->name}, has been denied by the guard.",
+        'is_read' => false,
+    ]);
+
+
     return redirect()->route('guard.visitor')->with('success', 'RFID denied successfully.');
 }
 
@@ -174,6 +182,14 @@ public function ReturnVisitorGuard($id)
     $visitor->update([
         'status' => 'return',
         'rfid' => null, // Ensure the RFID column is set to null
+        'guard' => 1,
+    ]);
+
+    HomeownerNotification::create([
+        'home_owner_id' => $visitor->home_owner_id, // Ensure the correct homeowner ID is used
+        'title' => 'Visitor Left Subdivision',
+        'message' => "Your visitor, {$visitor->name}, has successfully exited the subdivision.",
+        'is_read' => false,
     ]);
 
     // Redirect back with a success message

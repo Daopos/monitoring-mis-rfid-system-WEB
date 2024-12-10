@@ -8,7 +8,7 @@
 @section('content')
 <div class="container mt-5">
     <h1 class="display-4">Deliveries/Vendors</h1>
-    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createOutsiderModal">Create New Outsider</button>
+    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createOutsiderModal">Create New</button>
 
     @if(session('success'))
         <div class="alert alert-success">

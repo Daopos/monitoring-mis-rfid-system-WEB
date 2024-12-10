@@ -7,7 +7,7 @@
 
 @section('content')
 <div class="container mt-5">
-    <h1 class="mb-4">Guest service</h1>
+    <h1 class="mb-4">Deliveries and Vendors</h1>
 
     @if(session('success'))
         <div class="alert alert-success">
