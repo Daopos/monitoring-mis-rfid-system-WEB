@@ -4,6 +4,27 @@
 
 @section('styles')
     <link href="{{ asset('/css/guarddashboard.css') }}" rel="stylesheet">
+    <style>
+
+        .webcamContainer {
+            background-color: #000;
+            display: flex;
+            justify-content: center
+        }
+        .webcam-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Ensures the video is vertically centered */
+        }
+
+        #webcam {
+            width: 640px; /* Increase width */
+            height: 480px; /* Increase height */
+            border: 2px solid #000; /* Optional: Add a border for better visibility */
+            border-radius: 10px; /* Optional: Rounded corners */
+        }
+    </style>
 @endsection
 @section('content')
 <div class="body-container">
@@ -78,8 +99,14 @@
     <form id="rfid-form" method="POST" action="{{ route('gate-monitors.store') }}">
         @csrf
         <input type="hidden" name="owner_id" id="owner_id" value="">
+        <input type="hidden" id="captured-image" name="captured_image">
     </form>
 </div>
+<div class="webcamContainer">
+    <video id="webcam" width="320" height="240" autoplay></video>
+</div>
+    <canvas id="canvas" style="display: none"></canvas>
+<input type="hidden" id="captured-image" name="captured_image">
 <script>
     $(document).ready(function() {
         var rfidBuffer = '';
@@ -88,6 +115,10 @@
         function handleRFIDScan(ownerId) {
             console.log('Scanned RFID:', ownerId); // Log the RFID data
             $('#owner_id').val(ownerId); // Set the scanned RFID value in the hidden input
+
+            // Automatically capture the image when RFID is scanned
+            captureImage();
+
             $('#rfid-form').submit(); // Submit the form
         }
 
@@ -123,5 +154,35 @@
         setInterval(updateTime, 1000); // Update every second
         updateTime(); // Initial call to set time immediately
     });
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+    .then(function(stream) {
+        document.getElementById('webcam').srcObject = stream;
+    })
+    .catch(function(err) {
+        console.error("Error accessing the webcam: ", err);
+    });
+
+    // Function to capture the image
+    function captureImage() {
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+        var video = document.getElementById('webcam');
+
+        // Draw the current frame from the video to the canvas
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Convert the canvas to a data URL (base64 encoded image)
+        var dataUrl = canvas.toDataURL('image/png');
+
+        // Set the captured image to the hidden input
+        document.getElementById('captured-image').value = dataUrl;
+
+        // Optionally, display the image in an <img> element
+        // var img = new Image();
+        // img.src = dataUrl;
+        // document.body.appendChild(img);  // For testing purposes
+    }
 </script>
+
 @endsection

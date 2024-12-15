@@ -7,7 +7,7 @@
 
 @section('content')
 <div class="container mt-5">
-    <h1 class="mb-4">Deliveries and Vendors</h1>
+    <h1 class="mb-4">Service Providers</h1>
 
     @if(session('success'))
         <div class="alert alert-success">
@@ -81,7 +81,7 @@
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="viewOutsiderModalLabel{{ $outsider->id }}">Outsider Details</h5>
+                                        <h5 class="modal-title" id="viewOutsiderModalLabel{{ $outsider->id }}">Service Providers Details</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">

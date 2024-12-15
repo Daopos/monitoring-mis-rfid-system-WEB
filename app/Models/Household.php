@@ -13,9 +13,9 @@ class Household extends Model
         'home_owner_id',
         'name',
         'relationship',
-        'age',
+        'birthdate',
         'gender',
-        'rfid'
+        'rfid',
     ];
     public function householdGateMonitors()
     {

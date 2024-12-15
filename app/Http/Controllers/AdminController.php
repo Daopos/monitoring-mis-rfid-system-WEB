@@ -99,17 +99,26 @@ public function logoutTreasurer()
     public function guardlogin(Request $request) {
         $credentials = $request->only('username', 'password');
 
+        // Find the admin user by username
         $admin = Admin::where('username', $credentials['username'])->first();
 
+        // Check if the admin exists and the password matches exactly
         if ($admin && $admin->password == $credentials['password'] && $admin->type == 'guard') {
+            // Log out the current user (if any)
+
+            // Log the user in
             Auth::guard('guard')->login($admin);
 
 
+            // Redirect to the guard dashboard
             return redirect()->route('guard.dashboard');
         } else {
+            // If login fails, redirect back with an error message
             return redirect()->route('guard.login')->with('error', 'Login failed');
         }
     }
+
+
 
     public function showTreasurerLoginForm()
     {
@@ -152,8 +161,7 @@ public function logoutTreasurer()
         // Get total number of homeowners without RFID
         $homeownersWithoutRFID = HomeOwner::whereNull('rfid')->count();
 
-        $household = Household::count();
-
+        $household = Household::count() + $totalHomeowners;
 
         $currentVisitors = VisitorGateMonitor::whereNotNull('in')
         ->whereNull('out')
@@ -209,4 +217,5 @@ return view('admin.admindashboard', [
             'selectedYear' => $selectedYear,
         ]);
     }
+
 }

@@ -135,6 +135,10 @@
                     @csrf
                     <div class="mb-3">
                         <label for="homeowner_id" class="form-label">Homeowner</label>
+                        <!-- Search Input -->
+                        <input type="text" id="homeownerSearch" class="form-control mb-2" placeholder="Search Homeowner..." onkeyup="filterHomeowners()">
+
+                        <!-- Dropdown -->
                         <select name="home_owner_id" id="homeowner_id" class="form-control" required>
                             <option value="">Select Homeowner</option>
                             @foreach ($homeowners as $homeowner)
@@ -171,5 +175,21 @@
         </div>
     </div>
 </div>
+<script>
+    function filterHomeowners() {
+        const searchInput = document.getElementById('homeownerSearch').value.toLowerCase();
+        const dropdown = document.getElementById('homeowner_id');
+        const options = dropdown.getElementsByTagName('option');
+
+        for (let i = 0; i < options.length; i++) {
+            const optionText = options[i].textContent || options[i].innerText;
+            if (optionText.toLowerCase().indexOf(searchInput) > -1 || i === 0) {
+                options[i].style.display = "";
+            } else {
+                options[i].style.display = "none";
+            }
+        }
+    }
+</script>
 
 @endsection

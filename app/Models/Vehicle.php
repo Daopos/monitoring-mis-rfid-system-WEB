@@ -15,5 +15,8 @@ class Vehicle extends Model
         'color',
         'model',
         'plate_number',
+        'vehicle_img',
+        'or_img',
+        'cr_img',
     ];
 }

@@ -6,7 +6,7 @@
 
 @section('content')
     <div class="container mt-5">
-        <h1 class="mb-4">List of Homeowner Pending Accounts</h1>
+        <h1 class="mb-4">List of New Homeowners</h1>
         <a class="btn btn-primary mb-3" href="{{ route('admin.homeownerform') }}">Add Homeowner</a>
 
         @if(session('success'))
@@ -27,7 +27,7 @@
 </form>
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">Homeowner Pending Accounts</h5>
+                <h5 class="mb-0">New Homeowners</h5>
 
             </div>
             <div class="card-body">

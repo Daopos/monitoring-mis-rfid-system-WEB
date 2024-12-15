@@ -1,5 +1,14 @@
 @extends('layouts.treasurerlayout')
 
+@section('styles')
+    <style>
+.table-overdue {
+    background-color: #f8d7da; /* Light red background */
+    color: #721c24; /* Dark red text */
+}
+
+    </style>
+@endsection
 @section('content')
 <div class="container mt-5">
     <h1 class="mb-4">Payment Reminders</h1>
@@ -88,33 +97,39 @@
                     </thead>
                     <tbody>
                         @foreach($reminders as $reminder)
-                            <tr>
-                                <td>{{ $loop->iteration + ($reminders->currentPage() - 1) * $reminders->perPage() }}</td>
-                                <td>{{ $reminder->homeOwner->fname }} {{ $reminder->homeOwner->lname }}</td>
-                                <td>{{ $reminder->title }}</td>
-                                <td>{{ $reminder->amount }}</td>
-                                <td>{{ $reminder->due_date }}</td>
-                                <td>{{ $reminder->status }}</td>
-                                <td>
-                                    <button type="button" class="btn btn-warning btn-sm edit-btn" data-reminder="{{ json_encode(['id' => $reminder->id, 'title' => $reminder->title, 'amount' => $reminder->amount, 'due_date' => $reminder->due_date]) }}">Edit</button>
+                        @php
+                        // Parse the due date and current date
+                        $dueDate = \Carbon\Carbon::parse($reminder->due_date)->startOfDay(); // Remove the time
+                        $currentDate = \Carbon\Carbon::now()->startOfDay(); // Remove the time
+                        $tomorrow = \Carbon\Carbon::tomorrow()->startOfDay(); // Get tomorrow's date
 
-                                    @if($reminder->status !== 'paid')
-                                        <form action="{{ route('payment_reminders.markPaid', $reminder->id) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('PUT')
-                                            <button type="submit" class="btn btn-success btn-sm">Mark as Paid</button>
-                                        </form>
-                                    @endif
+                        // Debug output: format the dates for debugging
+                        $dueDateFormatted = $dueDate->format('Y-m-d'); // Format for debugging
+                        $currentDateFormatted = $currentDate->format('Y-m-d'); // Format for debugging
 
-                                    <form action="{{ route('payment_reminders.destroy', $reminder->id) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
+                        // Check if the due date is overdue (current date is after the due date)
+                        $isOverdue = $currentDate->isAfter($dueDate);
+                    @endphp
+                        <tr class="{{ $isOverdue ? 'table-danger' : '' }}">
+                            <td>{{ $loop->iteration + ($reminders->currentPage() - 1) * $reminders->perPage() }}</td>
+                            <td>{{ $reminder->homeOwner->fname }} {{ $reminder->homeOwner->lname }}</td>
+                            <td>{{ $reminder->title }}</td>
+                            <td>{{ $reminder->amount }}</td>
+                            <td>
+                                {{ $isOverdue}} <!-- Display due date for troubleshooting -->
+                            </td>
+                            <td>{{ $isOverdue ? 'Overdue' : 'Pending' }}</td>
+                            <td>
+                                <form action="{{ route('payment_reminders.markPaid', $reminder->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" class="btn btn-success btn-sm">Mark as Paid</button>
+                                </form>
+                            </td>
+                        </tr>
                         @endforeach
                     </tbody>
+
                 </table>
                 <div class="mt-3 d-flex justify-content-center">
                     {{ $reminders->links() }}
@@ -134,25 +149,12 @@
                 <div class="modal-body">
                     <form id="createReminderForm" action="{{ route('payment_reminders.store') }}" method="POST">
                         @csrf
-                        <div class="form-group mb-3">
-                            <label for="home_owner_id">Homeowner</label>
-                            <select name="home_owner_id" id="home_owner_id" class="form-control" required>
-                                @foreach($homeOwners as $owner)
-                                    <option value="{{ $owner->id }}">{{ $owner->fname }} {{ $owner->lname }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="title">Title</label>
-                            <input type="text" name="title" class="form-control" required>
+                        <div class="alert alert-info">
+                            This will create a payment reminder for <strong>all homeowners</strong> with the title "Association Fee."
                         </div>
                         <div class="form-group mb-3">
                             <label for="amount">Amount</label>
-                            <input type="number" name="amount" class="form-control" required>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="due_date">Due Date</label>
-                            <input type="date" name="due_date" class="form-control" required>
+                            <input type="number" name="amount" class="form-control" value="300" readonly>
                         </div>
                         <button type="submit" class="btn btn-success">Save</button>
                     </form>
@@ -160,59 +162,5 @@
             </div>
         </div>
     </div>
-
-    <!-- Edit Reminder Modal -->
-    <div class="modal fade" id="editReminderModal" tabindex="-1" aria-labelledby="editReminderModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editReminderModalLabel">Edit Payment Reminder</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editReminderForm" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" name="reminder_id" id="edit_reminder_id">
-                        <div class="form-group mb-3">
-                            <label for="edit_title">Title</label>
-                            <input type="text" name="title" id="edit_title" class="form-control" required>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="edit_amount">Amount</label>
-                            <input type="number" name="amount" id="edit_amount" class="form-control" required>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="edit_due_date">Due Date</label>
-                            <input type="date" name="due_date" id="edit_due_date" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <script>
-        // Handle Edit Button Click
-        document.querySelectorAll('.edit-btn').forEach(button => {
-            button.addEventListener('click', function () {
-                const reminder = JSON.parse(this.dataset.reminder);
-                document.getElementById('edit_reminder_id').value = reminder.id;
-                document.getElementById('edit_title').value = reminder.title;
-                document.getElementById('edit_amount').value = reminder.amount;
-                document.getElementById('edit_due_date').value = reminder.due_date;
-                document.getElementById('editReminderForm').action = `/payment_reminders/${reminder.id}`;
-                const editModal = new bootstrap.Modal(document.getElementById('editReminderModal'));
-                editModal.show();
-            });
-        });
-
-        // Reset Create Reminder Form when Modal is Hidden
-        document.getElementById('createReminderModal').addEventListener('hidden.bs.modal', function () {
-            document.getElementById('createReminderForm').reset();
-        });
-    </script>
 </div>
 @endsection

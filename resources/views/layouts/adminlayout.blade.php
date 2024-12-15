@@ -62,7 +62,7 @@
         <li>
             <a href="{{ route('admin.homeownerpending') }}"
                class="dropdown-item {{ Request::routeIs('admin.homeownerpending') ? 'active' : '' }}">
-               Pending Homeowners
+               New Homeowners
             </a>
         </li>
     </ul>
@@ -92,7 +92,7 @@
                 <li>
                     <a href="{{ route('admin.outsiders') }}"
                        class="dropdown-item {{ Request::routeIs('admin.outsiders') ? 'active' : '' }}">
-                       Deliveries and Vendors
+                       Service Providers
                     </a>
                 </li>
                 <li>
@@ -107,6 +107,7 @@
                        Households
                     </a>
                 </li>
+
             </ul>
         </div>
         <a href="{{ route('visitors.index') }}"
@@ -129,7 +130,13 @@
           <span class="ms-auto dropdown-arrow">&#9656;</span>
       </a>
 
+    <a href="{{ route('admin.guard.index') }}"
+    class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('admin.guard.index') ? 'active' : '' }}">
+    <i class="fa-solid fa-user-group"></i>
+    Guards
 
+     <span class="ms-auto dropdown-arrow">&#9656;</span>
+ </a>
             <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" class="mt-3">
                 @csrf
                 <button type="submit" class="btn btn-link text-white p-0">

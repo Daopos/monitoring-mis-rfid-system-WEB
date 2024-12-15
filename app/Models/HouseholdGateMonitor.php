@@ -13,6 +13,8 @@ class HouseholdGateMonitor extends Model
         'household_id',
         'in',
         'out',
+        'in_img',
+        'out_img',
     ];
 
     public function household()

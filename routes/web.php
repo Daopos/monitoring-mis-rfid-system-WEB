@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BlockController;
 use App\Http\Controllers\EventdoController;
 use App\Http\Controllers\GateMonitorController;
+use App\Http\Controllers\GuardController;
 use App\Http\Controllers\HomeOwnerController;
 use App\Http\Controllers\HouseholdController;
 use App\Http\Controllers\HouseholdGateMonitorController;
@@ -92,6 +93,23 @@ Route::get('/admin/household/gate-monitors', [HouseholdGateMonitorController::cl
 
 
 Route::get('/admin/households', [HouseholdController::class, 'adminIndexHousehold'])->name('admin.households');
+
+
+//guard management
+
+Route::prefix('admin/guard')->group(function () {
+    Route::get('/', [GuardController::class, 'index'])->name('admin.guard.index'); // List all guards
+    Route::get('/create', [GuardController::class, 'create'])->name('admin.guard.create'); // Show create form
+    Route::post('/', [GuardController::class, 'store'])->name('admin.guard.store'); // Store new guard
+    Route::get('/{id}/edit', [GuardController::class, 'edit'])->name('admin.guard.edit'); // Show edit form
+    Route::put('/{id}', [GuardController::class, 'update'])->name('admin.guard.update'); // Update guard
+    Route::delete('/{id}', [GuardController::class, 'destroy'])->name('admin.guard.destroy'); // Delete guard
+    Route::put('/{id}/archive', [GuardController::class, 'archive'])->name('admin.guard.archive'); // Archive guard
+    Route::put('/{id}/restore', [GuardController::class, 'restore'])->name('admin.guard.restore'); // Restore archived guard
+    Route::put('/{id}/assign', [GuardController::class, 'assign'])->name('admin.guard.assign'); // Restore archived guard
+
+});
+
 });
 
 Route::get('/todolist', function () {
@@ -146,6 +164,10 @@ Route::post('/guard/messages/{homeOwner}', [MessageController::class, 'guardSend
 
 Route::get('/guard/household/gate-monitors', [HouseholdGateMonitorController::class, 'index'])->name('guard.householdentry');
 
+
+
+
+
 });
 
 
@@ -177,3 +199,6 @@ Route::get('/guard/generate-pdf', [GateMonitorController::class, 'generatePDF'])
 Route::get('/outsiders/pdf', [OutsiderController::class, 'generatePdf'])->name('guard.generateOutsiderPdf');
 Route::get('/visitor-gate-entry/pdf', [VisitorGateMonitorController::class, 'generatePdf'])->name('guard.visitorgatelist.pdf');
 Route::get('/household-entry/pdf', [HouseholdGateMonitorController::class, 'generatePdf'])->name('guard.householdentry.pdf');
+
+
+Route::get('/treasurer/paidlist/report', [PaymentReminderController::class, 'generateReport'])->name('treasurer.generateReport');

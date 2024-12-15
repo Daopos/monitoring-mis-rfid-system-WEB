@@ -11,6 +11,7 @@ use App\Models\VisitorGateMonitor;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class GateMonitorController extends Controller
 {
@@ -73,54 +74,74 @@ class GateMonitorController extends Controller
         // Get the existing HouseholdGateMonitor entry for the household
         $householdGateMonitor = HouseholdGateMonitor::where('household_id', $household->id)->latest()->first();
 
-        if (!$householdGateMonitor) {
-            // No HouseholdGateMonitor entry exists; create a new entry
-            $householdGateMonitor = HouseholdGateMonitor::create([
-                'household_id' => $household->id,
-                'in' => now(),
-            ]);
 
-            \Log::info('New HouseholdGateMonitor created for household:', ['id' => $householdGateMonitor->id]);
-            return redirect()->route('gate-monitors.index')
-                ->with('success', 'Household RFID entry recorded successfully (entry time).')
-                ->with('household', $household); // Pass household details to session
-        } elseif ($householdGateMonitor->in && !$householdGateMonitor->out) {
-            // Update the existing entry with exit time
-            $householdGateMonitor->update(['out' => now()]);
 
-            \Log::info('HouseholdGateMonitor updated for household with exit time:', ['id' => $householdGateMonitor->id]);
-            return redirect()->route('gate-monitors.index')
-                ->with('success', 'Household RFID entry recorded successfully (exit time).')
-                ->with('household', $household); // Pass household details to session
-        } else {
-            // Create a new entry if both in and out exist
-            $newHouseholdGateMonitor = HouseholdGateMonitor::create([
-                'household_id' => $household->id,
-                'in' => now(),
-            ]);
+    $capturedImage = request('captured_image');
 
-            \Log::info('New HouseholdGateMonitor created for existing household entry:', ['id' => $newHouseholdGateMonitor->id]);
-            return redirect()->route('gate-monitors.index')
-                ->with('success', 'New household RFID entry recorded successfully.')
-                ->with('household', $household); // Pass household details to session
-        }
+    if($capturedImage) {
+  // Save the image (store it in the public disk)
+  $imagePath = 'households_img/' . uniqid() . '.png';
+  Storage::disk('public')->put($imagePath, base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $capturedImage)));
+
+  if (!$householdGateMonitor) {
+    // No HouseholdGateMonitor entry exists; create a new entry
+    $householdGateMonitor = HouseholdGateMonitor::create([
+        'household_id' => $household->id,
+        'in' => now(),
+        'in_img' => $imagePath,
+    ]);
+
+    return redirect()->route('gate-monitors.index')
+        ->with('success', 'Household RFID entry recorded successfully (entry time).')
+        ->with('household', $household); // Pass household details to session
+} elseif ($householdGateMonitor->in && !$householdGateMonitor->out) {
+    // Update the existing entry with exit time
+    $householdGateMonitor->update(['out' => now(), 'out_img' => $imagePath]);
+
+    return redirect()->route('gate-monitors.index')
+        ->with('success', 'Household RFID entry recorded successfully (exit time).')
+        ->with('household', $household); // Pass household details to session
+} else {
+    // Create a new entry if both in and out exist
+    $newHouseholdGateMonitor = HouseholdGateMonitor::create([
+        'household_id' => $household->id,
+        'in' => now(),
+        'in_img' => $imagePath,
+    ]);
+
+    return redirect()->route('gate-monitors.index')
+        ->with('success', 'New household RFID entry recorded successfully.')
+        ->with('household', $household); // Pass household details to session
+}
+    }
+
+
     }
 
     private function handleHomeOwnerEntry($homeOwner)
-    {
-        // Get the existing GateMonitor entry for the home owner
-        $gateMonitor = GateMonitor::where('owner_id', $homeOwner->id)
-            ->whereNull('out') // Only find entries with no exit time
-            ->latest() // Get the latest one if there are multiple entries
-            ->first();
+{
+    // Get the existing GateMonitor entry for the home owner
+    $gateMonitor = GateMonitor::where('owner_id', $homeOwner->id)
+        ->whereNull('out') // Only find entries with no exit time
+        ->latest() // Get the latest one if there are multiple entries
+        ->first();
 
-        \Log::info('HomeOwner ID:', ['homeOwnerId' => $homeOwner->id]);
+    \Log::info('HomeOwner ID:', ['homeOwnerId' => $homeOwner->id]);
+
+    // Capture the image from the request
+    $capturedImage = request('captured_image');
+
+    if ($capturedImage) {
+        // Save the image (store it in the public disk)
+        $imagePath = 'homeowners_img/' . uniqid() . '.png';
+        Storage::disk('public')->put($imagePath, base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $capturedImage)));
 
         if (!$gateMonitor) {
             // No GateMonitor entry exists or the latest one has an exit time; create a new entry
             $gateMonitor = GateMonitor::create([
                 'owner_id' => $homeOwner->id,
                 'in' => now(),
+                'in_img' => $imagePath,
             ]);
 
             \Log::info('New GateMonitor created for homeowner:', ['id' => $gateMonitor->id]);
@@ -128,8 +149,11 @@ class GateMonitorController extends Controller
                 ->with('success', 'Homeowner RFID entry recorded successfully (entry time).')
                 ->with('homeOwner', $homeOwner);
         } elseif ($gateMonitor->in && empty($gateMonitor->out)) {
-            // Update the existing entry with exit time
-            $gateMonitor->update(['out' => now()]);
+            // Update the existing entry with exit time and exit image
+            $gateMonitor->update([
+                'out' => now(),
+                'out_img' => $imagePath,
+            ]);
 
             \Log::info('GateMonitor updated for homeowner with exit time:', ['id' => $gateMonitor->id]);
             return redirect()->route('gate-monitors.index')
@@ -140,6 +164,7 @@ class GateMonitorController extends Controller
             $newGateMonitor = GateMonitor::create([
                 'owner_id' => $homeOwner->id,
                 'in' => now(),
+                'in_img' => $imagePath,
             ]);
 
             \Log::info('New GateMonitor created for existing homeowner entry:', ['id' => $newGateMonitor->id]);
@@ -149,38 +174,51 @@ class GateMonitorController extends Controller
         }
     }
 
+    // Fallback if no image is captured
+    \Log::error('No image captured for homeowner entry.');
+    return redirect()->route('gate-monitors.index')
+        ->with('error', 'No image captured. Please try again.')
+        ->with('homeOwner', $homeOwner);
+}
+
     private function handleVisitorEntry($visitor)
     {
         // Get the existing VisitorGateMonitor entry for the visitor
         $visitorGateMonitor = VisitorGateMonitor::where('visitor_id', $visitor->id)->latest()->first();
+
+    $capturedImage = request('captured_image');
+
+    if ($capturedImage) {
+        // Save the image (store it in the public disk)
+        $imagePath = 'visitors_img/' . uniqid() . '.png';
+        Storage::disk('public')->put($imagePath, base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $capturedImage)));
+
 
         if (!$visitorGateMonitor) {
             // No VisitorGateMonitor entry exists; create a new entry
             $visitorGateMonitor = VisitorGateMonitor::create([
                 'visitor_id' => $visitor->id,
                 'in' => now(),
+                'in_img' => $imagePath,
+
             ]);
 
             $homeowner = $visitor->homeowner; // Fetch the associated homeowner
 
-            \Log::info('New VisitorGateMonitor created for visitor:', ['id' => $visitorGateMonitor->id]);
             return redirect()->route('gate-monitors.index')
                 ->with('success', 'Visitor RFID entry recorded successfully (entry time).')
                 ->with('visitor', $visitor)
                 ->with('homeowner', $homeowner); // Pass homeowner details to the session
         } elseif ($visitorGateMonitor->in && !$visitorGateMonitor->out) {
             // Update the existing entry with exit time
-            $visitorGateMonitor->update(['out' => now()]);
+            $visitorGateMonitor->update(['out' => now(),'out_img' => $imagePath]);
 
             $homeowner = $visitor->homeowner; // Fetch the associated homeowner
-            \Log::info('Visitor found:', ['visitor' => $visitor]);
-            \Log::info('VisitorGateMonitor updated for visitor with exit time:', ['id' => $visitorGateMonitor->id]);
             return redirect()->route('gate-monitors.index')
                 ->with('success', 'Visitor RFID entry recorded successfully (exit time).')
                 ->with('visitor', $visitor)
                 ->with('homeowner', $homeowner);
             if ($visitor) {
-                \Log::info('Visitor found:', ['visitor' => $visitor]);
                 return $this->handleVisitorEntry($visitor);
             }
         } else {
@@ -188,11 +226,11 @@ class GateMonitorController extends Controller
             $newVisitorGateMonitor = VisitorGateMonitor::create([
                 'visitor_id' => $visitor->id,
                 'in' => now(),
+                'in_img' => $imagePath,
             ]);
 
             $homeowner = $visitor->homeowner; // Fetch the associated homeowner
 
-            \Log::info('New VisitorGateMonitor created for existing visitor entry:', ['id' => $newVisitorGateMonitor->id]);
             return redirect()->route('gate-monitors.index')
                 ->with('success', 'New visitor RFID entry recorded successfully.')
                 ->with('visitor', $visitor)
@@ -203,6 +241,8 @@ class GateMonitorController extends Controller
             \Log::info('Visitor found:', ['visitor' => $visitor]);
             return $this->handleVisitorEntry($visitor);
         }
+    }
+
     }
 
 
@@ -262,46 +302,53 @@ class GateMonitorController extends Controller
 
     public function getAllEntryGuard(Request $request)
     {
-        // Initialize the query
-        $query = GateMonitor::with('owner');
+       // Initialize the query
+    $query = GateMonitor::with('owner');
 
-        // Filter by those who haven't exited yet
-        if ($request->has('status') && $request->input('status') == 'in') {
+    // Filter by those who haven't exited yet
+    if ($request->has('status')) {
+        $status = $request->input('status');
+
+        if ($status == 'in') {
+            // Homeowners who are inside
             $query->whereNull('out');
+        } else if ($status == 'out') {
+            // Homeowners who are outside
+            $query->whereNotNull('out');
         }
+    }
 
-        // Search by owner's name
-        if ($request->has('search') && $request->input('search') != '') {
-            $searchTerm = $request->input('search');
-            $terms = explode(' ', $searchTerm);
+    // Search by owner's name
+    if ($request->has('search') && $request->input('search') != '') {
+        $searchTerm = $request->input('search');
+        $terms = explode(' ', $searchTerm);
 
-            $query->whereHas('owner', function ($q) use ($terms) {
-                foreach ($terms as $term) {
-                    $q->where(function ($query) use ($term) {
-                        $query->where('fname', 'like', '%' . $term . '%')
-                            ->orWhere('lname', 'like', '%' . $term . '%');
-                    });
-                }
-            });
-        }
+        $query->whereHas('owner', function ($q) use ($terms) {
+            foreach ($terms as $term) {
+                $q->where(function ($query) use ($term) {
+                    $query->where('fname', 'like', '%' . $term . '%')
+                        ->orWhere('lname', 'like', '%' . $term . '%');
+                });
+            }
+        });
+    }
 
-        // Filter by date range
-        if ($request->has('from_date') && $request->has('to_date')) {
-            $fromDate = $request->input('from_date');
-            $toDate = $request->input('to_date');
+    // Filter by date range
+    if ($request->has('from_date') && $request->has('to_date')) {
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
 
-            $query->whereBetween('in', [
-                \Carbon\Carbon::parse($fromDate)->startOfDay(),
-                \Carbon\Carbon::parse($toDate)->endOfDay()
-            ]);
-        }
+        $query->whereBetween('in', [
+            \Carbon\Carbon::parse($fromDate)->startOfDay(),
+            \Carbon\Carbon::parse($toDate)->endOfDay()
+        ]);
+    }
 
-        // Get the total count of entries for the current query
-        $totalEntries = $query->count();
+    // Get the total count of entries for the current query
+    $totalEntries = $query->count();
 
-        // Order by 'in' column in descending order and paginate results
-        $gateMonitors = $query->orderBy('in', 'desc')->paginate(10);
-
+    // Order by 'in' column in descending order and paginate results
+    $gateMonitors = $query->orderBy('in', 'desc')->paginate(10);
         return view('guard.entry', compact('gateMonitors', 'totalEntries'));
     }
 

@@ -7,7 +7,7 @@
 
 @section('content')
 <div class="container mt-5">
-    <h1 class="display-4">Deliveries/Vendors</h1>
+    <h1 class="display-4">Service Providers</h1>
     <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createOutsiderModal">Create New</button>
 
     @if(session('success'))
@@ -156,7 +156,7 @@
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="viewOutsiderModalLabel{{ $outsider->id }}">Outsider Details</h5>
+                                        <h5 class="modal-title" id="viewOutsiderModalLabel{{ $outsider->id }}">Service Providers Details</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
@@ -227,7 +227,7 @@
             <form action="{{ route('outsiders.store') }}" method="POST">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title" id="createOutsiderModalLabel">Create New Outsider</h5>
+                    <h5 class="modal-title" id="createOutsiderModalLabel">Create New Service Providers</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -243,7 +243,12 @@
                     <!-- Type Input -->
                     <div class="form-group">
                         <label for="type">Type</label>
-                        <input type="text" name="type" class="form-control" value="{{ old('type') }}" required>
+                        <select name="type" class="form-control" required>
+                            <option value="" disabled selected>Select a type</option>
+                            <option value="Type1" {{ old('type') == 'Type1' ? 'selected' : '' }}>Construction</option>
+                            <option value="Type2" {{ old('type') == 'Type2' ? 'selected' : '' }}>Type2</option>
+                            <option value="Type3" {{ old('type') == 'Type3' ? 'selected' : '' }}>Type3</option>
+                        </select>
                         @error('type')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror

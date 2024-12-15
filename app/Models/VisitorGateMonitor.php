@@ -9,7 +9,9 @@ class VisitorGateMonitor extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['visitor_id', 'in','out'];
+    protected $fillable = ['visitor_id', 'in','out',
+    'in_img',
+    'out_img',];
     public function owner()
     {
         return $this->belongsTo(Visitor::class);

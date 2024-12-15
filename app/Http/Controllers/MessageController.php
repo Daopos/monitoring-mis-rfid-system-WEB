@@ -159,17 +159,22 @@ public function guardSendMessages(Request $request, HomeOwner $homeOwner) {
         'message' => 'required|string|max:255'
     ]);
 
+    // Get the authenticated guard's name and last name
+    $guard = Auth::guard('guard')->user();
+    $guardName = $guard->fname . ' ' . $guard->lname; // Adjust according to your column names
+
     $message = new Message();
     $message->message = $request->input('message');
     $message->home_owner_id = $homeOwner->id;
     $message->sender_role = 'guard';
     $message->recipient_role = 'home_owner';
+    $message->guard_name = $guardName; // Add the guard's name to the message
     $message->save();
 
     HomeownerNotification::create([
         'home_owner_id' => $homeOwner->id, // Ensure the correct homeowner ID is used
         'title' => 'New Message from Guard',
-        'message' => "You have received a new message: {$message->message}",
+        'message' => "You have received a new message from {$guardName}: {$message->message}",
         'is_read' => false,
     ]);
 

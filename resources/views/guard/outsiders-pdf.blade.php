@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Outsiders List</title>
+    <title>Service Providers List</title>
     <style>
         body { font-family: Arial, sans-serif; font-size: 12px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -11,7 +11,7 @@
     </style>
 </head>
 <body>
-    <h1>Outsiders List</h1>
+    <h1>Service Providers List</h1>
     <table>
         <thead>
             <tr>

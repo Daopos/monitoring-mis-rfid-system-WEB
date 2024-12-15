@@ -101,7 +101,7 @@
     <!-- Modal Template for each visitor -->
     @foreach ($gateMonitors as $gateMonitor)
         <div class="modal fade" id="visitorModal-{{ $gateMonitor->visitor->id }}" tabindex="-1" role="dialog" aria-labelledby="visitorModalLabel-{{ $gateMonitor->visitor->id }}" aria-hidden="true">
-            <div class="modal-dialog" role="document">
+            <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="visitorModalLabel-{{ $gateMonitor->visitor->id }}">Visitor Details - {{ $gateMonitor->visitor->name }}</h5>
@@ -119,6 +119,16 @@
                         <p><strong>Date of Visit:</strong> {{ \Carbon\Carbon::parse($gateMonitor->visitor->date_visit)->format('F j, Y') }}</p>
                         <p><strong>Number of Visitors:</strong> {{ $gateMonitor->visitor->number_vistiors }}</p>
                         <p><strong>Status:</strong> {{ $gateMonitor->visitor->status }}</p>
+                    </div>
+                    <div class="row p-1">
+                        <div class="col-md-6 text-center">
+                            <h6>In Image</h6>
+                            <img src="{{ asset('storage/' . $gateMonitor->in_img) }}" alt="In Image" class="img-fluid" width="500">
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <h6>Out Image</h6>
+                            <img src="{{ asset('storage/' . $gateMonitor->out_img) }}" alt="Out Image" class="img-fluid" width="500">
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

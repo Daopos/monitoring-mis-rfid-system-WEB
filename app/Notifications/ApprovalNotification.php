@@ -47,9 +47,9 @@ class ApprovalNotification extends Notification
 
     protected function buildMessage()
     {
-        return "Hello! ,\n\n" .
-               "We are pleased to inform you that your account has been successfully approved.\n" .
-               "You can now access the app.\n\n" .
-               "Thank you!";
+        return "Greetings!\n\n" .
+           "We are pleased to inform you that your account has been successfully approved.\n" .
+           "You can now enjoy full access to all the services and featured offers.\n\n" .
+           "Thank you for being a valued member of AGL Heights Subdivision.";
     }
 }

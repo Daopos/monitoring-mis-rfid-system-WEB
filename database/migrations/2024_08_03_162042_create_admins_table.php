@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('username');
             $table->string('password');
             $table->string('type');
+            $table->boolean('is_archived')->default(false); // Manage archived guards
             $table->timestamps();
         });
     }

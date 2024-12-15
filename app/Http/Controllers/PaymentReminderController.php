@@ -6,8 +6,11 @@ use App\Models\HomeOwner;
 use App\Models\HomeownerNotification;
 use App\Models\PaymentReminder;
 use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
 
 class PaymentReminderController extends Controller
 {
@@ -32,12 +35,14 @@ class PaymentReminderController extends Controller
      // Filter by due date
      if ($request->has('filter') && in_array($request->filter, ['due_today', 'overdue'])) {
          if ($request->filter == 'due_today') {
-             $query->whereDate('due_date', $today);
+             $query->whereDate('due_date', $today->toDateString()); // Ensure date comparison
          } elseif ($request->filter == 'overdue') {
-             $query->whereDate('due_date', '<', $today);
+             $query->whereDate('due_date', '<', $today->toDateString());
          }
      }
+
      $query->orderBy('created_at', 'desc'); // Change 'due_date' to 'created_at' if needed
+
      // Paginate the results
      $reminders = $query->paginate(10);
 
@@ -47,16 +52,17 @@ class PaymentReminderController extends Controller
      // Count the number of homeowners with reminders due today and overdue
      $allReminders = PaymentReminder::with('homeOwner')->where('status', 'unpaid')->get();
      $dueTodayCount = $allReminders->filter(function ($reminder) use ($today) {
-         return $reminder->due_date == $today->toDateString();
+         return Carbon::parse($reminder->due_date)->isToday(); // Parse the due_date as Carbon
      })->count();
 
      $overdueCount = $allReminders->filter(function ($reminder) use ($today) {
-         return $reminder->due_date < $today->toDateString();
+         return Carbon::parse($reminder->due_date)->isBefore($today); // Parse the due_date as Carbon
      })->count();
 
      // Pass data to the view
      return view('treasurer.payment', compact('reminders', 'homeOwners', 'dueTodayCount', 'overdueCount'));
  }
+
 
 
  // Show the form to create a new payment reminder
@@ -69,30 +75,43 @@ class PaymentReminderController extends Controller
  // Store a new payment reminder
  public function store(Request $request)
  {
-     $request->validate([
-         'home_owner_id' => 'required|exists:home_owners,id',
-         'title' => 'required|string|max:255',
-         'amount' => 'required|numeric',
-         'due_date' => 'required|date',
-     ]);
+     // Fetch all homeowners
+     $homeOwners = HomeOwner::all();
+     $fixedTitle = 'Association Fee';
+     $fixedAmount = 300;
+     $dueDate = now()->startOfMonth()->addDays(14); // Fixed to the 15th of the current month
 
-     $paymentReminder = PaymentReminder::create([
-        'home_owner_id' => $request->home_owner_id,
-        'title' => $request->title,
-        'amount' => $request->amount,
-        'due_date' => $request->due_date,
-        'status' => 'unpaid', // Default status
-    ]);
+     foreach ($homeOwners as $homeOwner) {
+         // Check if the homeowner already has an unpaid reminder
+         $existingReminder = PaymentReminder::where('home_owner_id', $homeOwner->id)
+             ->where('status', 'unpaid')
+             ->first();
 
-      // Add a notification for the homeowner
-    HomeownerNotification::create([
-        'home_owner_id' => $request->home_owner_id, // Use the homeowner ID from the request
-        'title' => 'New Payment Reminder',
-        'message' => "A new payment reminder has been created: {$paymentReminder->title}. Due date: {$paymentReminder->due_date}.",
-        'is_read' => false,
-    ]);
+         if ($existingReminder) {
+             // Add the fixed amount to the existing reminder
+             $existingReminder->increment('amount', $fixedAmount);
+         } else {
+             // Create a new reminder
+             PaymentReminder::create([
+                 'home_owner_id' => $homeOwner->id,
+                 'title' => $fixedTitle,
+                 'amount' => $fixedAmount,
+                 'due_date' => $dueDate,
+                 'status' => 'unpaid', // Default status
+             ]);
+         }
 
-     return redirect()->route('payment_reminders.index')->with('success', 'Payment reminder created successfully!');
+         // Add a notification for the homeowner
+         HomeownerNotification::create([
+             'home_owner_id' => $homeOwner->id,
+             'title' => 'New Payment Reminder',
+             'message' => "A new payment reminder has been created: {$fixedTitle}. Due date: {$dueDate->format('Y-m-d')}.",
+             'is_read' => false,
+         ]);
+     }
+
+     return redirect()->route('payment_reminders.index')
+         ->with('success', 'Payment reminders for "Association Fee" created for all homeowners successfully!');
  }
 
  // Show the form to edit a payment reminder
@@ -136,17 +155,30 @@ class PaymentReminderController extends Controller
 }
 
 
-public function indexPaid()
+public function indexPaid(Request $request)
 {
-    // Retrieve reminders with homeowner info where status is 'paid'
-    $reminders = PaymentReminder::with('homeOwner')->where('status', 'paid')->paginate(10);
+    // Get the selected month if it's provided in the request
+    $monthFilter = $request->input('month_filter');
 
-    // Calculate the total amount of all reminders with 'paid' status
-    $totalAmount = PaymentReminder::where('status', 'paid')->sum('amount');
+    // Initialize the query for reminders
+    $query = PaymentReminder::with('homeOwner')->where('status', 'paid');
 
-    // Only fetch confirmed homeowners
+    // If a month filter is provided, filter by the updated_at (payment date)
+    if ($monthFilter) {
+        // Filter reminders for the selected month
+        $query->whereMonth('updated_at', $monthFilter);
+    }
+
+    // Paginate the results, 10 per page
+    $reminders = $query->paginate(10);
+
+    // Calculate the total amount of all reminders with 'paid' status for the selected month (if applicable)
+    $totalAmount = $query->sum('amount');
+
+    // Fetch only confirmed homeowners
     $homeOwners = HomeOwner::where('status', 'confirmed')->get();
 
+    // Return the view with the reminders, homeowners, and total amount
     return view('treasurer.paidlist', compact('reminders', 'homeOwners', 'totalAmount'));
 }
 
@@ -161,5 +193,45 @@ public function getHomeownerReminders()
         $reminders = PaymentReminder::where('home_owner_id', $id)->get();
 
         return response()->json($reminders);
+    }
+
+
+
+    public function generateReport(Request $request)
+    {
+        // Get the month filter from the request
+        $monthFilter = $request->input('month_filter');
+
+        // Get the paid list data, applying month filter if provided
+        $reminders = PaymentReminder::where('status', 'Paid');
+
+        // Apply the month filter if it's set
+        if ($monthFilter) {
+            $reminders = $reminders->whereMonth('updated_at', $monthFilter);
+        }
+
+        // Execute the query to get the filtered results
+        $reminders = $reminders->get();
+
+        // Load the view for the report
+        $pdfContent = View::make('treasurer.paidlist_report', compact('reminders'))->render();
+
+        // Initialize Dompdf
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        $dompdf = new Dompdf($options);
+
+        // Load HTML content into Dompdf
+        $dompdf->loadHtml($pdfContent);
+
+        // (Optional) Set paper size
+        $dompdf->setPaper('A4', 'landscape');
+
+        // Render PDF (first pass)
+        $dompdf->render();
+
+        // Stream the PDF to the browser in another tab
+        return $dompdf->stream('paid_list_report.pdf', ['Attachment' => 0]);
     }
 }

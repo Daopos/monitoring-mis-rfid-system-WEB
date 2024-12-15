@@ -71,6 +71,7 @@
                                 <th scope="col">Email</th>
                                 <th scope="col">Entry</th>
                                 <th scope="col">Out</th>
+                                <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -81,6 +82,38 @@
                                     <td>{{ $gateMonitor->owner->email }}</td>
                                     <td>{{ \Carbon\Carbon::parse($gateMonitor->in)->format('F j, Y g:i A') }}</td>
                                     <td>{{ $gateMonitor->out ? \Carbon\Carbon::parse($gateMonitor->out)->format('F j, Y g:i A') : 'N/A' }}</td>
+                                    <td>
+                                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#imageModal-{{ $gateMonitor->id }}">
+                                            View Images
+                                        </button>
+
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="imageModal-{{ $gateMonitor->id }}" tabindex="-1" aria-labelledby="imageModalLabel-{{ $gateMonitor->id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="imageModalLabel-{{ $gateMonitor->id }}">Entry and Exit Images</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6 text-center">
+                                                                <h6>In Image</h6>
+                                                                <img src="{{ asset('storage/' . $gateMonitor->in_img) }}" alt="In Image" class="img-fluid" width="500">
+                                                            </div>
+                                                            <div class="col-md-6 text-center">
+                                                                <h6>Out Image</h6>
+                                                                <img src="{{ asset('storage/' . $gateMonitor->out_img) }}" alt="Out Image" class="img-fluid" width="500">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>

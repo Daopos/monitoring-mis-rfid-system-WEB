@@ -27,45 +27,70 @@
   <!-- Button to Open the Modal -->
 
 
-    <!-- Card for Payment Reminders Table -->
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">Payment Reminders</h5>
+  <form action="{{ route('treasurer.paidlist') }}" method="GET" class="mb-4">
+    <div class="row">
+        <div class="col-md-4">
+            <select name="month_filter" class="form-control">
+                <option value="">Select Month</option>
+                @for($i = 1; $i <= 12; $i++)
+                    <option value="{{ $i }}" {{ request('month_filter') == $i ? 'selected' : '' }}>
+                        {{ \Carbon\Carbon::create()->month($i)->format('F') }}
+                    </option>
+                @endfor
+            </select>
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered mb-0">
-                    <thead class="table-light">
+        <div class="col-md-8">
+            <button type="submit" class="btn btn-primary">Filter by Month</button>
+        </div>
+    </div>
+</form>
+
+
+<!-- Table for Paid Reminders -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <h5 class="mb-0">Paid Reminders</h5>
+
+  <form action="{{ route('treasurer.generateReport') }}" method="GET" class="mb-0">
+    <input type="hidden" name="month_filter" value="{{ request('month_filter') }}">
+    <button type="submit" class="btn btn-success">Generate Report</button>
+</form>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>No</th>
+                        <th>Homeowner</th>
+                        <th>Title</th>
+                        <th>Amount</th>
+                        <th>Due Date</th>
+                        <th>Date Paid</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($reminders as $reminder)
                         <tr>
-                            <th>No</th>
-                            <th>Homeowner</th>
-                            <th>Title</th>
-                            <th>Amount</th>
-                            <th>Due Date</th>
-                            <th>Date Paid</th>
-                            <th>Status</th>
+                            <td>{{ $loop->iteration + ($reminders->currentPage() - 1) * $reminders->perPage() }}</td>
+                            <td>{{ $reminder->homeOwner->fname }} {{ $reminder->homeOwner->lname }}</td>
+                            <td>{{ $reminder->title }}</td>
+                            <td>{{ $reminder->amount }}</td>
+                            <td>{{ $reminder->due_date }}</td>
+                            <td>{{ $reminder->updated_at->format('F d, Y') }}</td>
+                            <td>{{ $reminder->status }}</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($reminders as $reminder)
-                            <tr>
-                                <td>{{ $loop->iteration + ($reminders->currentPage() - 1) * $reminders->perPage() }}</td>
-                                <td>{{ $reminder->homeOwner->fname }} {{ $reminder->homeOwner->lname }}</td>
-                                <td>{{ $reminder->title }}</td>
-                                <td>{{ $reminder->amount }}</td>
-                                <td>{{ $reminder->due_date }}</td>
-                                <td>{{ $reminder->updated_at }}</td>
-                                <td>{{ $reminder->status }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                <div class="mt-3 d-flex justify-content-center">
-                    {{ $reminders->links() }}
-                </div>
+                    @endforeach
+                </tbody>
+            </table>
+            <div class="mt-3 d-flex justify-content-center">
+                {{ $reminders->links() }}
             </div>
         </div>
     </div>
+</div>
+
 
     <!-- Create Reminder Modal -->
     <div class="modal fade" id="createReminderModal" tabindex="-1" aria-labelledby="createReminderModalLabel" aria-hidden="true">

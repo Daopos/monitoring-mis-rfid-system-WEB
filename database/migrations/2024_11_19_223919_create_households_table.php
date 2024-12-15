@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId( 'home_owner_id')->constrained('home_owners')->onDelete('cascade');
             $table->string('name');
             $table->string('relationship');
-            $table->integer('age');
+            $table->date('birthdate');
             $table->string('gender');
             $table->string('rfid')->nullable();
             $table->timestamps();

@@ -5,6 +5,28 @@
 @endsection
 
 @section('content')
+<style>
+    .vehicle-images .image-container {
+        text-align: center;
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    .vehicle-img {
+        max-width: 150px;
+        max-height: 150px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Optional: Make images responsive and add some space between them */
+    .vehicle-images {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+    }
+</style>
     <div class="container mt-5">
         <h1 class="display-4 mb-4">List of Homeowners</h1>
 
@@ -82,35 +104,58 @@
 
                        <!-- Modal for Vehicles -->
                        <div class="modal fade" id="vehiclesModal{{ $homeowner->id }}" tabindex="-1" aria-labelledby="vehiclesModalLabel{{ $homeowner->id }}" aria-hidden="true">
-                           <div class="modal-dialog modal-dialog-centered">
-                               <div class="modal-content">
-                                   <div class="modal-header">
-                                       <h5 class="modal-title" id="vehiclesModalLabel{{ $homeowner->id }}">Vehicles of {{ $homeowner->fname }} {{ $homeowner->lname }}</h5>
-                                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                   </div>
-                                   <div class="modal-body">
-                                       @if ($homeowner->vehicles->isEmpty())
-                                           <p>No vehicles found for this homeowner.</p>
-                                       @else
-                                           <ul class="list-group">
-                                               @foreach ($homeowner->vehicles as $vehicle)
-                                                   <li class="list-group-item">
-                                                       <strong>Brand:</strong> {{ $vehicle->brand ?? 'N/A' }}<br>
-                                                       <strong>Model:</strong> {{ $vehicle->model ?? 'N/A' }}<br>
-                                                       <strong>Color:</strong> {{ $vehicle->color ?? 'N/A' }}<br>
-                                                       <strong>Plate Number:</strong> {{ $vehicle->plate_number ?? 'N/A' }}
-                                                   </li>
-                                               @endforeach
-                                           </ul>
-                                       @endif
-                                   </div>
-                                   <div class="modal-footer">
-                                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                   </div>
-                               </div>
-                           </div>
-                       </div>
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="vehiclesModalLabel{{ $homeowner->id }}">Vehicles of {{ $homeowner->fname }} {{ $homeowner->lname }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    @if ($homeowner->vehicles->isEmpty())
+                                        <p>No vehicles found for this homeowner.</p>
+                                    @else
+                                        <ul class="list-group">
+                                            @foreach ($homeowner->vehicles as $vehicle)
+                                                <li class="list-group-item">
+                                                    <strong>Brand:</strong> {{ $vehicle->brand ?? 'N/A' }}<br>
+                                                    <strong>Model:</strong> {{ $vehicle->model ?? 'N/A' }}<br>
+                                                    <strong>Color:</strong> {{ $vehicle->color ?? 'N/A' }}<br>
+                                                    <strong>Plate Number:</strong> {{ $vehicle->plate_number ?? 'N/A' }}
 
+                                                    <!-- Vehicle Images -->
+                                                    <div class="vehicle-images mt-3">
+                                                        @if($vehicle->vehicle_img)
+                                                            <div class="image-container mb-2">
+                                                                <strong>Vehicle Image:</strong><br>
+                                                                <img src="{{ asset('storage/' . $vehicle->vehicle_img) }}" alt="Vehicle Image" class="img-fluid vehicle-img">
+                                                            </div>
+                                                        @endif
+
+                                                        @if($vehicle->or_img)
+                                                            <div class="image-container mb-2">
+                                                                <strong>OR Image:</strong><br>
+                                                                <img src="{{ asset('storage/' . $vehicle->or_img) }}" alt="OR Image" class="img-fluid vehicle-img">
+                                                            </div>
+                                                        @endif
+
+                                                        @if($vehicle->cr_img)
+                                                            <div class="image-container mb-2">
+                                                                <strong>CR Image:</strong><br>
+                                                                <img src="{{ asset('storage/' . $vehicle->cr_img) }}" alt="CR Image" class="img-fluid vehicle-img">
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                        <!-- Modal for Visitors -->
                        <div class="modal fade" id="visitorsModal{{ $homeowner->id }}" tabindex="-1" aria-labelledby="visitorsModalLabel{{ $homeowner->id }}" aria-hidden="true">
                            <div class="modal-dialog modal-dialog-centered">

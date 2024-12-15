@@ -31,29 +31,44 @@ class HouseholdController extends Controller
     }
   // Create a new household
   public function createMemberAPI(Request $request)
-{
-    $homeOwnerId = Auth::user()->id; // Authenticated user ID
+  {
+      $homeOwnerId = Auth::user()->id; // Authenticated user ID
 
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'relationship' => 'required|string|max:255',
-        'age' => 'required|integer|min:0',
-        'gender' => 'required|string|max:50',
-    ]);
+      $request->validate([
+          'name' => 'required|string|max:255',
+          'relationship' => 'required|string|max:255',
+          'birthdate' => 'required|date',
+          'gender' => 'required|string|max:50',
+      ]);
 
-    $household = Household::create([
-        'home_owner_id' => $homeOwnerId, // Ensure household is tied to the authenticated user
-        'name' => $request->name,
-        'relationship' => $request->relationship,
-        'age' => $request->age,
-        'gender' => $request->gender,
-    ]);
+      // Check if "Husband" or "Wife" already exists for this user
+      if (in_array($request->relationship, ['Husband', 'Wife', 'Father', 'Mother'])) {
+          $existingSpouse = Household::where('home_owner_id', $homeOwnerId)
+              ->where('relationship', $request->relationship)
+              ->first();
 
-    return response()->json([
-        'message' => 'Household created successfully',
-        'data' => $household,
-    ], 201);
-}
+          if ($existingSpouse) {
+              return response()->json([
+                  'message' => 'You already have a ' . $request->relationship . ' in your household.',
+              ], 400);
+          }
+      }
+
+      // Create a new household record
+      $household = Household::create([
+          'home_owner_id' => $homeOwnerId,
+          'name' => $request->name,
+          'relationship' => $request->relationship,
+          'birthdate' => $request->birthdate,
+          'gender' => $request->gender,
+      ]);
+
+      return response()->json([
+          'message' => 'Household created successfully',
+          'data' => $household,
+      ], 201);
+  }
+
 
 
   // Update a household
@@ -72,11 +87,11 @@ class HouseholdController extends Controller
     $request->validate([
         'name' => 'sometimes|string|max:255',
         'relationship' => 'sometimes|string|max:255',
-        'age' => 'sometimes|integer|min:0',
+        'birthdate' => 'sometimes|date',
         'gender' => 'sometimes|string|max:50',
     ]);
 
-    $household->update($request->only(['name', 'relationship', 'age', 'gender']));
+    $household->update($request->only(['name', 'relationship', 'birthdate', 'gender']));
 
     return response()->json([
         'message' => 'Household updated successfully',

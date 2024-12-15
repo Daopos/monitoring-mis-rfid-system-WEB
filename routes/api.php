@@ -71,6 +71,7 @@ Route::post('/messages/mark-as-seen', [MessageController::class, 'markAsSeen'])-
 
 Route::get('/homeowner/notifications', [HomeownerNotificationController::class, 'index'])->middleware('auth:sanctum');
 Route::post('/homeowner/notifications/delete/{id}', [HomeownerNotificationController::class, 'destroy'])->middleware('auth:sanctum');
+Route::post('/homeowner/notifications/seen', [HomeownerNotificationController::class, 'markAsRead'])->middleware('auth:sanctum');
 
 // Password reset routes
 Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail']);

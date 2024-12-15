@@ -14,7 +14,8 @@ class Message extends Model
         'home_owner_id',
         'type',
         'sender_role',
-        'recipient_role'
+        'recipient_role',
+        'guard_name'
     ];
 
     public function homeOwner()
