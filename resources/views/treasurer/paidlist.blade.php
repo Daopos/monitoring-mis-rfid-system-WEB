@@ -77,7 +77,7 @@
                             <td>{{ $reminder->homeOwner->fname }} {{ $reminder->homeOwner->lname }}</td>
                             <td>{{ $reminder->title }}</td>
                             <td>{{ $reminder->amount }}</td>
-                            <td>{{ $reminder->due_date }}</td>
+                            <td>{{ $reminder->due_date->format('F d, Y') }}</td>
                             <td>{{ $reminder->updated_at->format('F d, Y') }}</td>
                             <td>{{ $reminder->status }}</td>
                         </tr>

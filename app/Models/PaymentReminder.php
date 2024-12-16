@@ -11,6 +11,11 @@ class PaymentReminder extends Model
     protected $fillable = [
         'home_owner_id', 'title', 'amount', 'due_date', 'status'
     ];
+
+    protected $casts = [
+        'due_date' => 'datetime',
+    ];
+
     public function homeOwner()
     {
         return $this->belongsTo(HomeOwner::class);

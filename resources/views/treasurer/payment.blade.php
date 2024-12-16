@@ -116,7 +116,7 @@
                             <td>{{ $reminder->title }}</td>
                             <td>{{ $reminder->amount }}</td>
                             <td>
-                                {{ $isOverdue}} <!-- Display due date for troubleshooting -->
+                                {{ $reminder->due_date->format('F d, Y')}} <!-- Display due date for troubleshooting -->
                             </td>
                             <td>{{ $isOverdue ? 'Overdue' : 'Pending' }}</td>
                             <td>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\HomeOwner;
 use App\Models\HomeownerNotification;
 use App\Models\PaymentReminder;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -199,39 +200,22 @@ public function getHomeownerReminders()
 
     public function generateReport(Request $request)
     {
-        // Get the month filter from the request
-        $monthFilter = $request->input('month_filter');
+        // Fetch data based on filters
+        $query = PaymentReminder::where('status', 'Paid');
 
-        // Get the paid list data, applying month filter if provided
-        $reminders = PaymentReminder::where('status', 'Paid');
-
-        // Apply the month filter if it's set
-        if ($monthFilter) {
-            $reminders = $reminders->whereMonth('updated_at', $monthFilter);
+        // Apply month filter if provided
+        if ($request->has('month_filter') && $request->input('month_filter') != '') {
+            $query->whereMonth('updated_at', $request->input('month_filter'));
         }
 
-        // Execute the query to get the filtered results
-        $reminders = $reminders->get();
+        // Retrieve filtered data
+        $reminders = $query->get();
 
-        // Load the view for the report
-        $pdfContent = View::make('treasurer.paidlist_report', compact('reminders'))->render();
+        // Generate PDF using the view
+        $pdf = Pdf::loadView('treasurer.paidlist_report', compact('reminders'));
 
-        // Initialize Dompdf
-        $options = new Options();
-        $options->set('isHtml5ParserEnabled', true);
-        $options->set('isPhpEnabled', true);
-        $dompdf = new Dompdf($options);
-
-        // Load HTML content into Dompdf
-        $dompdf->loadHtml($pdfContent);
-
-        // (Optional) Set paper size
-        $dompdf->setPaper('A4', 'landscape');
-
-        // Render PDF (first pass)
-        $dompdf->render();
-
-        // Stream the PDF to the browser in another tab
-        return $dompdf->stream('paid_list_report.pdf', ['Attachment' => 0]);
+        // Return the PDF for streaming
+        return $pdf->stream('paid_list_report.pdf');
     }
+
 }
