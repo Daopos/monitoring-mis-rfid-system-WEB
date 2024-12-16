@@ -10,7 +10,18 @@ class Outsider extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'type', 'vehicle_type', 'brand', 'color', 'model', 'plate_number', 'rfid','in','out'
+        'name',
+        'type',
+        'vehicle_type',
+        'brand','color',
+        'model',
+        'plate_number',
+        'rfid',
+        'in',
+        'out',
+        'type_id',
+        'valid_id',
+        'profile_img',
     ];
 
     protected $casts = [

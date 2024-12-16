@@ -55,36 +55,86 @@
                             </tr>
 
                             <!-- Details Modal -->
-                            <div class="modal fade" id="detailsModal{{ $visitor->id }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ $visitor->id }}" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="detailsModalLabel{{ $visitor->id }}">
-                                                Visitor Details: {{ $visitor->name }}
-                                            </h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <ul class="list-group">
-                                                <li class="list-group-item"><strong>Name:</strong> {{ $visitor->name }}</li>
-                                                <li class="list-group-item"><strong>Relationship:</strong> {{ $visitor->relationship ?? 'N/A' }}</li>
-                                                <li class="list-group-item"><strong>Brand:</strong> {{ $visitor->brand ?? 'N/A' }}</li>
-                                                <li class="list-group-item"><strong>Color:</strong> {{ $visitor->color ?? 'N/A' }}</li>
-                                                <li class="list-group-item"><strong>Model:</strong> {{ $visitor->model ?? 'N/A' }}</li>
-                                                <li class="list-group-item"><strong>Plate Number:</strong> {{ $visitor->plate_number ?? 'N/A' }}</li>
-                                                <li class="list-group-item"><strong>Number of Visitors:</strong> {{ $visitor->number_visitors ?? 'N/A' }}</li>
-                                                <li class="list-group-item"><strong>Date of Visit:</strong> {{ $visitor->date_visit ?? 'N/A' }}</li>
-                                                <li class="list-group-item"><strong>RFID:</strong> {{ $visitor->rfid ?? 'N/A' }}</li>
-                                                <li class="list-group-item"><strong>Status:</strong> {{ ucfirst($visitor->status) }}</li>
-                                                <li class="list-group-item"><strong>Guard Approval:</strong> {{ $visitor->guard ? 'Approved' : 'Pending' }}</li>
-                                            </ul>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                           <!-- Details Modal -->
+                           @foreach ($visitors as $visitor)
+                           <tr>
+                               <td>{{ $loop->iteration + ($visitors->currentPage() - 1) * $visitors->perPage() }}</td>
+                               <td>{{ $visitor->name }}</td>
+                               <td>{{ $visitor->homeowner ? $visitor->homeowner->fname . ' ' . $visitor->homeowner->lname : 'N/A' }}</td>
+                               <td>{{ $visitor->number_visitors ?? 'N/A' }}</td>
+                               <td>{{ $visitor->date_visit ?? 'N/A' }}</td>
+                               <td>{{ $visitor->status ?? 'N/A' }}</td>
+                               <td>
+                                   <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#detailsModal{{ $visitor->id }}">
+                                       View Details
+                                   </button>
+                               </td>
+                           </tr>
+
+                           <!-- Details Modal -->
+                           <div class="modal fade" id="detailsModal{{ $visitor->id }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ $visitor->id }}" aria-hidden="true">
+                               <div class="modal-dialog">
+                                   <div class="modal-content">
+                                       <div class="modal-header">
+                                           <h5 class="modal-title" id="detailsModalLabel{{ $visitor->id }}">
+                                               Visitor Details: {{ $visitor->name }}
+                                           </h5>
+                                           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                       </div>
+                                       <div class="modal-body">
+                                        <h6>Representative:</h6>
+                                           <ul class="list-group">
+                                            <li class="list-group-item">
+                                                <strong>Valid ID:</strong>
+                                                <img src="{{ asset('storage/' . $visitor->valid_id) }}" alt="Profile Image" class="img-thumbnail" width="100" />
+                                            </li>
+                                            <li class="list-group-item">
+                                                <strong>Profile Image:</strong>
+                                                <img src="{{ asset('storage/' . $visitor->profile_img) }}" alt="Profile Image" class="img-thumbnail" width="100" />
+                                            </li>
+                                               <li class="list-group-item"><strong>Relationship:</strong> {{ $visitor->relationship ?? 'N/A' }}</li>
+                                               <li class="list-group-item"><strong>Brand:</strong> {{ $visitor->brand ?? 'N/A' }}</li>
+                                               <li class="list-group-item"><strong>Color:</strong> {{ $visitor->color ?? 'N/A' }}</li>
+                                               <li class="list-group-item"><strong>Model:</strong> {{ $visitor->model ?? 'N/A' }}</li>
+                                               <li class="list-group-item"><strong>Plate Number:</strong> {{ $visitor->plate_number ?? 'N/A' }}</li>
+                                               <li class="list-group-item"><strong>Date of Visit:</strong> {{ $visitor->date_visit ?? 'N/A' }}</li>
+                                               <li class="list-group-item"><strong>Id Type:</strong> {{ $visitor->type_id ?? 'N/A' }}</li>
+                                               <li class="list-group-item"><strong>RFID:</strong> {{ $visitor->rfid ?? 'N/A' }}</li>
+                                               <li class="list-group-item"><strong>Status:</strong> {{ ucfirst($visitor->status) }}</li>
+                                               <li class="list-group-item"><strong>Guard Approval:</strong> {{ $visitor->guard ? 'Approved' : 'Pending' }}</li>
+                                           </ul>
+                                           <hr />
+                                           <h6>Members:</h6>
+                                           <ul class="list-group">
+                                               @foreach ($visitor->visitorGroups as $group)
+                                                   <li class="list-group-item">
+                                                       <strong>Name:</strong> {{ $group->name ?? 'N/A' }}<br />
+                                                       <strong>ID Type:</strong> {{ $group->type_id ?? 'N/A' }}<br />
+                                                       <strong>Valid ID:</strong>
+                                                       @if ($group->valid_id)
+                                                           <img src="{{ asset('storage/' . $group->valid_id) }}" alt="Profile Image" class="img-thumbnail" width="100" />
+                                                       @else
+                                                           N/A
+                                                       @endif
+                                                       <br />
+                                                       <strong>Profile Image:</strong>
+                                                       @if ($group->profile_img)
+                                                           <img src="{{ asset('storage/' . $group->profile_img) }}" alt="Profile Image" class="img-thumbnail" width="100" />
+                                                       @else
+                                                           N/A
+                                                       @endif
+                                                   </li>
+                                               @endforeach
+                                           </ul>
+                                       </div>
+                                       <div class="modal-footer">
+                                           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                       </div>
+                                   </div>
+                               </div>
+                           </div>
+                       @endforeach
+
                         @endforeach
                     </tbody>
 

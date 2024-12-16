@@ -21,7 +21,11 @@ class Visitor extends Model
         'date_visit',
         'number_vistiors',
         'status',
-        'guard'
+        'guard',
+        'reason',
+        'type_id',
+        'valid_id',
+        'profile_img'
     ];
 
     public function rfidRequest()
@@ -36,6 +40,11 @@ public function homeowner()
 public function owner()
 {
     return $this->belongsTo(Visitor::class, 'visitor_id'); // Assuming 'visitor_id' is the foreign key.
+}
+
+public function visitorGroups()
+{
+    return $this->hasMany(VisitorGroup::class);
 }
 
 }

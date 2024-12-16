@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\HomeOwner;
 use App\Models\HomeownerNotification;
 use App\Models\Visitor;
+use App\Models\VisitorGroup;
 use App\Models\VisitorRfidRequest;
 use App\Rules\UniqueRfid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 class VisitorController extends Controller
 {
@@ -19,8 +22,8 @@ class VisitorController extends Controller
         // Get the search query from the request
         $search = $request->input('search');
 
-        // Query visitors with homeowner and apply search filter
-        $visitors = Visitor::with('homeowner')
+        // Query visitors with homeowner and visitorGroups, and apply the search filter
+        $visitors = Visitor::with(['homeowner', 'visitorGroups']) // Eager load both relationships
             ->where(function ($query) use ($search) {
                 if ($search) {
                     $query->where('name', 'like', '%' . $search . '%') // Search visitor name
@@ -80,7 +83,7 @@ public function indexGuard(Request $request)
     $searchTerm = $request->input('search', '');
 
     // Eager load visitors with their homeowner, filtered by search term if provided
-    $visitors = Visitor::with('homeowner')
+    $visitors = Visitor::with(['homeowner', 'visitorGroups'])
         ->where(function($query) use ($searchTerm) {
             $query->where('name', 'like', '%'.$searchTerm.'%')
                   ->orWhere('plate_number', 'like', '%'.$searchTerm.'%')
@@ -101,33 +104,79 @@ public function indexGuard(Request $request)
 
 public function storeVisitor(Request $request)
 {
+    // Validate the request data
     $request->validate([
         'home_owner_id' => 'required|exists:home_owners,id',
-        'name' => 'required|string',
-        'plate_number' => 'nullable|string',
-        'relationship' => 'nullable|string',
+        'representative.name' => 'required|string',
+        'representative.relationship' => 'required|string',
+        'representative.type_id' => 'nullable|string',
+        'representative.reason' => 'nullable|string',
+        'representative.brand' => 'nullable|string',
+        'representative.color' => 'nullable|string',
+        'representative.model' => 'nullable|string',
+        'representative.plate_number' => 'nullable|string',
+        'representative.profile_img' => 'nullable|image|max:22048',
+        'representative.valid_id' => 'nullable|image|max:22048',
         'date_visit' => 'nullable|date',
-        'number_vistiors' => 'nullable|integer',
+        'members' => 'array',
+        'members.*.name' => 'required|string',
+        'members.*.type_id' => 'nullable|string',
+        'members.*.valid_id' => 'nullable|image|max:22048',
+        'members.*.profile_img' => 'nullable|image|max:22048',
     ]);
+    // Handle file uploads for representative
+    $repProfileImg = $request->file('representative.profile_img')
+        ? $request->file('representative.profile_img')->store('profile_images', 'public')
+        : null;
 
+    $repValidId = $request->file('representative.valid_id')
+        ? $request->file('representative.valid_id')->store('valid_ids', 'public')
+        : null;
 
-    // Set the current date if date_visit is not provided
-    $dateVisit = now()->format('Y-m-d'); // Get today's date in YYYY-MM-DD format
-
-    Visitor::create([
+    // Create the representative visitor
+    $representative = Visitor::create([
         'home_owner_id' => $request->home_owner_id,
-        'name' => $request->name,
-        'plate_number' => $request->plate_number,
-        'relationship' => $request->relationship,
-        'date_visit' => $dateVisit, // Automatically set to today's date
-        'number_vistiors' => $request->number_vistiors,
-        'status' => 'requested', // Default status is pending
-        'guard' => true, // Default status is pending
-
+        'name' => $request->input('representative.name'),
+        'relationship' => $request->input('representative.relationship'),
+        'type_id' => $request->input('representative.type_id'),
+        'reason' => $request->input('representative.reason'),
+        'brand' => $request->input('representative.brand'),
+        'color' => $request->input('representative.color'),
+        'model' => $request->input('representative.model'),
+        'plate_number' => $request->input('representative.plate_number'),
+        'date_visit' => $request->input('date_visit', now()->format('Y-m-d')),
+        'profile_img' => $repProfileImg,
+        'valid_id' => $repValidId,
+        'status' => 'requested',
+        'guard' => true,
     ]);
 
-    return redirect()->route('guard.visitor')->with('success', 'Visitor added successfully.');
+    // Create members (visitor groups)
+if ($request->has('members')) {
+    foreach ($request->input('members') as $index => $member) {
+        $memberProfileImg = $request->file("members.$index.profile_img")
+            ? $request->file("members.$index.profile_img")->store('profile_images', 'public')
+            : null;
+
+        $memberValidId = $request->file("members.$index.valid_id")
+            ? $request->file("members.$index.valid_id")->store('valid_ids', 'public')
+            : null;
+
+        VisitorGroup::create([
+            'visitor_id' => $representative->id,
+            'name' => $member['name'],
+            'type_id' => $member['type_id'] ?? null,
+            'profile_img' => $memberProfileImg,
+            'valid_id' => $memberValidId,
+        ]);
+    }
 }
+
+    return redirect()->route('guard.visitor')->with('success', 'Visitor and members added successfully.');
+}
+
+
+
 
 public function approveGuard(Request $request, $visitorId)
 {
@@ -273,6 +322,7 @@ public function getVisitors(Request $request)
 
 public function createVisitorAPI(Request $request)
 {
+    // Validate the request data
     $validated = $request->validate([
         'name' => 'required|string|max:255',
         'brand' => 'nullable|string|max:255',
@@ -282,27 +332,69 @@ public function createVisitorAPI(Request $request)
         'rfid' => 'nullable|string|max:255',
         'relationship' => 'nullable|string|max:255',
         'date_visit' => 'nullable|date',
-        'number_vistiors' => 'nullable|string|max:255',
         'status' => 'nullable|in:pending,approved,denied',
+        'members' => 'array',
+        'members.*.name' => 'required|string',
     ]);
+
+    // Set the status to 'pending' if it's not provided
     $status = $validated['status'] ?? 'pending';
-    // Get the authenticated user's ID (home_owner_id)
+
+    // Get the authenticated user's home_owner_id
     $homeOwnerId = Auth::user()->id;
 
     // Create the visitor record with the authenticated user's home_owner_id
     $visitor = Visitor::create(array_merge($validated, ['status' => $status, 'home_owner_id' => $homeOwnerId]));
 
+    // Handle creation of the members (visitor group)
+    if ($request->has('members')) {
+        foreach ($request->input('members') as $index => $member) {
+            VisitorGroup::create([
+                'visitor_id' => $visitor->id,
+                'name' => $member['name'],
+            ]);
+        }
+    }
+
     return response()->json($visitor, 201);
 }
 
+
+
+
 public function getVisitorAPI()
-    {
-        $homeOwnerId = Auth::user()->id;
+{
+    $homeOwnerId = Auth::user()->id;
 
-        $visitors = Visitor::where('home_owner_id', $homeOwnerId)->get();
+    $visitors = Visitor::with('visitorGroups')->where('home_owner_id', $homeOwnerId)
+        ->get()
+        ->map(function ($visitor) {
+            // Check if the visitor has valid_id and profile_img, then generate full URLs
+            if ($visitor->valid_id) {
+                $visitor->valid_id_url = URL::to(Storage::url($visitor->valid_id)); // Prepend full URL
+            }
+            if ($visitor->profile_img) {
+                $visitor->profile_img_url = URL::to(Storage::url($visitor->profile_img)); // Prepend full URL
+            }
 
-        return response()->json($visitors);
-    }
+            // Loop through the visitorGroups to add full URLs for each group
+            $visitor->visitorGroups->map(function ($group) {
+                if ($group->valid_id) {
+                    $group->valid_id_url = URL::to(Storage::url($group->valid_id)); // Prepend full URL
+                }
+                if ($group->profile_img) {
+                    $group->profile_img_url = URL::to(Storage::url($group->profile_img)); // Prepend full URL
+                }
+                return $group;
+            });
+
+            return $visitor;
+        });
+
+    return response()->json($visitors);
+}
+
+
 
 // Get a single visitor for the authenticated home_owner
 public function show($id)
@@ -316,10 +408,13 @@ public function show($id)
 // Update an existing visitor
 public function updateVisitorAPI(Request $request, $id)
 {
+    // Get the authenticated user's home_owner_id
     $homeOwnerId = Auth::user()->id;
 
+    // Find the visitor associated with the authenticated user
     $visitor = Visitor::where('id', $id)->where('home_owner_id', $homeOwnerId)->firstOrFail();
 
+    // Validate the request data
     $validated = $request->validate([
         'name' => 'required|string|max:255',
         'brand' => 'nullable|string|max:255',
@@ -329,13 +424,46 @@ public function updateVisitorAPI(Request $request, $id)
         'rfid' => 'nullable|string|max:255',
         'relationship' => 'nullable|string|max:255',
         'date_visit' => 'nullable|date',
-        'number_vistiors' => 'nullable|string|max:255',
+        'status' => 'nullable|in:pending,approved,denied',
+        'members' => 'array',
+        'members.*.name' => 'required|string|max:255',
     ]);
 
+    // Update the visitor record
     $visitor->update($validated);
 
-    return response()->json($visitor);
+    // Handle visitor group members update
+    if ($request->has('members')) {
+        // Get the existing members for this visitor
+        $existingMembers = VisitorGroup::where('visitor_id', $visitor->id)->get();
+
+        // Create a list of new member names from the request
+        $newMembers = collect($request->input('members'))->pluck('name')->toArray();
+
+        // Remove members that are not in the new list
+        foreach ($existingMembers as $existingMember) {
+            if (!in_array($existingMember->name, $newMembers)) {
+                $existingMember->delete();
+            }
+        }
+
+        // Add new members that are not in the existing list
+        foreach ($newMembers as $newMemberName) {
+            if (!in_array($newMemberName, $existingMembers->pluck('name')->toArray())) {
+                VisitorGroup::create([
+                    'visitor_id' => $visitor->id,
+                    'name' => $newMemberName,
+                ]);
+            }
+        }
+    }
+
+    return response()->json([
+        'message' => 'Visitor updated successfully.',
+        'visitor' => $visitor,
+    ]);
 }
+
 
 // Delete a visitor
 public function deleteVisitorAPI($id)

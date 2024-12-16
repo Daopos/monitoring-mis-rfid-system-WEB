@@ -44,13 +44,16 @@
                     <tbody>
                         @foreach ($visitors as $visitor)
                             <tr>
-                            <td>{{ $loop->iteration + ($visitors->currentPage() - 1) * $visitors->perPage() }}</td>
+                                <td>{{ $loop->iteration + ($visitors->currentPage() - 1) * $visitors->perPage() }}</td>
                                 <td>{{ $visitor->name }}</td>
                                 <td>{{ $visitor->plate_number ?? 'N/A' }}</td>
                                 <td>{{ $visitor->homeowner ? $visitor->homeowner->fname . ' ' . $visitor->homeowner->lname : 'N/A' }}</td>
                                 <td>{{ $visitor->relationship ?? 'N/A' }}</td>
                                 <td>{{ ucfirst($visitor->status) }}</td>
                                 <td>
+                                    <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#detailsModal{{ $visitor->id }}">
+                                        View Details
+                                    </button>
                                     @if ($visitor->status === 'pending')
                                         <!-- Approve and Reject Actions -->
                                         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ $visitor->id }}">Approve</button>
@@ -77,7 +80,67 @@
                                     @endif
                                 </td>
                             </tr>
-
+                            <div class="modal fade" id="detailsModal{{ $visitor->id }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ $visitor->id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="detailsModalLabel{{ $visitor->id }}">
+                                                Visitor Details: {{ $visitor->name }}
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                         <h6>Representative:</h6>
+                                            <ul class="list-group">
+                                             <li class="list-group-item">
+                                                 <strong>Valid ID:</strong>
+                                                 <img src="{{ asset('storage/' . $visitor->valid_id) }}" alt="Profile Image" class="img-thumbnail" width="100" />
+                                             </li>
+                                             <li class="list-group-item">
+                                                 <strong>Profile Image:</strong>
+                                                 <img src="{{ asset('storage/' . $visitor->profile_img) }}" alt="Profile Image" class="img-thumbnail" width="100" />
+                                             </li>
+                                                <li class="list-group-item"><strong>Relationship:</strong> {{ $visitor->relationship ?? 'N/A' }}</li>
+                                                <li class="list-group-item"><strong>Brand:</strong> {{ $visitor->brand ?? 'N/A' }}</li>
+                                                <li class="list-group-item"><strong>Color:</strong> {{ $visitor->color ?? 'N/A' }}</li>
+                                                <li class="list-group-item"><strong>Model:</strong> {{ $visitor->model ?? 'N/A' }}</li>
+                                                <li class="list-group-item"><strong>Plate Number:</strong> {{ $visitor->plate_number ?? 'N/A' }}</li>
+                                                <li class="list-group-item"><strong>Date of Visit:</strong> {{ $visitor->date_visit ?? 'N/A' }}</li>
+                                                <li class="list-group-item"><strong>Id Type:</strong> {{ $visitor->type_id ?? 'N/A' }}</li>
+                                                <li class="list-group-item"><strong>RFID:</strong> {{ $visitor->rfid ?? 'N/A' }}</li>
+                                                <li class="list-group-item"><strong>Status:</strong> {{ ucfirst($visitor->status) }}</li>
+                                                <li class="list-group-item"><strong>Guard Approval:</strong> {{ $visitor->guard ? 'Approved' : 'Pending' }}</li>
+                                            </ul>
+                                            <hr />
+                                            <h6>Members:</h6>
+                                            <ul class="list-group">
+                                                @foreach ($visitor->visitorGroups as $group)
+                                                    <li class="list-group-item">
+                                                        <strong>Name:</strong> {{ $group->name ?? 'N/A' }}<br />
+                                                        <strong>ID Type:</strong> {{ $group->type_id ?? 'N/A' }}<br />
+                                                        <strong>Valid ID:</strong>
+                                                        @if ($group->valid_id)
+                                                            <img src="{{ asset('storage/' . $group->valid_id) }}" alt="Profile Image" class="img-thumbnail" width="100" />
+                                                        @else
+                                                            N/A
+                                                        @endif
+                                                        <br />
+                                                        <strong>Profile Image:</strong>
+                                                        @if ($group->profile_img)
+                                                            <img src="{{ asset('storage/' . $group->profile_img) }}" alt="Profile Image" class="img-thumbnail" width="100" />
+                                                        @else
+                                                            N/A
+                                                        @endif
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <!-- Approve/Assign RFID Modal -->
                             <div class="modal fade" id="approveModal{{ $visitor->id }}" tabindex="-1" aria-labelledby="approveModalLabel{{ $visitor->id }}" aria-hidden="true">
                                 <div class="modal-dialog">
@@ -127,55 +190,132 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addVisitorModalLabel">Add New Visitor</h5>
+                <h5 class="modal-title" id="addVisitorModalLabel">Add New Visitors</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('guard.storeVisitor') }}" method="POST">
+                <form action="{{ route('guard.storeVisitor') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    <div class="mb-3">
-                        <label for="homeowner_id" class="form-label">Homeowner</label>
-                        <!-- Search Input -->
-                        <input type="text" id="homeownerSearch" class="form-control mb-2" placeholder="Search Homeowner..." onkeyup="filterHomeowners()">
+                    <!-- Representative Section -->
+                    <!-- Representative Section -->
+<div class="mb-3">
+    <h6>Representative</h6>
+  <!-- Search Input -->
+    <!-- Homeowner Selection -->
+    <label for="homeowner_id" class="form-label">Homeowner</label>
+    <!-- Search Input -->
+    <input type="text" id="homeownerSearch" class="form-control mb-2" placeholder="Search Homeowner..." onkeyup="filterHomeowners()">
 
-                        <!-- Dropdown -->
-                        <select name="home_owner_id" id="homeowner_id" class="form-control" required>
-                            <option value="">Select Homeowner</option>
-                            @foreach ($homeowners as $homeowner)
-                                <option value="{{ $homeowner->id }}">{{ $homeowner->fname }} {{ $homeowner->lname }}</option>
-                            @endforeach
-                        </select>
+    <!-- Dropdown -->
+    <select name="home_owner_id" id="homeowner_id" class="form-control" required>
+        <option value="">Select Homeowner</option>
+        @foreach ($homeowners as $homeowner)
+            <option value="{{ $homeowner->id }}">{{ $homeowner->fname }} {{ $homeowner->lname }}</option>
+        @endforeach
+    </select>
+
+    <!-- Representative Name -->
+    <label for="representative_name" class="form-label">Name</label>
+    <input type="text" name="representative[name]" class="form-control" required>
+
+    <!-- Relationship Dropdown -->
+    <label for="representative_relationship" class="form-label">Relationship</label>
+    <select name="representative[relationship]" class="form-control" required>
+        <option value="" disabled selected>Select Relationship</option>
+        <option value="Family">Family</option>
+        <option value="Friend">Friend</option>
+        <option value="Colleague">Colleague</option>
+        <option value="Business Partner">Business Partner</option>
+        <option value="Other">Other</option>
+    </select>
+
+    <!-- Other Fields -->
+    <label for="representative_brand" class="form-label">Brand</label>
+    <input type="text" name="representative[brand]" class="form-control">
+
+    <label for="representative_color" class="form-label">Color</label>
+    <input type="text" name="representative[color]" class="form-control">
+
+    <label for="representative_model" class="form-label">Model</label>
+    <input type="text" name="representative[model]" class="form-control">
+
+    <label for="representative_plate_number" class="form-label">Plate Number</label>
+    <input type="text" name="representative[plate_number]" class="form-control">
+
+    <label for="representative_type_id" class="form-label">Type ID</label>
+    <input type="number" name="representative[type_id]" class="form-control" required>
+
+    <label for="representative_reason" class="form-label">Reason</label>
+    <textarea name="representative[reason]" class="form-control" rows="3" required></textarea>
+
+    <label for="representative_profile_img" class="form-label">Profile Image</label>
+    <input type="file" name="representative[profile_img]" class="form-control" accept="image/*" required>
+
+    <label for="representative_valid_id" class="form-label">Valid ID</label>
+    <input type="file" name="representative[valid_id]" class="form-control" accept="image/*" required>
+</div>
+
+                    <!-- Members Section -->
+                    <div id="visitorGroupContainer">
+                        <div class="visitor-group mb-3">
+                            <h6>Member</h6>
+                            <label for="visitor_name" class="form-label">Name</label>
+                            <input type="text" name="members[0][name]" class="form-control" required>
+
+                            <label for="type_id" class="form-label">Type ID</label>
+                            <input type="number" name="members[0][type_id]" class="form-control" required>
+
+                            <label for="valid_id" class="form-label">Valid ID</label>
+                            <input type="file" name="members[0][valid_id]" class="form-control" accept="image/*" required>
+
+                            <label for="profile_img" class="form-label">Profile Image</label>
+                            <input type="file" name="members[0][profile_img]" class="form-control" accept="image/*" required>
+
+                            <button type="button" class="btn btn-danger mt-2 remove-visitor-group">Remove</button>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="visitor_name" class="form-label">Visitor Name</label>
-                        <input type="text" name="name" id="visitor_name" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="plate_number" class="form-label">Plate Number</label>
-                        <input type="text" name="plate_number" id="plate_number" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label for="relationship" class="form-label">Relationship</label>
-                        <select name="relationship" id="relationship" class="form-control" required>
-                            <option value="">Select Relationship</option>
-                            <option value="Family">Family</option>
-                            <option value="Friend">Friend</option>
-                            <option value="Colleague">Colleague</option>
-                            <option value="Business Partner">Business Partner</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="number_vistiors" class="form-label">Number of Visitors</label>
-                        <input type="number" name="number_vistiors" id="number_vistiors" class="form-control">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Add Visitor</button>
+
+                    <button type="button" class="btn btn-secondary mb-3" id="addVisitorGroup">Add Another Member</button>
+                    <button type="submit" class="btn btn-primary">Add Visitors</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
 <script>
+   let visitorIndex = 1;
+document.getElementById('addVisitorGroup').addEventListener('click', function () {
+    const container = document.getElementById('visitorGroupContainer');
+    const newGroup = document.createElement('div');
+    newGroup.classList.add('visitor-group', 'mb-3');
+    newGroup.innerHTML = `
+        <h6>Member</h6>
+        <label for="visitor_name" class="form-label">Name</label>
+        <input type="text" name="members[${visitorIndex}][name]" class="form-control" required>
+
+        <label for="type_id" class="form-label">Type ID</label>
+        <input type="number" name="members[${visitorIndex}][type_id]" class="form-control" required>
+
+        <label for="valid_id" class="form-label">Valid ID</label>
+<input type="file" name="members[${visitorIndex}][profile_img]" class="form-control" accept="image/*" required>
+
+        <label for="profile_img" class="form-label">Profile Image</label>
+<input type="file" name="members[${visitorIndex}][valid_id]" class="form-control" accept="image/*" required>
+
+        <button type="button" class="btn btn-danger mt-2 remove-visitor-group">Remove</button>
+    `;
+    container.appendChild(newGroup);
+    visitorIndex++;
+});
+
+
+    document.getElementById('visitorGroupContainer').addEventListener('click', function (e) {
+        if (e.target.classList.contains('remove-visitor-group')) {
+            e.target.parentElement.remove();
+        }
+    });
+
     function filterHomeowners() {
         const searchInput = document.getElementById('homeownerSearch').value.toLowerCase();
         const dropdown = document.getElementById('homeowner_id');

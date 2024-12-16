@@ -75,32 +75,50 @@ class OutsiderController extends Controller
 
 public function store(Request $request)
 {
-    // Validate the form data
     $request->validate([
-        'name' => 'required',
-        'type' => 'required',
-        'vehicle_type' => 'nullable',
-        'brand' => 'nullable',
-        'color' => 'nullable',
-        'model' => 'nullable',
-        'plate_number' => 'nullable',
-        'rfid' => 'nullable',
-        'other_type' => 'required_if:type,Other', // Validate only when 'Other' is selected
+        'name' => 'required|string|max:255',
+        'type' => 'required|string',
+        'vehicle_type' => 'nullable|string',
+        'brand' => 'nullable|string',
+        'color' => 'nullable|string',
+        'model' => 'nullable|string',
+        'plate_number' => 'nullable|string',
+        'rfid' => 'nullable|string',
+        'type_id' => 'required|string|max:255',
+        'valid_id' => 'nullable|image|max:22048',
+        'profile_img' => 'nullable|image|max:22048',
     ]);
 
-    // If the type is "Other", set the type to the value of "other_type"
-    if ($request->type === 'Other' && $request->has('other_type')) {
-        $request->merge(['type' => $request->other_type]); // Merge the other_type value into the type field
+    if ($request->type === 'Other') {
+        $request->validate([
+            'other_type' => 'required|string|max:255',
+        ]);
     }
 
-    // Create a new outsider record
-    Outsider::create(array_merge(
-        $request->all(),
-        ['in' => now()] // Automatically set the "in" field to the current datetime
-    ));
+    // Handle file uploads if provided
+    $validIdPath = $request->hasFile('valid_id') ? $request->file('valid_id')->store('valid_ids', 'public') : null;
+    $profileImgPath = $request->hasFile('profile_img') ? $request->file('profile_img')->store('profile_images', 'public') : null;
 
+    // Create a new outsider record
+    Outsider::create([
+        'name' => $request->name,
+        'type' => $request->type,
+        'vehicle_type' => $request->vehicle_type,
+        'brand' => $request->brand,
+        'color' => $request->color,
+        'model' => $request->model,
+        'plate_number' => $request->plate_number,
+        'rfid' => $request->rfid,
+        'type_id' => $request->type_id,
+        'valid_id' => $validIdPath,
+        'profile_img' => $profileImgPath,
+        'in' => now(), // Automatically set the "in" field to the current datetime
+    ]);
+
+    // Redirect with a success message
     return redirect()->route('outsiders.index')->with('success', 'Service provider created successfully!');
 }
+
 
 
 

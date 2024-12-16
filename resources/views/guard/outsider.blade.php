@@ -141,6 +141,8 @@
                                                 <label for="plate_number{{ $outsider->id }}">Plate Number</label>
                                                 <input type="text" name="plate_number" class="form-control" value="{{ $outsider->plate_number }}">
                                             </div>
+
+                                            </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -224,7 +226,7 @@
 <div class="modal fade" id="createOutsiderModal" tabindex="-1" aria-labelledby="createOutsiderModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="{{ route('outsiders.store') }}" method="POST">
+            <form action="{{ route('outsiders.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-header">
                     <h5 class="modal-title" id="createOutsiderModalLabel">Create New Service Providers</h5>
@@ -313,6 +315,23 @@
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
+                    <div class="form-group">
+                        <label for="type_id">Type Id</label>
+                        <input type="text" name="type_id" class="form-control" value="{{ old('type_id') }}">
+                x
+                    </div>
+                    <div class="form-group">
+                        <label for="valid_id">Valid ID</label>
+                        <input type="file" name="valid_id" class="form-control" accept="image/*">
+
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profile_img">Profile Image</label>
+                        <input type="file" name="profile_img" class="form-control" accept="image/*">
+
+                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
