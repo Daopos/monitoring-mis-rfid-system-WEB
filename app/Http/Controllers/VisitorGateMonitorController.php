@@ -25,8 +25,16 @@ class VisitorGateMonitorController extends Controller
     }
 
     // Filter by visitor status (approved, pending, denied)
-    if ($request->has('status') && $request->status) {
-        $query->where('visitors.status', $request->status);
+    if ($request->has('status')) {
+        $status = $request->input('status');
+
+        if ($status == 'in') {
+            // Homeowners who are inside
+            $query->whereNull('out');
+        } else if ($status == 'out') {
+            // Homeowners who are outside
+            $query->whereNotNull('out');
+        }
     }
 
     // Filter by date range for the visit date
@@ -62,10 +70,17 @@ public function indexAdmin(Request $request)
     }
 
     // Filter by visitor status (approved, pending, denied)
-    if ($request->has('status') && $request->status) {
-        $query->where('visitors.status', $request->status);
-    }
+    if ($request->has('status')) {
+        $status = $request->input('status');
 
+        if ($status == 'in') {
+            // Homeowners who are inside
+            $query->whereNull('out');
+        } else if ($status == 'out') {
+            // Homeowners who are outside
+            $query->whereNotNull('out');
+        }
+    }
     // Filter by date range for the visit date
     if ($request->has('from_date') && $request->has('to_date')) {
         $query->whereBetween('visitor_gate_monitors.in', [
