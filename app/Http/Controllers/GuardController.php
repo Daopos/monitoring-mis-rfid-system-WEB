@@ -10,11 +10,26 @@ use Illuminate\Support\Str;
 class GuardController extends Controller
 {
     //
-        public function index()
-        {
-            $guards = Admin::where('type', 'guard')->get();
-            return view('admin.guard', compact('guards'));
+    public function index(Request $request)
+    {
+        $query = Admin::where('type', 'guard');
+
+        // Check if search query exists
+        if ($request->has('search') && $request->search != '') {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('fname', 'like', "%$searchTerm%")
+                  ->orWhere('lname', 'like', "%$searchTerm%")
+                  ->orWhere('username', 'like', "%$searchTerm%")
+                  ->orWhere('email', 'like', "%$searchTerm%");
+            });
         }
+
+        $guards = $query->get(); // Apply the search filter
+
+        return view('admin.guard', compact('guards'));
+    }
+
 
         public function create()
         {

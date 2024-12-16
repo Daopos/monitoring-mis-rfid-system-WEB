@@ -73,26 +73,36 @@ class OutsiderController extends Controller
     ]);
 }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required',
-            'type' => 'required',
-            'vehicle_type' => 'nullable',
-            'brand' => 'nullable',
-            'color' => 'nullable',
-            'model' => 'nullable',
-            'plate_number' => 'nullable',
-            'rfid' => 'nullable',
-        ]);
+public function store(Request $request)
+{
+    // Validate the form data
+    $request->validate([
+        'name' => 'required',
+        'type' => 'required',
+        'vehicle_type' => 'nullable',
+        'brand' => 'nullable',
+        'color' => 'nullable',
+        'model' => 'nullable',
+        'plate_number' => 'nullable',
+        'rfid' => 'nullable',
+        'other_type' => 'required_if:type,Other', // Validate only when 'Other' is selected
+    ]);
 
-        Outsider::create(array_merge(
-            $request->all(),
-            ['in' => now()] // Automatically set the "in" field to the current datetime
-        ));
-
-        return redirect()->route('outsiders.index')->with('success', 'Outsider created successfully!');
+    // If the type is "Other", set the type to the value of "other_type"
+    if ($request->type === 'Other' && $request->has('other_type')) {
+        $request->merge(['type' => $request->other_type]); // Merge the other_type value into the type field
     }
+
+    // Create a new outsider record
+    Outsider::create(array_merge(
+        $request->all(),
+        ['in' => now()] // Automatically set the "in" field to the current datetime
+    ));
+
+    return redirect()->route('outsiders.index')->with('success', 'Service provider created successfully!');
+}
+
+
 
     public function edit($id)
     {
@@ -116,7 +126,7 @@ class OutsiderController extends Controller
         $outsider->update($request->all());
 
         // Redirect with success message
-        return redirect()->route('outsiders.index')->with('success', 'Outsider updated successfully!');
+        return redirect()->route('outsiders.index')->with('success', 'Service provider updated successfully!');
     }
 
     public function destroy($id)

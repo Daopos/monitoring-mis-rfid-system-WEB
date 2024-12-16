@@ -241,18 +241,33 @@
                     </div>
 
                     <!-- Type Input -->
-                    <div class="form-group">
-                        <label for="type">Type</label>
-                        <select name="type" class="form-control" required>
-                            <option value="" disabled selected>Select a type</option>
-                            <option value="Type1" {{ old('type') == 'Type1' ? 'selected' : '' }}>Construction</option>
-                            <option value="Type2" {{ old('type') == 'Type2' ? 'selected' : '' }}>Type2</option>
-                            <option value="Type3" {{ old('type') == 'Type3' ? 'selected' : '' }}>Type3</option>
-                        </select>
-                        @error('type')
-                            <div class="text-danger">{{ $message }}</div>
-                        @enderror
-                    </div>
+                   <!-- Type Input -->
+<div class="form-group">
+    <label for="type">Type</label>
+    <select name="type" id="type" class="form-control" required onchange="toggleOtherTypeInput(this)">
+        <option value="" disabled selected>Select a type</option>
+        <option value="Construction" {{ old('type') == 'Construction' ? 'selected' : '' }}>Construction</option>
+        <option value="Wifi Installation" {{ old('type') == 'Wifi Installation' ? 'selected' : '' }}>Wifi Installation</option>
+        <option value="Delivery" {{ old('type') == 'Delivery' ? 'selected' : '' }}>Delivery</option>
+        <option value="Vendor" {{ old('type') == 'Vendor' ? 'selected' : '' }}>Vendor</option>
+        <option value="Plumber" {{ old('type') == 'Plumber' ? 'selected' : '' }}>Plumber</option>
+        <option value="Electrician" {{ old('type') == 'Electrician' ? 'selected' : '' }}>Electrician</option>
+        <option value="Other" {{ old('type') == 'Other' ? 'selected' : '' }}>Other</option>
+    </select>
+    @error('type')
+        <div class="text-danger">{{ $message }}</div>
+    @enderror
+</div>
+
+<!-- Other Type Input -->
+<div class="form-group" id="otherTypeInput" style="display: none;">
+    <label for="other_type">Specify Other Type</label>
+    <input type="text" name="other_type" id="other_type" class="form-control" value="{{ old('other_type') }}">
+    @error('other_type')
+        <div class="text-danger">{{ $message }}</div>
+    @enderror
+</div>
+
 
                     <!-- Vehicle Type Input -->
                     <div class="form-group">
@@ -311,4 +326,17 @@
         </div>
     </div>
 </div>
+
+<script>
+    function toggleOtherTypeInput(selectElement) {
+        const otherTypeInput = document.getElementById('otherTypeInput');
+        if (selectElement.value === 'Other') {
+            otherTypeInput.style.display = 'block';
+            document.getElementById('other_type').required = true;
+        } else {
+            otherTypeInput.style.display = 'none';
+            document.getElementById('other_type').required = false;
+        }
+    }
+</script>
 @endsection

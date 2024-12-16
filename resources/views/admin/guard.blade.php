@@ -28,65 +28,121 @@
         </div>
     </form>
 
-    <!-- Guards Table -->
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">Guards List</h5>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Name</th>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($guards as $guard)
-                        <tr>
-                            <td>{{ $guard->fname }} {{ $guard->lname }}</td>
-                            <td>{{ $guard->username }}</td>
-                            <td>{{ $guard->email }}</td>
-                            <td>{{ $guard->phone }}</td>
-                            <td>{{ $guard->active ? 'Active' : 'Inactive' }}</td>
-                            <td>
-                                <form action="{{ route('admin.guard.assign', $guard->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('PUT')
-                                    <button type="submit" class="btn btn-warning btn-sm">Assign</button>
-                                </form>
-                                <!-- Edit Guard Button -->
-                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editModal"
-                                    data-id="{{ $guard->id }}" data-username="{{ $guard->username }}"
-                                    data-email="{{ $guard->email }}" data-phone="{{ $guard->phone }}">Edit</button>
+    <!-- Tabs for Active and Archived Guards -->
+    <ul class="nav nav-tabs" id="guardTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="activeGuards-tab" data-bs-toggle="tab" href="#activeGuards" role="tab" aria-controls="activeGuards" aria-selected="true">Active Guards</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="archivedGuards-tab" data-bs-toggle="tab" href="#archivedGuards" role="tab" aria-controls="archivedGuards" aria-selected="false">Archived Guards</a>
+        </li>
+    </ul>
 
+    <!-- Tab Content -->
+    <div class="tab-content mt-3" id="guardTabsContent">
+        <!-- Active Guards Tab -->
+        <div class="tab-pane fade show active" id="activeGuards" role="tabpanel" aria-labelledby="activeGuards-tab">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Active Guards List</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($guards as $guard)
+                                @if(!$guard->is_archived) <!-- Only show active guards -->
+                                <tr>
+                                    <td>{{ $guard->fname }} {{ $guard->lname }}</td>
+                                    <td>{{ $guard->username }}</td>
+                                    <td>{{ $guard->email }}</td>
+                                    <td>{{ $guard->phone }}</td>
+                                    <td>{{ $guard->active ? 'Active' : 'Inactive' }}</td>
+                                    <td>
+                                        <form action="{{ route('admin.guard.assign', $guard->id) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" class="btn btn-warning btn-sm">Assign</button>
+                                        </form>
+                                        <!-- Edit Guard Button -->
+                                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editModal"
+                                            data-id="{{ $guard->id }}" data-username="{{ $guard->username }}"
+                                            data-email="{{ $guard->email }}" data-phone="{{ $guard->phone }}">Edit</button>
 
-                                <!-- Archive/Restore Button -->
-                                @if($guard->is_archived)
-                                    <form action="{{ route('admin.guard.restore', $guard->id) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('PUT')
-                                        <button type="submit" class="btn btn-warning btn-sm">Restore</button>
-                                    </form>
-                                @else
-                                    <form action="{{ route('admin.guard.archive', $guard->id) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('PUT')
-                                        <button type="submit" class="btn btn-danger btn-sm">Archive</button>
-                                    </form>
+                                        <!-- Archive Button -->
+                                        <form action="{{ route('admin.guard.archive', $guard->id) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" class="btn btn-danger btn-sm">Archive</button>
+                                        </form>
+                                    </td>
+                                </tr>
                                 @endif
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-
+        <!-- Archived Guards Tab -->
+        <div class="tab-pane fade" id="archivedGuards" role="tabpanel" aria-labelledby="archivedGuards-tab">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Archived Guards List</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($guards as $guard)
+                                @if($guard->is_archived) <!-- Only show archived guards -->
+                                <tr>
+                                    <td>{{ $guard->fname }} {{ $guard->lname }}</td>
+                                    <td>{{ $guard->username }}</td>
+                                    <td>{{ $guard->email }}</td>
+                                    <td>{{ $guard->phone }}</td>
+                                    <td>{{ $guard->active ? 'Active' : 'Inactive' }}</td>
+                                    <td>
+                                        <!-- Restore Button -->
+                                        <form action="{{ route('admin.guard.restore', $guard->id) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" class="btn btn-warning btn-sm">Restore</button>
+                                        </form>
+                                        <!-- Edit Guard Button -->
+                                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editModal"
+                                            data-id="{{ $guard->id }}" data-username="{{ $guard->username }}"
+                                            data-email="{{ $guard->email }}" data-phone="{{ $guard->phone }}">Edit</button>
+                                    </td>
+                                </tr>
+                                @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -137,7 +193,6 @@
     </div>
 </div>
 
-<!-- Edit Guard Modal -->
 <!-- Edit Guard Modal -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog">
