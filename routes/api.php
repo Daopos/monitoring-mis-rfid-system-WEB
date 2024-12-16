@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\AuthController;
@@ -77,3 +78,7 @@ Route::post('/homeowner/notifications/seen', [HomeownerNotificationController::c
 Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
+
+
+//offices
+Route::get('/officers/all',[AdminController::class, 'getOfficerAPI']);

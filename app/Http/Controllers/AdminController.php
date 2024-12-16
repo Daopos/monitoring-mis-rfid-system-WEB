@@ -218,4 +218,23 @@ return view('admin.admindashboard', [
         ]);
     }
 
+
+
+    public function getOfficerAPI()
+    {
+        // Get guards (where type is 'guard' and is_archived is false)
+        $guards = Admin::where('type', 'guard')
+                        ->where('is_archived', 0)
+                        ->get(); // Add 'active' field
+        // Get homeowners with position other than 'Resident'
+        $homeowners = Homeowner::where('position', '<>', 'Resident')
+                               ->get(['fname', 'mname', 'lname', 'phone', 'email', 'position']); // Only select necessary fields
+
+        // Combine both results into one array
+        $officers = $guards->merge($homeowners);
+
+        // Return the combined result as a JSON response
+        return response()->json($officers);
+    }
+
 }
