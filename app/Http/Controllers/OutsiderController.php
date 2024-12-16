@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Outsider;
+use App\Models\OutsiderGroup;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -42,36 +43,38 @@ class OutsiderController extends Controller
     }
 
     public function index(Request $request)
-{
-    $query = Outsider::query();
+    {
+        $query = Outsider::query();
 
-    // Search by name
-    if ($request->has('search') && $request->search) {
-        $query->where('name', 'like', '%' . $request->search . '%');
-    }
+        // Search by name
+        if ($request->has('search') && $request->search) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
 
-    // Filter by date range
-    if ($request->has('from_date') && $request->has('to_date')) {
-        $query->whereBetween('in', [
-            $request->from_date . ' 00:00:00',
-            $request->to_date . ' 23:59:59'
+        // Filter by date range
+        if ($request->has('from_date') && $request->has('to_date')) {
+            $query->whereBetween('in', [
+                $request->from_date . ' 00:00:00',
+                $request->to_date . ' 23:59:59'
+            ]);
+        }
+
+        // Sort by the latest entry first
+        $query->orderBy('in', 'desc');
+
+        // Fetch outsiders with their associated outsider groups, preserving search and filter parameters
+        $outsiders = $query->with('outsiderGroups')  // Eager load the outsiderGroups relationship
+                           ->paginate(10);
+
+        // Return view with the query parameters for search and filters
+        return view('guard.outsider', [
+            'outsiders' => $outsiders,
+            'search' => $request->search,
+            'from_date' => $request->from_date,
+            'to_date' => $request->to_date
         ]);
     }
 
-    // Sort by the latest entry first
-    $query->orderBy('in', 'desc');
-
-    // Fetch outsiders with pagination, preserving search and filter parameters
-    $outsiders = $query->paginate(10);
-
-    // Return view with the query parameters for search and filters
-    return view('guard.outsider', [
-        'outsiders' => $outsiders,
-        'search' => $request->search,
-        'from_date' => $request->from_date,
-        'to_date' => $request->to_date
-    ]);
-}
 
 public function store(Request $request)
 {
@@ -87,20 +90,25 @@ public function store(Request $request)
         'type_id' => 'required|string|max:255',
         'valid_id' => 'nullable|image|max:22048',
         'profile_img' => 'nullable|image|max:22048',
+        'members.*.name' => 'required|string|max:255',
+        'members.*.type_id' => 'nullable|string|max:255',
+        'members.*.valid_id' => 'nullable|image|max:22048',
+        'members.*.profile_img' => 'nullable|image|max:22048',
     ]);
 
     if ($request->type === 'Other') {
         $request->validate([
             'other_type' => 'required|string|max:255',
         ]);
+        $request->merge(['type' => $request->other_type]);
     }
 
-    // Handle file uploads if provided
+    // Handle the file uploads for the main outsider
     $validIdPath = $request->hasFile('valid_id') ? $request->file('valid_id')->store('valid_ids', 'public') : null;
     $profileImgPath = $request->hasFile('profile_img') ? $request->file('profile_img')->store('profile_images', 'public') : null;
 
-    // Create a new outsider record
-    Outsider::create([
+    // Create the outsider record
+    $outsider = Outsider::create([
         'name' => $request->name,
         'type' => $request->type,
         'vehicle_type' => $request->vehicle_type,
@@ -112,12 +120,30 @@ public function store(Request $request)
         'type_id' => $request->type_id,
         'valid_id' => $validIdPath,
         'profile_img' => $profileImgPath,
-        'in' => now(), // Automatically set the "in" field to the current datetime
+        'in' => now(),
     ]);
 
-    // Redirect with a success message
+    // Handle the member data
+    if ($request->has('members')) {
+        foreach ($request->members as $memberData) {
+            // Handle file uploads for member IDs and profile images
+            $memberValidIdPath = isset($memberData['valid_id']) ? $memberData['valid_id']->store('valid_ids', 'public') : null;
+            $memberProfileImgPath = isset($memberData['profile_img']) ? $memberData['profile_img']->store('profile_images', 'public') : null;
+
+            // Create member records (this will depend on your model and database setup)
+            OutsiderGroup::create([
+                'outsider_id' => $outsider->id,
+                'name' => $memberData['name'],
+                'type_id' => $memberData['type_id'],
+                'valid_id' => $memberValidIdPath,
+                'profile_img' => $memberProfileImgPath,
+            ]);
+        }
+    }
+
     return redirect()->route('outsiders.index')->with('success', 'Service provider created successfully!');
 }
+
 
 
 

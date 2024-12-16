@@ -153,61 +153,83 @@
                             </div>
                         </div>
 
-                        <!-- Modal for Viewing Outsider Details -->
                         <div class="modal fade" id="viewOutsiderModal{{ $outsider->id }}" tabindex="-1" aria-labelledby="viewOutsiderModalLabel{{ $outsider->id }}" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="viewOutsiderModalLabel{{ $outsider->id }}">Service Providers Details</h5>
+                                        <h5 class="modal-title" id="viewOutsiderModalLabel{{ $outsider->id }}">Service Provider Details</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <div class="row mb-3">
+                                        <!-- Service Provider Details -->
+                                        <div class="row mb-4">
                                             <div class="col-md-6">
-                                                <h6>Name:</h6>
+                                                <h6><strong>Name:</strong></h6>
                                                 <p>{{ $outsider->name }}</p>
                                             </div>
                                             <div class="col-md-6">
-                                                <h6>Type:</h6>
+                                                <h6><strong>Type:</strong></h6>
                                                 <p>{{ $outsider->type }}</p>
                                             </div>
                                         </div>
-                                        <div class="row mb-3">
+
+                                        <div class="row mb-4">
                                             <div class="col-md-6">
-                                                <h6>Vehicle Type:</h6>
+                                                <h6><strong>Vehicle Type:</strong></h6>
                                                 <p>{{ $outsider->vehicle_type ?? 'N/A' }}</p>
                                             </div>
                                             <div class="col-md-6">
-                                                <h6>Brand:</h6>
+                                                <h6><strong>Brand:</strong></h6>
                                                 <p>{{ $outsider->brand ?? 'N/A' }}</p>
                                             </div>
                                         </div>
-                                        <div class="row mb-3">
+
+                                        <div class="row mb-4">
                                             <div class="col-md-6">
-                                                <h6>Color:</h6>
+                                                <h6><strong>Color:</strong></h6>
                                                 <p>{{ $outsider->color ?? 'N/A' }}</p>
                                             </div>
                                             <div class="col-md-6">
-                                                <h6>Model:</h6>
+                                                <h6><strong>Model:</strong></h6>
                                                 <p>{{ $outsider->model ?? 'N/A' }}</p>
                                             </div>
                                         </div>
-                                        <div class="row mb-3">
+
+                                        <div class="row mb-4">
                                             <div class="col-md-6">
-                                                <h6>Plate Number:</h6>
+                                                <h6><strong>Plate Number:</strong></h6>
                                                 <p>{{ $outsider->plate_number ?? 'N/A' }}</p>
                                             </div>
                                             <div class="col-md-6">
-                                                <h6>Entry Time:</h6>
+                                                <h6><strong>Entry Time:</strong></h6>
                                                 <p>{{ $outsider->in }}</p>
                                             </div>
                                         </div>
-                                        <div class="row mb-3">
+
+                                        <div class="row mb-4">
                                             <div class="col-md-6">
-                                                <h6>Exit Time:</h6>
+                                                <h6><strong>Exit Time:</strong></h6>
                                                 <p>{{ $outsider->out ?? 'N/A' }}</p>
                                             </div>
                                         </div>
+
+                                        <!-- Loop through the associated outsiderGroups -->
+                                        <h5 class="mt-4 mb-3">Group Details</h5>
+                                        @foreach ($outsider->outsiderGroups as $group)
+                                            <div class="mb-4">
+                                                <h6><strong>Group Name:</strong></h6>
+                                                <p>{{ $group->name }}</p>
+
+                                                <h6><strong>Type ID:</strong></h6>
+                                                <p>{{ $group->type_id }}</p>
+
+                                                <h6><strong>Valid ID:</strong></h6>
+                                                <img src="{{ Storage::url($group->valid_id) }}" alt="Valid ID" class="img-fluid mb-2" style="max-width: 100px;">
+
+                                                <h6><strong>Profile Image:</strong></h6>
+                                                <img src="{{ Storage::url($group->profile_img) }}" alt="Profile Image" class="img-fluid mb-2" style="max-width: 100px;">
+                                            </div>
+                                        @endforeach
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -215,6 +237,7 @@
                                 </div>
                             </div>
                         </div>
+
                     @endforeach
                 </tbody>
             </table>
@@ -318,20 +341,29 @@
                     <div class="form-group">
                         <label for="type_id">Type Id</label>
                         <input type="text" name="type_id" class="form-control" value="{{ old('type_id') }}">
-                x
+                        @error('type_id')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="form-group">
                         <label for="valid_id">Valid ID</label>
-                        <input type="file" name="valid_id" class="form-control" accept="image/*">
-
+                        <input type="file" name="valid_id" class="form-control" accept="image/*" required>
+                        @error('valid_id')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="form-group">
                         <label for="profile_img">Profile Image</label>
-                        <input type="file" name="profile_img" class="form-control" accept="image/*">
-
+                        <input type="file" name="profile_img" class="form-control" accept="image/*" required>
+                        @error('profile_img')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
+                    <button type="button" class="btn btn-secondary mb-3" id="addMemberButton">Add Member</button>
 
+                    <!-- Member Fields Container -->
+                    <div id="membersContainer"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -347,6 +379,49 @@
 </div>
 
 <script>
+    let memberCount = 0;
+
+    document.getElementById('addMemberButton').addEventListener('click', function() {
+        memberCount++;
+
+        // Create a new member fieldset
+        const memberFieldset = document.createElement('div');
+        memberFieldset.classList.add('memberFields');
+        memberFieldset.innerHTML = `
+            <div class="card mb-3">
+                <div class="card-header">Member ${memberCount}</div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="member_name_${memberCount}">Member Name</label>
+                        <input type="text" name="members[${memberCount}][name]" class="form-control" id="member_name_${memberCount}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="member_type_id_${memberCount}">Type ID</label>
+                        <input type="text" name="members[${memberCount}][type_id]" class="form-control" id="member_type_id_${memberCount}">
+                    </div>
+                    <div class="form-group">
+                        <label for="member_valid_id_${memberCount}">Valid ID</label>
+                        <input type="file" name="members[${memberCount}][valid_id]" class="form-control" id="member_valid_id_${memberCount}" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label for="member_profile_img_${memberCount}">Profile Image</label>
+                        <input type="file" name="members[${memberCount}][profile_img]" class="form-control" id="member_profile_img_${memberCount}" accept="image/*">
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm removeMemberButton" data-member-id="${memberCount}">Remove Member</button>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('membersContainer').appendChild(memberFieldset);
+
+        // Add remove functionality
+        memberFieldset.querySelector('.removeMemberButton').addEventListener('click', function() {
+            const memberId = this.getAttribute('data-member-id');
+            memberCount--;  // Decrement the member count
+            document.getElementById(`member_name_${memberId}`).closest('.memberFields').remove();
+        });
+    });
+
     function toggleOtherTypeInput(selectElement) {
         const otherTypeInput = document.getElementById('otherTypeInput');
         if (selectElement.value === 'Other') {
@@ -358,4 +433,5 @@
         }
     }
 </script>
+
 @endsection

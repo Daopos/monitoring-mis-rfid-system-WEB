@@ -28,4 +28,9 @@ class Outsider extends Model
         'in' => 'datetime',
         'out' => 'datetime',
     ];
+
+    public function outsiderGroups()
+    {
+        return $this->hasMany(OutsiderGroup::class);
+    }
 }
