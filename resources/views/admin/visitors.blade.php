@@ -29,30 +29,13 @@
                             <th>No</th>
                             <th>Visitor Name</th>
                             <th>Homeowner Name</th>
-                            <th>Number of Visitors</th>
                             <th>Date of Visit</th>
                             <th>RFID Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($visitors as $visitor)
-                            <tr>
-                            <td>{{ $loop->iteration + ($visitors->currentPage() - 1) * $visitors->perPage() }}</td>
 
-                                <td>{{ $visitor->name }}</td>
-                                {{-- <td>{{ $visitor->plate_number }}</td> --}}
-                                <td>{{ $visitor->homeowner ? $visitor->homeowner->fname . ' ' . $visitor->homeowner->lname : 'N/A' }}</td>
-                                <td>{{ $visitor->number_vistiors ?? 'N/A' }}</td>
-                                <td>{{ $visitor->date_visit ?? 'N/A' }}</td>
-
-                                <td>{{ $visitor->status ?? 'N/A' }}</td>
-                                <td>
-                                    <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#detailsModal{{ $visitor->id }}">
-                                        View Details
-                                    </button>
-                                </td>
-                            </tr>
 
                             <!-- Details Modal -->
                            <!-- Details Modal -->
@@ -61,7 +44,6 @@
                                <td>{{ $loop->iteration + ($visitors->currentPage() - 1) * $visitors->perPage() }}</td>
                                <td>{{ $visitor->name }}</td>
                                <td>{{ $visitor->homeowner ? $visitor->homeowner->fname . ' ' . $visitor->homeowner->lname : 'N/A' }}</td>
-                               <td>{{ $visitor->number_visitors ?? 'N/A' }}</td>
                                <td>{{ $visitor->date_visit ?? 'N/A' }}</td>
                                <td>{{ $visitor->status ?? 'N/A' }}</td>
                                <td>
@@ -93,10 +75,22 @@
                                                 <img src="{{ asset('storage/' . $visitor->profile_img) }}" alt="Profile Image" class="img-thumbnail" width="100" />
                                             </li>
                                                <li class="list-group-item"><strong>Relationship:</strong> {{ $visitor->relationship ?? 'N/A' }}</li>
-                                               <li class="list-group-item"><strong>Brand:</strong> {{ $visitor->brand ?? 'N/A' }}</li>
-                                               <li class="list-group-item"><strong>Color:</strong> {{ $visitor->color ?? 'N/A' }}</li>
-                                               <li class="list-group-item"><strong>Model:</strong> {{ $visitor->model ?? 'N/A' }}</li>
-                                               <li class="list-group-item"><strong>Plate Number:</strong> {{ $visitor->plate_number ?? 'N/A' }}</li>
+                                               @if($visitor->brand)
+                                               <li class="list-group-item"><strong>Brand:</strong> {{ $visitor->brand }}</li>
+                                           @endif
+
+                                           @if($visitor->color)
+                                               <li class="list-group-item"><strong>Color:</strong> {{ $visitor->color }}</li>
+                                           @endif
+
+                                           @if($visitor->model)
+                                               <li class="list-group-item"><strong>Model:</strong> {{ $visitor->model }}</li>
+                                           @endif
+
+                                           @if($visitor->plate_number)
+                                               <li class="list-group-item"><strong>Plate Number:</strong> {{ $visitor->plate_number }}</li>
+                                           @endif
+
                                                <li class="list-group-item"><strong>Date of Visit:</strong> {{ $visitor->date_visit ?? 'N/A' }}</li>
                                                <li class="list-group-item"><strong>Id Type:</strong> {{ $visitor->type_id ?? 'N/A' }}</li>
                                                <li class="list-group-item"><strong>RFID:</strong> {{ $visitor->rfid ?? 'N/A' }}</li>
@@ -134,8 +128,6 @@
                                </div>
                            </div>
                        @endforeach
-
-                        @endforeach
                     </tbody>
 
                 </table>

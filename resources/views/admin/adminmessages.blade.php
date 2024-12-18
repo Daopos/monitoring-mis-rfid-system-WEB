@@ -145,6 +145,21 @@
 .user-item.hidden {
     display: none;
 }
+
+.unread-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    padding: 5px 8px;
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+}
+
     </style>
 @endsection
 
@@ -171,9 +186,9 @@
                     onclick="window.location.href='{{ route('admin.messages.show', $hOwner->id) }}'">
                     <div class="user-info">
                         <span class="name">{{ $hOwner->fname }} {{ $hOwner->lname }}</span>
-                        @if($hOwner->hasUnreadMessages('admin') )
-                            <span class="new-message-indicator"></span> <!-- Red dot -->
-                        @endif
+                        @if($hOwner->unreadMessagesCount('admin') > 0)
+                        <span class="badge unread-badge">{{ $hOwner->unreadMessagesCount('admin') }}</span>
+                    @endif
                     </div>
                 </div>
             @endforeach

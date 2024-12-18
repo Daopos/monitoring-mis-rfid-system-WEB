@@ -9,8 +9,10 @@ use App\Http\Controllers\HomeOwnerController;
 use App\Http\Controllers\HouseholdController;
 use App\Http\Controllers\HouseholdGateMonitorController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\OfficerController;
 use App\Http\Controllers\OutsiderController;
 use App\Http\Controllers\PaymentReminderController;
+use App\Http\Controllers\PdfController;
 use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\VisitorGateMonitorController;
 use App\Models\VisitorGateMonitor;
@@ -110,6 +112,12 @@ Route::prefix('admin/guard')->group(function () {
 
 });
 
+
+Route::get('/officers', [OfficerController::class, 'index'])->name('officers.index'); // Show all officers
+Route::post('/officers', [OfficerController::class, 'store'])->name('officers.store'); // Add officer
+Route::put('/officers/{id}', [OfficerController::class, 'update'])->name('officers.update'); // Update officer
+Route::delete('officers/{id}', [OfficerController::class, 'destroy'])->name('officers.destroy'); // Delete officer
+
 });
 
 Route::get('/todolist', function () {
@@ -202,3 +210,11 @@ Route::get('/household-entry/pdf', [HouseholdGateMonitorController::class, 'gene
 
 
 Route::get('/treasurer/paidlist/report', [PaymentReminderController::class, 'generateReport'])->name('treasurer.generateReport');
+
+Route::get('pdfs', [PdfController::class, 'index'])->name('pdfs.index'); // List PDFs
+Route::get('pdfs/create', [PdfController::class, 'create'])->name('pdfs.create'); // Show create form
+Route::post('pdfs', [PdfController::class, 'store'])->name('pdfs.store'); // Store new PDF
+Route::get('pdfs/{pdf}', [PdfController::class, 'show'])->name('pdfs.show'); // Show a specific PDF
+Route::get('pdfs/{pdf}/edit', [PdfController::class, 'edit'])->name('pdfs.edit'); // Show edit form
+Route::put('pdfs/{pdf}', [PdfController::class, 'update'])->name('pdfs.update'); // Update PDF
+Route::delete('pdfs/{pdf}', [PdfController::class, 'destroy'])->name('pdfs.destroy'); // Delete PDF

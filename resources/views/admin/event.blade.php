@@ -6,7 +6,7 @@
 
 @section('content')
 <div class="container mt-5">
-    <h1 class="display-4 mb-4">Activites</h1>
+    <h1 class="display-4 mb-4">Activities</h1>
 
     <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createEventModal">Create New Activity</button>
 

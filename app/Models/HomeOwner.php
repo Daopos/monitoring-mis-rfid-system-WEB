@@ -105,5 +105,12 @@ public function hasUnreadMessages($recipientRole)
         ->where('is_seen', false)
         ->exists();
 }
-
+public function unreadMessagesCount($recipientRole)
+{
+    return $this->messages()
+        ->where('is_seen', false)
+        ->where('sender_role', 'home_owner')
+        ->where('recipient_role', $recipientRole)
+        ->count();
+}
 }

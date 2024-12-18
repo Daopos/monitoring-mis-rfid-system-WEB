@@ -213,6 +213,11 @@ class GateMonitorController extends Controller
             // Update the existing entry with exit time
             $visitorGateMonitor->update(['out' => now(),'out_img' => $imagePath]);
 
+            //update
+            $visitor->update([
+                'status' => 'return',
+                'rfid' => null, // Ensure the RFID column is set to null
+            ]);
             $homeowner = $visitor->homeowner; // Fetch the associated homeowner
             return redirect()->route('gate-monitors.index')
                 ->with('success', 'Visitor RFID entry recorded successfully (exit time).')

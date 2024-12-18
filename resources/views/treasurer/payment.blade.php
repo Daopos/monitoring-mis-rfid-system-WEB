@@ -73,9 +73,9 @@
             </div>
         </div>
     </div>
-    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createReminderModal">
+    {{-- <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createReminderModal">
         Create New Reminder
-    </button>
+    </button> --}}
     <!-- Table for Payment Reminders -->
     <div class="card">
         <div class="card-header">

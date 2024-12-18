@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\HomeOwner;
 use App\Models\HomeownerNotification;
+use App\Models\Officer;
 use App\Models\PaymentReminder;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -158,30 +159,38 @@ class PaymentReminderController extends Controller
 
 public function indexPaid(Request $request)
 {
-    // Get the selected month if it's provided in the request
+    // Get the selected month and year from the request
     $monthFilter = $request->input('month_filter');
+    $yearFilter = $request->input('year_filter');
 
     // Initialize the query for reminders
     $query = PaymentReminder::with('homeOwner')->where('status', 'paid');
 
-    // If a month filter is provided, filter by the updated_at (payment date)
+    // If a year filter is provided, filter by year of updated_at
+    if ($yearFilter) {
+        $query->whereYear('updated_at', $yearFilter);
+    }
+
+    // If a month filter is provided, filter by month of updated_at
     if ($monthFilter) {
-        // Filter reminders for the selected month
         $query->whereMonth('updated_at', $monthFilter);
     }
+  // Order the reminders by updated_at in descending order
+  $query->orderBy('updated_at', 'desc');
 
     // Paginate the results, 10 per page
     $reminders = $query->paginate(10);
 
-    // Calculate the total amount of all reminders with 'paid' status for the selected month (if applicable)
+    // Calculate the total amount for the applied filters
     $totalAmount = $query->sum('amount');
 
     // Fetch only confirmed homeowners
     $homeOwners = HomeOwner::where('status', 'confirmed')->get();
 
-    // Return the view with the reminders, homeowners, and total amount
+    // Return the view with the filtered results
     return view('treasurer.paidlist', compact('reminders', 'homeOwners', 'totalAmount'));
 }
+
 
 
 // API
@@ -211,11 +220,15 @@ public function getHomeownerReminders()
         // Retrieve filtered data
         $reminders = $query->get();
 
+        // Fetch the treasurer officer
+        $treasurer = Officer::where('position', 'Treasurer')->first();
+
         // Generate PDF using the view
-        $pdf = Pdf::loadView('treasurer.paidlist_report', compact('reminders'));
+        $pdf = Pdf::loadView('treasurer.paidlist_report', compact('reminders', 'treasurer'));
 
         // Return the PDF for streaming
         return $pdf->stream('paid_list_report.pdf');
     }
+
 
 }

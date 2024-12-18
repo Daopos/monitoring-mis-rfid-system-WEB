@@ -137,6 +137,13 @@
 
      <span class="ms-auto dropdown-arrow">&#9656;</span>
  </a>
+ <a href="{{ route('officers.index') }}"
+ class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('officers.index') ? 'active' : '' }}">
+ <i class="fa-solid fa-people-group"></i>
+ Officers
+
+  <span class="ms-auto dropdown-arrow">&#9656;</span>
+</a>
             <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" class="mt-3">
                 @csrf
                 <button type="submit" class="btn btn-link text-white p-0">

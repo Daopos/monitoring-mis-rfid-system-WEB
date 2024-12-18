@@ -33,6 +33,17 @@
                     @endforeach
                 </tbody>
             </table>
+            <div><h1>kskaks</h1></div>
+
+            <!-- Display Treasurer Information -->
+            @if($treasurer)
+                <div class="mt-4">
+                    <h6>Signed by: {{ $treasurer->homeowner->fname }} {{ $treasurer->homeowner->lname }} (Treasurer)</h6>
+                    <!-- If you have a signature image, you can display it here -->
+                    <img src="{{ asset('path_to_signature_image.png') }}" alt="Signature" style="width: 150px;">
+                </div>
+            @endif
+
             <button class="btn btn-primary mt-4" onclick="window.print()">Print Report</button>
         </div>
     </div>

@@ -7,11 +7,14 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            position: relative;
+            margin-bottom: 100px; /* Ensure space for signature */
         }
 
         .table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 100px
         }
 
         .table th, .table td {
@@ -31,6 +34,16 @@
 
         .header h1 {
             margin: 0;
+        }
+
+        .signature-section {
+            position: absolute;
+            right: 20px;
+            text-align: center;
+        }
+
+        .signature-section img {
+            width: 150px;
         }
     </style>
 </head>
@@ -57,7 +70,7 @@
             @foreach($reminders as $reminder)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
-                    <td>{{ $reminder->homeOwner->fname }} {{ $reminder->homeOwner->lname }}</td>
+                    <td>{{ $reminder->homeOwner->fname }} {{ strtoupper(substr($reminder->homeOwner->mname, 0, 1)) }}. {{ $reminder->homeOwner->lname }}</td>
                     <td>{{ $reminder->title }}</td>
                     <td>{{ $reminder->amount }}</td>
                     <td>{{ $reminder->due_date }}</td>
@@ -67,6 +80,16 @@
             @endforeach
         </tbody>
     </table>
+
+    <!-- Add Treasurer's signature or details -->
+    <div class="signature-section">
+        @if($treasurer)
+            <p>Signed by: {{ $treasurer->homeowner->fname }} {{ $treasurer->homeowner->lname }} (Treasurer)</p>
+            <img src="{{ asset('path_to_signature_image.png') }}" alt="Signature">
+        @else
+            <p>No treasurer found.</p>
+        @endif
+    </div>
 
 </body>
 </html>

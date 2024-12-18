@@ -148,7 +148,7 @@ public function storeVisitor(Request $request)
         'profile_img' => $repProfileImg,
         'valid_id' => $repValidId,
         'status' => 'requested',
-        'guard' => true,
+        'guard' => 0,
     ]);
 
     // Create members (visitor groups)
@@ -393,7 +393,6 @@ public function getVisitorAPI()
 
     return response()->json($visitors);
 }
-
 
 
 // Get a single visitor for the authenticated home_owner

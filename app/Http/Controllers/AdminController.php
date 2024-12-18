@@ -7,6 +7,8 @@ use App\Models\Eventdo;
 use App\Models\HomeOwner;
 use App\Models\Household;
 use App\Models\Message;
+use App\Models\Officer;
+use App\Models\Pdf;
 use App\Models\Visitor;
 use App\Models\VisitorGateMonitor;
 use App\Notifications\TestNotif;
@@ -96,27 +98,29 @@ public function logoutTreasurer()
     }
 
 
-    public function guardlogin(Request $request) {
-        $credentials = $request->only('username', 'password');
+   public function guardlogin(Request $request) {
+    $credentials = $request->only('username', 'password');
 
-        // Find the admin user by username
-        $admin = Admin::where('username', $credentials['username'])->first();
+    // Find the admin user by username
+    $admin = Admin::where('username', $credentials['username'])->first();
 
-        // Check if the admin exists and the password matches exactly
-        if ($admin && $admin->password == $credentials['password'] && $admin->type == 'guard') {
-            // Log out the current user (if any)
+    // Check if the admin exists, password matches, type is 'guard', and is_archived is false
+    if ($admin &&
+        $admin->password == $credentials['password'] &&
+        $admin->type == 'guard' &&
+        !$admin->is_archived) {
 
-            // Log the user in
-            Auth::guard('guard')->login($admin);
+        // Log out the current user (if any)
+        Auth::guard('guard')->login($admin);
 
-
-            // Redirect to the guard dashboard
-            return redirect()->route('guard.dashboard');
-        } else {
-            // If login fails, redirect back with an error message
-            return redirect()->route('guard.login')->with('error', 'Login failed');
-        }
+        // Redirect to the guard dashboard
+        return redirect()->route('guard.dashboard');
+    } else {
+        // If login fails, redirect back with an error message
+        return redirect()->route('guard.login')->with('error', 'Login failed');
     }
+}
+
 
 
 
@@ -150,8 +154,7 @@ public function logoutTreasurer()
 
     public function getDashboard() {
         // Get total number of homeowners
-        $totalHomeowners = HomeOwner::count();
-
+        $totalHomeowners = HomeOwner::where('status', 'confirmed')->count();
         // Get total number of events
         $totalEvents = Eventdo::count();
 
@@ -159,14 +162,14 @@ public function logoutTreasurer()
         $homeownersWithRFID = HomeOwner::whereNotNull('rfid')->count();
 
         // Get total number of homeowners without RFID
-        $homeownersWithoutRFID = HomeOwner::whereNull('rfid')->count();
+        $homeownersWithoutRFID = HomeOwner::where('status', 'confirmed')->whereNull('rfid')->count();
 
         $household = Household::count() + $totalHomeowners;
 
         $currentVisitors = VisitorGateMonitor::whereNotNull('in')
         ->whereNull('out')
         ->count();
-
+        $pdfs = Pdf::all();
 // Count unread messages for admin
 $unreadMessages = Message::with('homeOwner') // Eager load the homeowner relationship
     ->where('recipient_role', 'admin')
@@ -183,6 +186,8 @@ return view('admin.admindashboard', [
 'household' => $household,
 'visitor' => $currentVisitors,
 'unreadMessages' => $unreadMessages, // Pass the unread message count
+'pdfs' => $pdfs, // Pass the unread message count
+
 ]);
     }
 
@@ -222,19 +227,20 @@ return view('admin.admindashboard', [
 
     public function getOfficerAPI()
     {
-        // Get guards (where type is 'guard' and is_archived is false)
-        $guards = Admin::where('type', 'guard')
-                        ->where('is_archived', 0)
-                        ->get(); // Add 'active' field
-        // Get homeowners with position other than 'Resident'
-        $homeowners = Homeowner::where('position', '<>', 'Resident')
-                               ->get(['fname', 'mname', 'lname', 'phone', 'email', 'position']); // Only select necessary fields
+        // Get all guards (no filtering)
+        $guards = Admin::where('type', 'guard')->get(); // Add 'active' field
 
-        // Combine both results into one array
+        // Get all homeowners with their position from the officers table
+        $homeowners = Officer::with('homeowner') // Assuming the Officer model has a relationship with the Homeowner model
+                            ->get(); // Get homeowner_id and position
+
+        // Merge guards and homeowners
         $officers = $guards->merge($homeowners);
 
         // Return the combined result as a JSON response
         return response()->json($officers);
     }
+
+
 
 }

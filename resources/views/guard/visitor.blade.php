@@ -73,10 +73,10 @@
                                             Assign New RFID
                                         </button>
                                     @else
-                                        <form action="{{ route('guard.return', $visitor->id) }}" method="POST" style="display:inline;">
+                                        {{-- <form action="{{ route('guard.return', $visitor->id) }}" method="POST" style="display:inline;">
                                             @csrf
                                             <button type="submit" class="badge bg-secondary">Already Processed</button>
-                                        </form>
+                                        </form> --}}
                                     @endif
                                 </td>
                             </tr>
@@ -101,10 +101,22 @@
                                                  <img src="{{ asset('storage/' . $visitor->profile_img) }}" alt="Profile Image" class="img-thumbnail" width="100" />
                                              </li>
                                                 <li class="list-group-item"><strong>Relationship:</strong> {{ $visitor->relationship ?? 'N/A' }}</li>
-                                                <li class="list-group-item"><strong>Brand:</strong> {{ $visitor->brand ?? 'N/A' }}</li>
-                                                <li class="list-group-item"><strong>Color:</strong> {{ $visitor->color ?? 'N/A' }}</li>
-                                                <li class="list-group-item"><strong>Model:</strong> {{ $visitor->model ?? 'N/A' }}</li>
-                                                <li class="list-group-item"><strong>Plate Number:</strong> {{ $visitor->plate_number ?? 'N/A' }}</li>
+                                                @if($visitor->brand)
+                                                <li class="list-group-item"><strong>Brand:</strong> {{ $visitor->brand }}</li>
+                                            @endif
+
+                                            @if($visitor->color)
+                                                <li class="list-group-item"><strong>Color:</strong> {{ $visitor->color }}</li>
+                                            @endif
+
+                                            @if($visitor->model)
+                                                <li class="list-group-item"><strong>Model:</strong> {{ $visitor->model }}</li>
+                                            @endif
+
+                                            @if($visitor->plate_number)
+                                                <li class="list-group-item"><strong>Plate Number:</strong> {{ $visitor->plate_number }}</li>
+                                            @endif
+
                                                 <li class="list-group-item"><strong>Date of Visit:</strong> {{ $visitor->date_visit ?? 'N/A' }}</li>
                                                 <li class="list-group-item"><strong>Id Type:</strong> {{ $visitor->type_id ?? 'N/A' }}</li>
                                                 <li class="list-group-item"><strong>RFID:</strong> {{ $visitor->rfid ?? 'N/A' }}</li>
@@ -202,17 +214,23 @@
     <h6>Representative</h6>
   <!-- Search Input -->
     <!-- Homeowner Selection -->
-    <label for="homeowner_id" class="form-label">Homeowner</label>
-    <!-- Search Input -->
-    <input type="text" id="homeownerSearch" class="form-control mb-2" placeholder="Search Homeowner..." onkeyup="filterHomeowners()">
+    <label for="homeownerSearch" class="form-label">Homeowner</label>
+    <!-- Searchable Homeowner Input -->
+    <div class="position-relative">
+        <input type="text" id="homeownerSearch" class="form-control" placeholder="Search Homeowner..." autocomplete="off" onkeyup="filterHomeowners()">
 
-    <!-- Dropdown -->
-    <select name="home_owner_id" id="homeowner_id" class="form-control" required>
-        <option value="">Select Homeowner</option>
-        @foreach ($homeowners as $homeowner)
-            <option value="{{ $homeowner->id }}">{{ $homeowner->fname }} {{ $homeowner->lname }}</option>
-        @endforeach
-    </select>
+        <!-- Dropdown list container -->
+        <div id="homeownerDropdown" class="dropdown-menu w-100" style="display: none; max-height: 200px; overflow-y: auto;">
+            @foreach ($homeowners as $homeowner)
+                <div class="dropdown-item" onclick="selectHomeowner(this)" data-value="{{ $homeowner->id }}">
+                    {{ $homeowner->fname }} {{ $homeowner->lname }}
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    <!-- Hidden input to store selected homeowner's ID -->
+    <input type="hidden" name="home_owner_id" id="selectedHomeownerId" required>
 
     <!-- Representative Name -->
     <label for="representative_name" class="form-label">Name</label>
@@ -243,7 +261,18 @@
     <input type="text" name="representative[plate_number]" class="form-control">
 
     <label for="representative_type_id" class="form-label">Type ID</label>
-    <input type="number" name="representative[type_id]" class="form-control" required>
+<select name="representative[type_id]" class="form-control" required>
+    <option value="">Select ID</option>
+    <option value="Driver License">Driver License</option>
+    <option value="Postal ID">Postal ID</option>
+    <option value="Voter's ID">Voter's ID</option>
+    <option value="Senior Citizen ID">Senior Citizen ID</option>
+    <option value="Student ID">Student ID</option>
+    <option value="Employee ID">Employee ID</option>
+    <option value="SSS ID">SSS ID</option>
+    <option value="PRC ID">PRC ID</option>
+</select>
+
 
     <label for="representative_reason" class="form-label">Reason</label>
     <textarea name="representative[reason]" class="form-control" rows="3" required></textarea>
@@ -263,7 +292,18 @@
                             <input type="text" name="members[0][name]" class="form-control" required>
 
                             <label for="type_id" class="form-label">Type ID</label>
-                            <input type="number" name="members[0][type_id]" class="form-control" required>
+                            <label for="type_id" class="form-label">Type ID</label>
+                            <select name="members[0][type_id]" class="form-control" required>
+                                <option value="">Select ID</option>
+                                <option value="Driver License">Driver License</option>
+                                <option value="Postal ID">Postal ID</option>
+                                <option value="Voter's ID">Voter's ID</option>
+                                <option value="Senior Citizen ID">Senior Citizen ID</option>
+                                <option value="Student ID">Student ID</option>
+                                <option value="Employee ID">Employee ID</option>
+                                <option value="SSS ID">SSS ID</option>
+                                <option value="PRC ID">PRC ID</option>
+                            </select>
 
                             <label for="valid_id" class="form-label">Valid ID</label>
                             <input type="file" name="members[0][valid_id]" class="form-control" accept="image/*" required>
@@ -276,7 +316,9 @@
                     </div>
 
                     <button type="button" class="btn btn-secondary mb-3" id="addVisitorGroup">Add Another Member</button>
-                    <button type="submit" class="btn btn-primary">Add Visitors</button>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                      </div>
                 </form>
             </div>
         </div>
@@ -284,7 +326,7 @@
 </div>
 
 <script>
-   let visitorIndex = 1;
+  let visitorIndex = 1;
 document.getElementById('addVisitorGroup').addEventListener('click', function () {
     const container = document.getElementById('visitorGroupContainer');
     const newGroup = document.createElement('div');
@@ -295,13 +337,23 @@ document.getElementById('addVisitorGroup').addEventListener('click', function ()
         <input type="text" name="members[${visitorIndex}][name]" class="form-control" required>
 
         <label for="type_id" class="form-label">Type ID</label>
-        <input type="number" name="members[${visitorIndex}][type_id]" class="form-control" required>
+        <select name="members[${visitorIndex}][type_id]" class="form-control" required>
+                <option value="">Select ID</option>
+                <option value="Driver License">Driver License</option>
+                <option value="Postal ID">Postal ID</option>
+                <option value="Voter's ID">Voter's ID</option>
+                <option value="Senior Citizen ID">Senior Citizen ID</option>
+                <option value="Student ID">Student ID</option>
+                <option value="Employee ID">Employee ID</option>
+                <option value="SSS ID">SSS ID</option>
+                <option value="PRC ID">PRC ID</option>
+        </select>
 
         <label for="valid_id" class="form-label">Valid ID</label>
-<input type="file" name="members[${visitorIndex}][profile_img]" class="form-control" accept="image/*" required>
+        <input type="file" name="members[${visitorIndex}][valid_id]" class="form-control" accept="image/*" required>
 
         <label for="profile_img" class="form-label">Profile Image</label>
-<input type="file" name="members[${visitorIndex}][valid_id]" class="form-control" accept="image/*" required>
+        <input type="file" name="members[${visitorIndex}][profile_img]" class="form-control" accept="image/*" required>
 
         <button type="button" class="btn btn-danger mt-2 remove-visitor-group">Remove</button>
     `;
@@ -316,20 +368,48 @@ document.getElementById('addVisitorGroup').addEventListener('click', function ()
         }
     });
 
-    function filterHomeowners() {
-        const searchInput = document.getElementById('homeownerSearch').value.toLowerCase();
-        const dropdown = document.getElementById('homeowner_id');
-        const options = dropdown.getElementsByTagName('option');
 
-        for (let i = 0; i < options.length; i++) {
-            const optionText = options[i].textContent || options[i].innerText;
-            if (optionText.toLowerCase().indexOf(searchInput) > -1 || i === 0) {
-                options[i].style.display = "";
-            } else {
-                options[i].style.display = "none";
-            }
-        }
+    const inputField = document.getElementById('homeownerSearch');
+const dropdown = document.getElementById('homeownerDropdown');
+const hiddenInput = document.getElementById('selectedHomeownerId');
+
+// Show dropdown when clicking the input
+inputField.addEventListener('focus', () => {
+    dropdown.style.display = 'block';
+});
+
+// Hide dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.position-relative')) {
+        dropdown.style.display = 'none';
     }
+});
+
+// Filter homeowners based on input
+function filterHomeowners() {
+    const searchValue = inputField.value.toLowerCase();
+    const items = dropdown.querySelectorAll('.dropdown-item');
+
+    items.forEach(item => {
+        if (item.textContent.toLowerCase().includes(searchValue)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+
+    // Show dropdown if there's input
+    dropdown.style.display = searchValue ? 'block' : 'none';
+}
+
+// Select homeowner from the dropdown
+function selectHomeowner(element) {
+    inputField.value = element.textContent.trim(); // Clean text
+    hiddenInput.value = element.getAttribute('data-value');
+    dropdown.style.display = 'none';
+}
+
+
 </script>
 
 @endsection

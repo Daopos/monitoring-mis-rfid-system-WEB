@@ -16,10 +16,12 @@ class VehicleController extends Controller
             'brand' => 'nullable|string|max:255',
             'color' => 'nullable|string|max:255',
             'model' => 'nullable|string|max:255',
+            'or_number' => 'nullable|string|max:255',
+            'cr_number' => 'nullable|string|max:255',
             'plate_number' => 'nullable|string|max:255|unique:vehicles,plate_number',
-            'vehicle_img' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Validate image
-            'or_img' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Validate image
-            'cr_img' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Validate image
+            'vehicle_img' => 'nullable|image|mimes:jpeg,png,jpg|max:22048', // Validate image
+            'or_img' => 'nullable|image|mimes:jpeg,png,jpg|max:22048', // Validate image
+            'cr_img' => 'nullable|image|mimes:jpeg,png,jpg|max:22048', // Validate image
         ]);
 
         // Get the authenticated homeowner's ID
@@ -65,6 +67,8 @@ class VehicleController extends Controller
                 'brand' => 'nullable|string|max:255',
                 'color' => 'nullable|string|max:255',
                 'model' => 'nullable|string|max:255',
+                'or_number' => 'nullable|string|max:255',
+                'cr_number' => 'nullable|string|max:255',
                 'plate_number' => 'nullable|string|max:255|unique:vehicles,plate_number,' . $id,
                 'vehicle_img' => 'nullable|image|mimes:jpeg,png,jpg|max:33048',
                 'or_img' => 'nullable|image|mimes:jpeg,png,jpg|max:22048',

@@ -29,6 +29,7 @@
 
   <form action="{{ route('treasurer.paidlist') }}" method="GET" class="mb-4">
     <div class="row">
+        <!-- Month Filter -->
         <div class="col-md-4">
             <select name="month_filter" class="form-control">
                 <option value="">Select Month</option>
@@ -39,11 +40,26 @@
                 @endfor
             </select>
         </div>
-        <div class="col-md-8">
-            <button type="submit" class="btn btn-primary">Filter by Month</button>
+
+        <!-- Year Filter -->
+        <div class="col-md-4">
+            <select name="year_filter" class="form-control">
+                <option value="">Select Year</option>
+                @for($year = now()->year; $year >= now()->year - 10; $year--)
+                    <option value="{{ $year }}" {{ request('year_filter') == $year ? 'selected' : '' }}>
+                        {{ $year }}
+                    </option>
+                @endfor
+            </select>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary">Filter</button>
         </div>
     </div>
 </form>
+
 
 
 <!-- Table for Paid Reminders -->
@@ -51,10 +67,12 @@
     <div class="card-header d-flex justify-content-between">
         <h5 class="mb-0">Paid Reminders</h5>
 
-  <form action="{{ route('treasurer.generateReport') }}" method="GET" class="mb-0">
-    <input type="hidden" name="month_filter" value="{{ request('month_filter') }}">
-    <button type="submit" class="btn btn-success">Generate Report</button>
-</form>
+        <form action="{{ route('treasurer.generateReport') }}" method="GET" class="mb-0">
+            <input type="hidden" name="month_filter" value="{{ request('month_filter') }}">
+            <input type="hidden" name="year_filter" value="{{ request('year_filter') }}">
+            <button type="submit" class="btn btn-success">Generate Report</button>
+        </form>
+
     </div>
     <div class="card-body">
         <div class="table-responsive">

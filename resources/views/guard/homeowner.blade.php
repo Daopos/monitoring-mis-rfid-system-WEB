@@ -117,10 +117,22 @@
                                         <ul class="list-group">
                                             @foreach ($homeowner->vehicles as $vehicle)
                                                 <li class="list-group-item">
-                                                    <strong>Brand:</strong> {{ $vehicle->brand ?? 'N/A' }}<br>
-                                                    <strong>Model:</strong> {{ $vehicle->model ?? 'N/A' }}<br>
-                                                    <strong>Color:</strong> {{ $vehicle->color ?? 'N/A' }}<br>
-                                                    <strong>Plate Number:</strong> {{ $vehicle->plate_number ?? 'N/A' }}
+                                                    @if($vehicle->brand)
+                                                    <strong>Brand:</strong> {{ $vehicle->brand }}<br>
+                                                @endif
+
+                                                @if($vehicle->model)
+                                                    <strong>Model:</strong> {{ $vehicle->model }}<br>
+                                                @endif
+
+                                                @if($vehicle->color)
+                                                    <strong>Color:</strong> {{ $vehicle->color }}<br>
+                                                @endif
+
+                                                @if($vehicle->plate_number)
+                                                    <strong>Plate Number:</strong> {{ $vehicle->plate_number }}<br>
+                                                @endif
+
 
                                                     <!-- Vehicle Images -->
                                                     <div class="vehicle-images mt-3">

@@ -73,14 +73,14 @@
                                 <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewOutsiderModal{{ $outsider->id }}">
                                     View Details
                                 </button>
-                                <button
+                                {{-- <button
                                     class="btn btn-warning btn-sm"
                                     data-bs-toggle="modal"
                                     data-bs-target="#editOutsiderModal{{ $outsider->id }}"
                                     @if($outsider->out) disabled @endif
                                 >
                                     Edit
-                                </button>
+                                </button> --}}
                                 <form action="{{ route('outsiders.updateOut', $outsider->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('PATCH')
@@ -214,10 +214,13 @@
                                         </div>
 
                                         <!-- Loop through the associated outsiderGroups -->
-                                        <h5 class="mt-4 mb-3">Group Details</h5>
+                                        <h5 class="mt-4 mb-3">
+                                            Group Details <span class="badge bg-primary">{{ $outsider->outsiderGroups->count() }}</span>
+                                        </h5>
+                                        <div class="d-flex flex-wrap gap-5">
                                         @foreach ($outsider->outsiderGroups as $group)
                                             <div class="mb-4">
-                                                <h6><strong>Group Name:</strong></h6>
+                                                <h6><strong>Member Name:</strong></h6>
                                                 <p>{{ $group->name }}</p>
 
                                                 <h6><strong>Type ID:</strong></h6>
@@ -231,6 +234,8 @@
                                             </div>
                                         @endforeach
                                     </div>
+
+                                    </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                     </div>
@@ -242,8 +247,9 @@
                 </tbody>
             </table>
 
-            {{ $outsiders->links() }}
-
+<div class="d-flex justify-content-center">
+    {{ $outsiders->links() }}
+</div>
 
            <!-- Modal for Creating Outsider -->
 <div class="modal fade" id="createOutsiderModal" tabindex="-1" aria-labelledby="createOutsiderModalLabel" aria-hidden="true">
@@ -338,15 +344,27 @@
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
+
                     <div class="form-group">
                         <label for="type_id">Type Id</label>
-                        <input type="text" name="type_id" class="form-control" value="{{ old('type_id') }}">
+                        <select name="type_id" class="form-control" required>
+                            <option value="">Select ID</option>
+                            <option value="Driver License">Driver License</option>
+                            <option value="Postal ID">Postal ID</option>
+                            <option value="Voter's ID">Voter's ID</option>
+                            <option value="Senior Citizen ID">Senior Citizen ID</option>
+                            <option value="Student ID">Student ID</option>
+                            <option value="Employee ID">Employee ID</option>
+                            <option value="SSS ID">SSS ID</option>
+                            <option value="PRC ID">PRC ID</option>
+                        </select>
                         @error('type_id')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="form-group">
                         <label for="valid_id">Valid ID</label>
+
                         <input type="file" name="valid_id" class="form-control" accept="image/*" required>
                         @error('valid_id')
                             <div class="text-danger">{{ $message }}</div>
@@ -396,9 +414,20 @@
                         <input type="text" name="members[${memberCount}][name]" class="form-control" id="member_name_${memberCount}" required>
                     </div>
                     <div class="form-group">
-                        <label for="member_type_id_${memberCount}">Type ID</label>
-                        <input type="text" name="members[${memberCount}][type_id]" class="form-control" id="member_type_id_${memberCount}">
-                    </div>
+    <label for="member_type_id_${memberCount}">Type ID</label>
+    <select name="members[${memberCount}][type_id]" class="form-control" id="member_type_id_${memberCount}" required>
+        <option value="">Select ID</option>
+        <option value="Driver License">Driver License</option>
+        <option value="Postal ID">Postal ID</option>
+        <option value="Voter's ID">Voter's ID</option>
+        <option value="Senior Citizen ID">Senior Citizen ID</option>
+        <option value="Student ID">Student ID</option>
+        <option value="Employee ID">Employee ID</option>
+        <option value="SSS ID">SSS ID</option>
+        <option value="PRC ID">PRC ID</option>
+    </select>
+</div>
+
                     <div class="form-group">
                         <label for="member_valid_id_${memberCount}">Valid ID</label>
                         <input type="file" name="members[${memberCount}][valid_id]" class="form-control" id="member_valid_id_${memberCount}" accept="image/*">

@@ -11,6 +11,7 @@ use App\Http\Controllers\HomeownerNotificationController;
 use App\Http\Controllers\HouseholdController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PaymentReminderController;
+use App\Http\Controllers\PdfController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VisitorController;
 use Illuminate\Http\Request;
@@ -82,3 +83,6 @@ Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('
 
 //offices
 Route::get('/officers/all',[AdminController::class, 'getOfficerAPI']);
+
+
+Route::get('/pdfs/download', [PdfController::class, 'download'])->name('pdfs.download');
