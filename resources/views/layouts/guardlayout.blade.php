@@ -104,6 +104,12 @@
                     </li>
                 </ul>
             </div>
+            <a href="{{ route('guard.applicant') }}"
+            class="nav-link text-white d-flex align-items-center gap-2 {{ Request::routeIs('guard.applicant') ? 'active' : '' }}">
+            <i class="fa-solid fa-people-group"></i>
+             permit
+             <span class="ms-auto dropdown-arrow">&#9656;</span>
+         </a>
 
 
             <form id="logout-form" action="{{ route('guard.logout') }}" method="POST" class="mt-3">

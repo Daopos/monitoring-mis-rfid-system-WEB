@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Validator;
 
 class VisitorController extends Controller
 {
@@ -39,22 +40,29 @@ class VisitorController extends Controller
     }
 
 
-public function approve(Request $request, $visitorId)
-{
-     // Validate the RFID input
-     $request->validate([
-        'rfid' => ['required', 'string', new UniqueRfid($visitorId)], // Pass $visitorId to exclude current visitor
-    ]);
+    public function approve(Request $request, $visitorId)
+    {
+        // Find the visitor and update RFID status to approved
+        $visitor = Visitor::findOrFail($visitorId);
 
-    // Find the visitor and update RFID status to approved
-    $visitor = Visitor::findOrFail($visitorId);
-    $visitor->update([
-        'rfid' => $request->rfid,
-        'status' => 'approved',
-    ]);
+        // Pass the current visitor's ID to the UniqueRfid rule to ignore it during validation
+        $validator = Validator::make($request->all(), [
+            'rfid' => ['nullable', 'string', new UniqueRfid($visitorId)], // Pass $visitorId here
+        ]);
 
-    return redirect()->route('visitors.index')->with('success', 'RFID approved successfully.');
-}
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        // Update the visitor's RFID and status
+        $visitor->update([
+            'rfid' => $request->rfid,
+            'status' => 'approved',
+        ]);
+
+        return redirect()->route('visitors.index')->with('success', 'RFID approved successfully.');
+    }
+
 
 public function deny($id)
 {
@@ -179,26 +187,22 @@ if ($request->has('members')) {
 
 
 public function approveGuard(Request $request, $visitorId)
-{
-    $request->validate(['rfid' => 'required|string']);
-
-    // Find the visitor and update RFID status to approved
+{  // Find the visitor and update RFID status to approved
     $visitor = Visitor::findOrFail($visitorId);
+
+    // Pass the current visitor's ID to the UniqueRfid rule to ignore it during validation
+    $validator = Validator::make($request->all(), [
+        'rfid' => ['nullable', 'string', new UniqueRfid($visitorId)], // Pass $visitorId here
+    ]);
+
+    if ($validator->fails()) {
+        return back()->withErrors($validator)->withInput();
+    }
+
+    // Update the visitor's RFID and status
     $visitor->update([
         'rfid' => $request->rfid,
         'status' => 'approved',
-    ]);
-
-
-    // Retrieve the homeowner associated with the visitor
-    $homeOwnerId = $visitor->home_owner_id;
-
-    // Create a notification for the homeowner
-    HomeownerNotification::create([
-        'home_owner_id' => $homeOwnerId,
-        'title' => 'Visitor Approved',
-        'message' => "Your visitor, {$visitor->name}, has been approved by the guard.",
-        'is_read' => false,
     ]);
 
     return redirect()->route('guard.visitor')->with('success', 'RFID approved successfully.');

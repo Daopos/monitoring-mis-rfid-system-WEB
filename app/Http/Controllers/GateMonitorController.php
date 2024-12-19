@@ -217,6 +217,8 @@ class GateMonitorController extends Controller
             $visitor->update([
                 'status' => 'return',
                 'rfid' => null, // Ensure the RFID column is set to null
+                'guard' => 1, // Ensure the RFID column is set to null
+
             ]);
             $homeowner = $visitor->homeowner; // Fetch the associated homeowner
             return redirect()->route('gate-monitors.index')

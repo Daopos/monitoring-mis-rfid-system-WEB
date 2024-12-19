@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\AuthController;
@@ -84,5 +85,12 @@ Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('
 //offices
 Route::get('/officers/all',[AdminController::class, 'getOfficerAPI']);
 
-
 Route::get('/pdfs/download', [PdfController::class, 'download'])->name('pdfs.download');
+
+//applciation permit
+Route::post('/applicant/store', [ApplicantController::class, 'storeAPI'])->middleware('auth:sanctum');
+Route::get('/neighbors', [ApplicantController::class, 'getNeighborAPI']);
+Route::get('/applicant/homeowner', [ApplicantController::class, 'getApplicantWithNeighbors'])->middleware('auth:sanctum');
+Route::delete('/applicant/{id}', [ApplicantController::class, 'deleteAPI']);
+Route::get('/applicants/{id}', [ApplicantController::class, 'show']);
+Route::put('/applicants/{id}', [ApplicantController::class, 'updateAPI']);

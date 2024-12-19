@@ -41,9 +41,9 @@
                         <tr>
                             <th>No</th>
                             <th>Name</th>
-                            <th>Relationship</th>
-                            <th>Age</th>
+                            <th>Birthdate</th>
                             <th>Gender</th>
+                            <th>Relationship</th>
                             <th>Homeowner Name</th>
                             <th>RFID Status</th>
                             <th>Action</th>
@@ -54,9 +54,9 @@
                             <tr>
                             <td>{{ $loop->iteration + ($households->currentPage() - 1) * $households->perPage() }}</td>
                                 <td>{{ $household->name }}</td>
-                                <td>{{ $household->relationship }}</td>
-                                <td>{{ $household->age }}</td>
+                                <td>{{ $household->birthdate }}</td>
                                 <td>{{ $household->gender }}</td>
+                                <td>{{ $household->relationship }}</td>
                                 <td>{{ $household->homeowner ? $household->homeowner->fname . ' ' . $household->homeowner->lname : 'N/A' }}</td>
                                 <td>{{ $household->rfid ? 'Registered' : 'Unregistered' }}</td>
                                 <td>

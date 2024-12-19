@@ -167,10 +167,10 @@
                 @foreach($homeOwners as $hOwner)
                     <div class="user-item {{ isset($homeOwner) && $homeOwner->id == $hOwner->id ? 'active' : '' }}{{ $hOwner->hasUnreadMessages('guard')  ? 'has-new-message' : '' }}"
                          onclick="window.location.href='{{ route('guard.messages.show', $hOwner->id) }}'">
-                        <div class="user-info">
+                         <div class="user-info">
                             <span class="name">{{ $hOwner->fname }} {{ $hOwner->lname }}</span>
-                            @if($hOwner->hasUnreadMessages('guard'))
-                            <span class="new-message-indicator"></span> <!-- Red dot -->
+                            @if($hOwner->unreadMessagesCount('guard') > 0)
+                            <span class="badge unread-badge">{{ $hOwner->unreadMessagesCount('admin') }}</span>
                         @endif
                         </div>
                     </div>

@@ -112,7 +112,7 @@
                                     <th>Email</th>
                                     <th>Phone</th>
                                     <th>Status</th>
-                                    <th>Actions</th>
+                                    {{-- <th>Actions</th> --}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -124,7 +124,7 @@
                                     <td>{{ $guard->email }}</td>
                                     <td>{{ $guard->phone }}</td>
                                     <td>{{ $guard->active ? 'Active' : 'Inactive' }}</td>
-                                    <td>
+                                    {{-- <td>
                                         <!-- Restore Button -->
                                         <form action="{{ route('admin.guard.restore', $guard->id) }}" method="POST" style="display:inline;">
                                             @csrf
@@ -135,7 +135,7 @@
                                         <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editModal"
                                             data-id="{{ $guard->id }}" data-username="{{ $guard->username }}"
                                             data-email="{{ $guard->email }}" data-phone="{{ $guard->phone }}">Edit</button>
-                                    </td>
+                                    </td> --}}
                                 </tr>
                                 @endif
                                 @endforeach

@@ -230,9 +230,27 @@ return view('admin.admindashboard', [
         // Get all guards (no filtering)
         $guards = Admin::where('type', 'guard')->get(); // Add 'active' field
 
-        // Get all homeowners with their position from the officers table
-        $homeowners = Officer::with('homeowner') // Assuming the Officer model has a relationship with the Homeowner model
-                            ->get(); // Get homeowner_id and position
+        // Define the sorted order of positions
+        $positionOrder = [
+            'President',
+            'Vice President',
+            'Secretary',
+            'Asst. Secretary',
+            'Treasurer',
+            'Asst. Treasurer',
+            'Auditors',
+            'Sgt. at Arms',
+            'P.R.O',
+            'Business Managers',
+            'Guard'
+        ];
+
+        // Get all homeowners with their position from the officers table and sort based on the defined order
+        $homeowners = Officer::with('homeowner')
+            ->get()
+            ->sortBy(function ($officer) use ($positionOrder) {
+                return array_search($officer->position, $positionOrder);
+            });
 
         // Merge guards and homeowners
         $officers = $guards->merge($homeowners);
@@ -240,6 +258,7 @@ return view('admin.admindashboard', [
         // Return the combined result as a JSON response
         return response()->json($officers);
     }
+
 
 
 

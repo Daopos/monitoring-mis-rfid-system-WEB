@@ -117,22 +117,10 @@
                                         <ul class="list-group">
                                             @foreach ($homeowner->vehicles as $vehicle)
                                                 <li class="list-group-item">
-                                                    @if($vehicle->brand)
-                                                    <strong>Brand:</strong> {{ $vehicle->brand }}<br>
-                                                @endif
-
-                                                @if($vehicle->model)
-                                                    <strong>Model:</strong> {{ $vehicle->model }}<br>
-                                                @endif
-
-                                                @if($vehicle->color)
-                                                    <strong>Color:</strong> {{ $vehicle->color }}<br>
-                                                @endif
-
-                                                @if($vehicle->plate_number)
-                                                    <strong>Plate Number:</strong> {{ $vehicle->plate_number }}<br>
-                                                @endif
-
+                                                    <strong>Brand:</strong> {{ $vehicle->brand ?? 'N/A' }}<br>
+                                                    <strong>Model:</strong> {{ $vehicle->model ?? 'N/A' }}<br>
+                                                    <strong>Color:</strong> {{ $vehicle->color ?? 'N/A' }}<br>
+                                                    <strong>Plate Number:</strong> {{ $vehicle->plate_number ?? 'N/A' }}
 
                                                     <!-- Vehicle Images -->
                                                     <div class="vehicle-images mt-3">
@@ -223,7 +211,7 @@
                             <li class="list-group-item">
                                 <strong>Name:</strong> {{ $household->name }}<br>
                                 <strong>Relationship:</strong> {{ $household->relationship }}<br>
-                                <strong>Age:</strong> {{ $household->age }}<br>
+                                <strong>Birthdate:</strong> {{ $household->birthdate }}<br>
                                 <strong>Gender:</strong> {{ $household->gender }}<br>
 
                             </li>

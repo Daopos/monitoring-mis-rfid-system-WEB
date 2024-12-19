@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\BlockController;
 use App\Http\Controllers\EventdoController;
 use App\Http\Controllers\GateMonitorController;
@@ -59,19 +60,11 @@ Route::get('/messages', [MessageController::class, 'adminMessageIndex'])->name('
 Route::get('/admin/messages/{homeOwner}', [MessageController::class, 'adminShowMessage'])->name('admin.messages.show');
 Route::post('/admin/messages/{homeOwner}', [MessageController::class, 'adminSendMessages'])->name('admin.messages.send');
 
-
-
-
-
-
 Route::resource('eventdos', EventdoController::class);
-
-
 
 Route::get('/visitors', [VisitorController::class, 'index'])->name('visitors.index');
 Route::post('/visitors/{id}/approve', [VisitorController::class, 'approve'])->name('visitors.approve');
 Route::post('/visitors/{id}/deny', [VisitorController::class, 'deny'])->name('visitors.deny');
-
 
 Route::get('blocks', [BlockController::class, 'index'])->name('blocks.index');
 Route::get('blocks/create', [BlockController::class, 'create'])->name('blocks.create');
@@ -79,9 +72,6 @@ Route::post('blocks', [BlockController::class, 'store'])->name('blocks.store');
 Route::get('blocks/{block}/edit', [BlockController::class, 'edit'])->name('blocks.edit');
 Route::put('blocks/{block}', [BlockController::class, 'update'])->name('blocks.update');
 Route::delete('blocks/{block}', [BlockController::class, 'destroy'])->name('blocks.destroy');
-
-
-
 
 Route::get('/rfid/homeowners', [HomeOwnerController::class, 'rfidlist'])->name('admin.rfidlist');
 
@@ -96,9 +86,7 @@ Route::get('/admin/household/gate-monitors', [HouseholdGateMonitorController::cl
 
 Route::get('/admin/households', [HouseholdController::class, 'adminIndexHousehold'])->name('admin.households');
 
-
 //guard management
-
 Route::prefix('admin/guard')->group(function () {
     Route::get('/', [GuardController::class, 'index'])->name('admin.guard.index'); // List all guards
     Route::get('/create', [GuardController::class, 'create'])->name('admin.guard.create'); // Show create form
@@ -117,6 +105,12 @@ Route::get('/officers', [OfficerController::class, 'index'])->name('officers.ind
 Route::post('/officers', [OfficerController::class, 'store'])->name('officers.store'); // Add officer
 Route::put('/officers/{id}', [OfficerController::class, 'update'])->name('officers.update'); // Update officer
 Route::delete('officers/{id}', [OfficerController::class, 'destroy'])->name('officers.destroy'); // Delete officer
+
+Route::get('/admin/applicants', [ApplicantController::class, 'indexAdmin'])->name('admin.applicant');
+
+Route::get('applicant/approve/{id}', [ApplicantController::class, 'approve'])->name('applicant.approve');
+Route::get('applicant/reject/{id}', [ApplicantController::class, 'reject'])->name('applicant.reject');
+Route::get('applicant/print/{id}', [ApplicantController::class, 'print'])->name('applicant.print');
 
 });
 
@@ -172,9 +166,7 @@ Route::post('/guard/messages/{homeOwner}', [MessageController::class, 'guardSend
 
 Route::get('/guard/household/gate-monitors', [HouseholdGateMonitorController::class, 'index'])->name('guard.householdentry');
 
-
-
-
+Route::get('/guard/applicants', [ApplicantController::class, 'indexGuard'])->name('guard.applicant');
 
 });
 
