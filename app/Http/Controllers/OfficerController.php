@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\HomeOwner;
 use App\Models\Officer;
+use App\Notifications\TreasurerNotif;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class OfficerController extends Controller
 {
@@ -72,6 +75,24 @@ class OfficerController extends Controller
         // Create the new officer
         Officer::create($request->all());
 
+        $homeowner = HomeOwner::find($request->homeowner_id);
+
+        if ($request->position === 'Treasurer') {
+            $randomPassword = Str::random(8);
+
+            $guard = Admin::create([
+                'username' => 'treasureragl',
+                'password' => $randomPassword, // Make sure to hash the password
+                'type' => 'treasurer',
+                'email' => $homeowner->email,
+            ]);
+
+            // Create the notification and pass the whole $guard object to the constructor
+            $notification = new TreasurerNotif($guard);
+            $notification->sendLoginNotification();
+        }
+
+
         // Redirect back with a success message
         return redirect()->route('officers.index')->with('success', 'Officer added successfully!');
     }
@@ -115,6 +136,19 @@ class OfficerController extends Controller
     public function destroy($id)
     {
         $officer = Officer::findOrFail($id);
+
+        if ($officer->position === 'Treasurer') {
+            // Find the associated Admin (Treasurer)
+            $guard = Admin::where('email', $officer->homeowner->email)->first();
+
+            if ($guard) {
+                // Option 1: You can delete the Admin record (this will remove login access)
+                $guard->delete();
+
+                // Option 2: Or, you can deactivate the account by setting a flag (e.g., is_active = false)
+                // $guard->update(['is_active' => false]);
+            }
+        }
         $officer->delete();
 
         // Redirect back with a success message

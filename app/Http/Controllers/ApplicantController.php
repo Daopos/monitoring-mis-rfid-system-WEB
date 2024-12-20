@@ -188,7 +188,7 @@ public function getApplicantWithNeighbors()
     if ($applicants->isEmpty()) {
         return response()->json([
             'message' => 'No applicants found for this user.',
-        ], 404);
+        ], 200);
     }
 
     // Return the applicants data along with neighbors

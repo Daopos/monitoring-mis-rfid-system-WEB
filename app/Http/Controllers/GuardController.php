@@ -41,7 +41,7 @@ class GuardController extends Controller
         {
             $request->validate([
                 'username' => 'required|unique:admins',
-                'email' => 'nullable|email',
+                'email' => 'nullable|email|unique:admins',
                 'phone' => 'nullable',
                 'fname' => 'nullable',
                 'mname' => 'nullable',
@@ -96,7 +96,7 @@ class GuardController extends Controller
         public function archive($id)
         {
             $guard = Admin::findOrFail($id);
-            $guard->update(['is_archived' => true]);
+            $guard->update(['is_archived' => true, 'active' => false]);
 
             return redirect()->route('admin.guard.index')->with('success', 'Guard archived successfully.');
         }

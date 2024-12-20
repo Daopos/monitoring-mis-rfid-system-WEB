@@ -131,6 +131,19 @@
     top: 5px;
     right: 5px;
 }
+.unread-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    padding: 5px 8px;
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+}
 
 .user-item {
     position: relative; /* Ensure the red dot appears in the top-right corner */

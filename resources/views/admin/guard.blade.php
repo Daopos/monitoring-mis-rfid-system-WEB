@@ -63,7 +63,7 @@
                                 @foreach($guards as $guard)
                                 @if(!$guard->is_archived) <!-- Only show active guards -->
                                 <tr>
-                                    <td>{{ $guard->fname }} {{ $guard->lname }}</td>
+                                    <td>{{ $guard->fname }} {{ $guard->mname[0] ?? '' }}. {{ $guard->lname }}</td>
                                     <td>{{ $guard->username }}</td>
                                     <td>{{ $guard->email }}</td>
                                     <td>{{ $guard->phone }}</td>
@@ -119,7 +119,7 @@
                                 @foreach($guards as $guard)
                                 @if($guard->is_archived) <!-- Only show archived guards -->
                                 <tr>
-                                    <td>{{ $guard->fname }} {{ $guard->lname }}</td>
+                                    <td>{{ $guard->fname }} {{ $guard->mname[0] ?? '' }}. {{ $guard->lname }}</td>
                                     <td>{{ $guard->username }}</td>
                                     <td>{{ $guard->email }}</td>
                                     <td>{{ $guard->phone }}</td>

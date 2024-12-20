@@ -159,6 +159,15 @@
     min-width: 20px;
     text-align: center;
 }
+.new-message-indicator {
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border-radius: 50%;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
 
     </style>
 @endsection

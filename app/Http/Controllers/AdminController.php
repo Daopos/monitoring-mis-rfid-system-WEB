@@ -228,8 +228,7 @@ return view('admin.admindashboard', [
     public function getOfficerAPI()
     {
         // Get all guards (no filtering)
-        $guards = Admin::where('type', 'guard')->get(); // Add 'active' field
-
+        $guards = Admin::where('type', 'guard')->where('is_archived', 0)->get();
         // Define the sorted order of positions
         $positionOrder = [
             'President',
@@ -242,22 +241,23 @@ return view('admin.admindashboard', [
             'Sgt. at Arms',
             'P.R.O',
             'Business Managers',
-            'Guard'
         ];
 
         // Get all homeowners with their position from the officers table and sort based on the defined order
         $homeowners = Officer::with('homeowner')
             ->get()
             ->sortBy(function ($officer) use ($positionOrder) {
-                return array_search($officer->position, $positionOrder);
+                // Ensure that positions not in the order are placed at the end
+                return array_search($officer->position, $positionOrder) !== false ? array_search($officer->position, $positionOrder) : count($positionOrder);
             });
 
-        // Merge guards and homeowners
+        // Merge guards and homeowners (guards should appear first)
         $officers = $guards->merge($homeowners);
 
         // Return the combined result as a JSON response
         return response()->json($officers);
     }
+
 
 
 

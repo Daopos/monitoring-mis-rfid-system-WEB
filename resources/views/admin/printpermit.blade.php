@@ -320,10 +320,10 @@
         <!-- JavaScript to make it dynamic -->
         <script>
             // Example of dynamically setting values
-            document.getElementById("applicant-name").textContent = "John Green";  // Dynamic name
-            document.getElementById("start-date").textContent = "01/01/2025";       // Dynamic start date
-            document.getElementById("end-date").textContent = "12/31/2025";         // Dynamic end date
-            document.getElementById("approved-by").textContent = "Jane Doe";         // Dynamic approver name
+            // document.getElementById("applicant-name").textContent = "John Green";  // Dynamic name
+            // document.getElementById("start-date").textContent = "01/01/2025";       // Dynamic start date
+            // document.getElementById("end-date").textContent = "12/31/2025";         // Dynamic end date
+            // document.getElementById("approved-by").textContent = "Jane Doe";         // Dynamic approver name
 
         window.onload = function() {
             window.print();
