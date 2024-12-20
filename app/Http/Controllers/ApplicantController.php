@@ -59,7 +59,7 @@ public function print($id)
 
 
 
-public function storeAPI(Request $request)
+    public function storeAPI(Request $request)
 {
     $homeOwnerId = Auth::user()->id; // Authenticated user ID
 
@@ -83,17 +83,13 @@ public function storeAPI(Request $request)
     // Create the applicant
     $applicant = Applicant::create($validated);
 
-    // Get unique neighbors by homeowner_id
-    $uniqueNeighbors = collect($validated['neighbors'])->unique('homeowner_id');
-
-    // Create neighbors if they are unique
-    $applicant->neighbors()->createMany($uniqueNeighbors->toArray());
+    // Create neighbors
+    $applicant->neighbors()->createMany($validated['neighbors']);
 
     return response()->json([
         'message' => 'Applicant and neighbors created successfully!',
     ], 201);
 }
-
 public function updateAPI(Request $request, $id)
 {
 
@@ -176,9 +172,12 @@ public function show($id)
 }
 
 public function getNeighborAPI() {
-    $neighbors = HomeOwner::select('id', 'fname', 'mname', 'lname')->get();  // or use pagination if the list is large
+    $neighbors = HomeOwner::select('id', 'fname', 'mname', 'lname')
+                          ->orderBy('fname')  // Sort by fname
+                          ->get();  // or use pagination if the list is large
     return response()->json($neighbors);
 }
+
 
 public function getApplicantWithNeighbors()
 {
