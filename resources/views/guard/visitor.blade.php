@@ -92,14 +92,20 @@
                                         <div class="modal-body">
                                          <h6>Representative:</h6>
                                             <ul class="list-group">
-                                             <li class="list-group-item">
-                                                 <strong>Valid ID:</strong>
-                                                 <img src="{{ asset('storage/' . $visitor->valid_id) }}" alt="Profile Image" class="img-thumbnail" width="100" />
-                                             </li>
-                                             <li class="list-group-item">
-                                                 <strong>Profile Image:</strong>
-                                                 <img src="{{ asset('storage/' . $visitor->profile_img) }}" alt="Profile Image" class="img-thumbnail" width="100" />
-                                             </li>
+                                                @if($visitor->valid_id)
+                                                <li class="list-group-item">
+                                                    <strong>Valid ID:</strong>
+                                                    <img src="{{ asset('storage/' . $visitor->valid_id) }}" alt="Profile Image" class="img-thumbnail" width="100" />
+                                                </li>
+                                            @endif
+
+                                            @if($visitor->profile_img)
+                                                <li class="list-group-item">
+                                                    <strong>Profile Image:</strong>
+                                                    <img src="{{ asset('storage/' . $visitor->profile_img) }}" alt="Profile Image" class="img-thumbnail" width="100" />
+                                                </li>
+                                            @endif
+
                                                 <li class="list-group-item"><strong>Relationship:</strong> {{ $visitor->relationship ?? 'N/A' }}</li>
                                                 @if($visitor->brand)
                                                 <li class="list-group-item"><strong>Brand:</strong> {{ $visitor->brand }}</li>

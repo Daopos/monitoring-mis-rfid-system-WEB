@@ -31,7 +31,7 @@ class TreasurerNotif extends Notification
             function ($message) {
                 $message->to($this->data->email) // Send to the guard's email address
                     ->from('admin@agl-heights.online', 'AGL Heights') // Send from the admin email
-                    ->subject('New Guard Account Created');
+                    ->subject('New Treasurer Account Created');
             }
         );
     }
@@ -39,7 +39,7 @@ class TreasurerNotif extends Notification
     protected function buildMessage()
     {
         return "Hello " . $this->data->fname . ",\n\n" .
-               "Your guard account has been successfully created by the admin.\n" .
+               "Your treasurer account has been successfully created by the admin.\n" .
                "Here are your login details:\n\n" .
                "Username: " . $this->data->username . "\n" .
                "Password: " . $this->data->password . "\n\n" .
