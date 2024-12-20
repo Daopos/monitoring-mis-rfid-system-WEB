@@ -227,8 +227,11 @@ return view('admin.admindashboard', [
 
     public function getOfficerAPI()
     {
-        // Get all guards (no filtering)
-        $guards = Admin::where('type', 'guard')->where('is_archived', 0)->get();
+        // Get all guards that are not archived
+        $guards = Admin::where('is_archived', 0)
+            ->where('type', 'guard')
+            ->get();
+
         // Define the sorted order of positions
         $positionOrder = [
             'President',
@@ -251,12 +254,39 @@ return view('admin.admindashboard', [
                 return array_search($officer->position, $positionOrder) !== false ? array_search($officer->position, $positionOrder) : count($positionOrder);
             });
 
+        // Transform guards and homeowners into a common structure
+        $guardsArray = $guards->map(function ($guard) {
+            return [
+                'id' => $guard->id,
+                'fname' => $guard->fname, // Adjust according to your Admin model's attributes
+                'lname' => $guard->lname, // Assuming the relationship is defined
+                'phone' => $guard->phone, // Assuming the relationship is defined
+                'mname' => $guard->mname, // Assuming the relationship is defined
+                'type' => 'guard',
+                'active' => $guard->active, // Assuming the relationship is defined
+                // Add other necessary fields
+            ];
+        });
+
+        $homeownersArray = $homeowners->map(function ($officer) {
+            return [
+                'id' => $officer->id,
+                'fname' => $officer->homeowner->fname, // Assuming the relationship is defined
+                'lname' => $officer->homeowner->lname, // Assuming the relationship is defined
+                'mname' => $officer->homeowner->mname, // Assuming the relationship is defined
+                'phone' => $officer->homeowner->phone, // Assuming the relationship is defined
+                'position' => $officer->position,
+                // Add other necessary fields
+            ];
+        });
+
         // Merge guards and homeowners (guards should appear first)
-        $officers = $guards->merge($homeowners);
+        $officers = $guardsArray->merge($homeownersArray);
 
         // Return the combined result as a JSON response
         return response()->json($officers);
     }
+
 
 
 
