@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Applicant;
 use App\Models\HomeOwner;
+use App\Models\HomeownerNotification;
 use App\Models\Officer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -59,9 +60,16 @@ public function print($id)
 
 
 
-    public function storeAPI(Request $request)
+public function storeAPI(Request $request)
 {
     $homeOwnerId = Auth::user()->id; // Authenticated user ID
+
+    // Retrieve the homeowner's name
+    $homeOwner = HomeOwner::find($homeOwnerId);
+
+    if (!$homeOwner) {
+        return response()->json(['error' => 'Homeowner not found.'], 404);
+    }
 
     // Validate the input fields
     $validated = $request->validate([
@@ -85,11 +93,26 @@ public function print($id)
 
     // Create neighbors
     $applicant->neighbors()->createMany($validated['neighbors']);
+    $homeOwnerName = $homeOwner->fname . ' ' . $homeOwner->lname;
+
+    // Notify neighbors
+    foreach ($validated['neighbors'] as $neighbor) {
+        $neighborId = $neighbor['homeowner_id'];
+
+        HomeownerNotification::create([
+            'home_owner_id' => $neighborId,
+            'title' => 'Upcoming Home Repair Notification',
+            'message' => "Your neighbor, $homeOwnerName, has scheduled a repair in their home. The repair will begin on {$validated['mobilization_date']} and is expected to be completed by {$validated['completion_date']}. Please be advised of possible noise or activity during this period.",
+            'is_read' => false,
+        ]);
+    }
 
     return response()->json([
-        'message' => 'Applicant and neighbors created successfully!',
+        'message' => 'Applicant and neighbors created successfully, and notifications sent!',
     ], 201);
 }
+
+
 public function updateAPI(Request $request, $id)
 {
 

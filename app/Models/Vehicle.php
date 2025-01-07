@@ -19,6 +19,7 @@ class Vehicle extends Model
         'or_img',
         'cr_img',
         'or_number',
-        'cr_number'
+        'cr_number',
+        'car_type',
     ];
 }

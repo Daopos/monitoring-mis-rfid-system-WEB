@@ -95,6 +95,9 @@
                                                <li class="list-group-item"><strong>Id Type:</strong> {{ $visitor->type_id ?? 'N/A' }}</li>
                                                <li class="list-group-item"><strong>RFID:</strong> {{ $visitor->rfid ?? 'N/A' }}</li>
                                                <li class="list-group-item"><strong>Status:</strong> {{ ucfirst($visitor->status) }}</li>
+                                               @if($visitor->status === 'denied')
+                                               <li class="list-group-item"><strong>Rejection Reason:</strong> {{ $visitor->reject_reason ?? 'N/A' }}</li>
+                                           @endif
                                                <li class="list-group-item"><strong>Guard Approval:</strong> {{ $visitor->guard ? 'Approved' : 'Pending' }}</li>
                                            </ul>
                                            <hr />

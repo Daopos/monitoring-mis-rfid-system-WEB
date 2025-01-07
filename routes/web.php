@@ -43,6 +43,8 @@ Route::middleware(['admin.auth'])->group(function () {
 
     Route::get('/homeownerlist', [HomeOwnerController::class, 'getAllHomeOwner'])->name('admin.homeownerlist');
 
+
+
     Route::get('/entrylist', [GateMonitorController::class, 'getAllEntry'])->name('admin.gatelist');
 
 
@@ -52,6 +54,7 @@ Route::put('/homeowner/update/{id}', [HomeOwnerController::class, 'update'])->na
 Route::delete('/homeowner/delete/{id}', [HomeOwnerController::class, 'destroy'])->name('homeowner.delete');
 Route::post('/homeowner/confirm/{id}', [HomeOwnerController::class, 'confirm'])->name('homeowner.confirm');
 
+    Route::get('/homeowner-archived', [HomeOwnerController::class, 'getAllHomeOwnerArchived'])->name('admin.homeownerlistarchived');
 
 
 Route::get('/homeowner-pending', [HomeOwnerController::class, 'getHomeOwnerPending'])->name('admin.homeownerpending');
@@ -202,6 +205,10 @@ Route::get('/household-entry/pdf', [HouseholdGateMonitorController::class, 'gene
 
 
 Route::get('/treasurer/paidlist/report', [PaymentReminderController::class, 'generateReport'])->name('treasurer.generateReport');
+
+Route::get('/payment-reminders/report', [PaymentReminderController::class, 'generatePendingOverdueReport'])->name('payment_reminders.generateReport');
+
+
 
 Route::get('pdfs', [PdfController::class, 'index'])->name('pdfs.index'); // List PDFs
 Route::get('pdfs/create', [PdfController::class, 'create'])->name('pdfs.create'); // Show create form

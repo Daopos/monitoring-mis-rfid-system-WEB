@@ -15,7 +15,7 @@
     <form action="{{ route('guard.visitor') }}" method="GET">
         <div class="row mb-3">
             <div class="col-md-4">
-                <input type="text" name="search" class="form-control" placeholder="Search by name or Homeowner name" value="{{ request('search') }}">
+                <input type="text" name="search" class="form-control" placeholder="Search by name,homeowner or plate number" value="{{ request('search') }}">
             </div>
             <div class="col-md-4">
                 <button type="submit" class="btn btn-primary">Search</button>
@@ -33,11 +33,48 @@
                     <thead class="table-light">
                         <tr>
                             <th>No</th>
-                            <th>Visitor Name</th>
-                            <th>Plate Number</th>
-                            <th>Homeowner Name</th>
-                            <th>Relationship</th>
-                            <th>RFID Status</th>
+
+                            <th>
+                                <a href="{{ route('guard.visitor', array_merge(request()->all(), ['sort' => 'name', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
+                                    Visitor Name
+                                    @if (request('sort') === 'name')
+                                        {!! request('direction') === 'asc' ? '&uarr;' : '&darr;' !!}
+                                    @endif
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ route('guard.visitor', array_merge(request()->all(), ['sort' => 'plate_number', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
+                                    Plate Number
+                                    @if (request('sort') === 'plate_number')
+                                        {!! request('direction') === 'asc' ? '&uarr;' : '&darr;' !!}
+                                    @endif
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ route('guard.visitor', array_merge(request()->all(), ['sort' => 'homeowner_name', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
+                                    Homeowner Name
+                                    @if (request('sort') === 'homeowner_name')
+                                        {!! request('direction') === 'asc' ? '&uarr;' : '&darr;' !!}
+                                    @endif
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ route('guard.visitor', array_merge(request()->all(), ['sort' => 'relationship', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
+                                    Relationship
+                                    @if (request('sort') === 'relationship')
+                                        {!! request('direction') === 'asc' ? '&uarr;' : '&darr;' !!}
+                                    @endif
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{ route('guard.visitor', array_merge(request()->all(), ['sort' => 'status', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])) }}">
+                                    RFID Status
+                                    @if (request('sort') === 'status')
+                                        {!! request('direction') === 'asc' ? '&uarr;' : '&darr;' !!}
+                                    @endif
+                                </a>
+                            </th>
+
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -107,6 +144,9 @@
                                             @endif
 
                                                 <li class="list-group-item"><strong>Relationship:</strong> {{ $visitor->relationship ?? 'N/A' }}</li>
+                                                @if($visitor->car_type)
+                                                <li class="list-group-item"><strong>Car Type:</strong> {{ $visitor->car_type }}</li>
+                                            @endif
                                                 @if($visitor->brand)
                                                 <li class="list-group-item"><strong>Brand:</strong> {{ $visitor->brand }}</li>
                                             @endif
@@ -127,6 +167,10 @@
                                                 <li class="list-group-item"><strong>Id Type:</strong> {{ $visitor->type_id ?? 'N/A' }}</li>
                                                 <li class="list-group-item"><strong>RFID:</strong> {{ $visitor->rfid ?? 'N/A' }}</li>
                                                 <li class="list-group-item"><strong>Status:</strong> {{ ucfirst($visitor->status) }}</li>
+                                                @if($visitor->status === 'denied')
+                                                <li class="list-group-item"><strong>Rejection Reason:</strong> {{ $visitor->reject_reason ?? 'N/A' }}</li>
+                                            @endif
+
                                                 <li class="list-group-item"><strong>Guard Approval:</strong> {{ $visitor->guard ? 'Approved' : 'Pending' }}</li>
                                             </ul>
                                             <hr />
@@ -196,7 +240,8 @@
                     </tbody>
                 </table>
                 <div class="mt-3 d-flex justify-content-center">
-                    {{ $visitors->links() }}
+                    {{ $visitors->appends(request()->query())->links() }}
+
                 </div>
             </div>
         </div>
@@ -215,80 +260,84 @@
                 <form action="{{ route('guard.storeVisitor') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <!-- Representative Section -->
-                    <!-- Representative Section -->
-<div class="mb-3">
-    <h6>Representative</h6>
-  <!-- Search Input -->
-    <!-- Homeowner Selection -->
-    <label for="homeownerSearch" class="form-label">Homeowner</label>
-    <!-- Searchable Homeowner Input -->
-    <div class="position-relative">
-        <input type="text" id="homeownerSearch" class="form-control" placeholder="Search Homeowner..." autocomplete="off" onkeyup="filterHomeowners()">
+                    <div class="mb-3">
+                        <h6>Representative</h6>
 
-        <!-- Dropdown list container -->
-        <div id="homeownerDropdown" class="dropdown-menu w-100" style="display: none; max-height: 200px; overflow-y: auto;">
-            @foreach ($homeowners as $homeowner)
-                <div class="dropdown-item" onclick="selectHomeowner(this)" data-value="{{ $homeowner->id }}">
-                    {{ $homeowner->fname }} {{ $homeowner->lname }}
-                </div>
-            @endforeach
-        </div>
-    </div>
+                        <!-- Searchable Homeowner Input -->
+                        <label for="homeownerSearch" class="form-label">Homeowner</label>
+                        <div class="position-relative">
+                            <input type="text" id="homeownerSearch" class="form-control" placeholder="Search Homeowner..." autocomplete="off" onkeyup="filterHomeowners()">
+                            <div id="homeownerDropdown" class="dropdown-menu w-100" style="display: none; max-height: 200px; overflow-y: auto;">
+                                @foreach ($homeowners as $homeowner)
+                                    <div class="dropdown-item" onclick="selectHomeowner(this)" data-value="{{ $homeowner->id }}">
+                                        {{ $homeowner->fname }} {{ $homeowner->lname }}
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        <input type="hidden" name="home_owner_id" id="selectedHomeownerId" required>
 
-    <!-- Hidden input to store selected homeowner's ID -->
-    <input type="hidden" name="home_owner_id" id="selectedHomeownerId" required>
+                        <!-- Representative Name -->
+                        <label for="representative_name" class="form-label">Name</label>
+                        <input type="text" name="representative[name]" class="form-control" required>
 
-    <!-- Representative Name -->
-    <label for="representative_name" class="form-label">Name</label>
-    <input type="text" name="representative[name]" class="form-control" required>
+                        <!-- Relationship Dropdown -->
+                        <label for="representative_relationship" class="form-label">Relationship</label>
+                        <select name="representative[relationship]" class="form-control" required>
+                            <option value="" disabled selected>Select Relationship</option>
+                            <option value="Family">Family</option>
+                            <option value="Friend">Friend</option>
+                            <option value="Colleague">Colleague</option>
+                            <option value="Business Partner">Business Partner</option>
+                            <option value="Other">Other</option>
+                        </select>
 
-    <!-- Relationship Dropdown -->
-    <label for="representative_relationship" class="form-label">Relationship</label>
-    <select name="representative[relationship]" class="form-control" required>
-        <option value="" disabled selected>Select Relationship</option>
-        <option value="Family">Family</option>
-        <option value="Friend">Friend</option>
-        <option value="Colleague">Colleague</option>
-        <option value="Business Partner">Business Partner</option>
-        <option value="Other">Other</option>
-    </select>
+                        <!-- Car Type Dropdown -->
+                        <label for="representative_car_type" class="form-label">Car Type</label>
+                        <select name="representative[car_type]" class="form-control">
+                            <option value="" disabled selected>Select Car Type</option>
+                            <option value="Sedan">Sedan</option>
+                            <option value="SUV">SUV</option>
+                            <option value="Truck">Truck</option>
+                            <option value="Van">Van</option>
+                            <option value="Motorcycle">Motorcycle</option>
+                        </select>
 
-    <!-- Other Fields -->
-    <label for="representative_brand" class="form-label">Brand</label>
-    <input type="text" name="representative[brand]" class="form-control">
+                        <!-- Other Fields -->
+                        <label for="representative_brand" class="form-label">Brand</label>
+                        <input type="text" name="representative[brand]" class="form-control">
 
-    <label for="representative_color" class="form-label">Color</label>
-    <input type="text" name="representative[color]" class="form-control">
+                        <label for="representative_color" class="form-label">Color</label>
+                        <input type="text" name="representative[color]" class="form-control">
 
-    <label for="representative_model" class="form-label">Model</label>
-    <input type="text" name="representative[model]" class="form-control">
+                        <label for="representative_model" class="form-label">Model</label>
+                        <input type="text" name="representative[model]" class="form-control">
 
-    <label for="representative_plate_number" class="form-label">Plate Number</label>
-    <input type="text" name="representative[plate_number]" class="form-control">
+                        <label for="representative_plate_number" class="form-label">Plate Number</label>
+                        <input type="text" name="representative[plate_number]" class="form-control">
 
-    <label for="representative_type_id" class="form-label">Type ID</label>
-<select name="representative[type_id]" class="form-control" required>
-    <option value="">Select ID</option>
-    <option value="Driver License">Driver License</option>
-    <option value="Postal ID">Postal ID</option>
-    <option value="Voter's ID">Voter's ID</option>
-    <option value="Senior Citizen ID">Senior Citizen ID</option>
-    <option value="Student ID">Student ID</option>
-    <option value="Employee ID">Employee ID</option>
-    <option value="SSS ID">SSS ID</option>
-    <option value="PRC ID">PRC ID</option>
-</select>
+                        <label for="representative_type_id" class="form-label">Type ID</label>
+                        <select name="representative[type_id]" class="form-control" required>
+                            <option value="">Select ID</option>
+                            <option value="Driver License">Driver License</option>
+                            <option value="Postal ID">Postal ID</option>
+                            <option value="Voter's ID">Voter's ID</option>
+                            <option value="Senior Citizen ID">Senior Citizen ID</option>
+                            <option value="Student ID">Student ID</option>
+                            <option value="Employee ID">Employee ID</option>
+                            <option value="SSS ID">SSS ID</option>
+                            <option value="PRC ID">PRC ID</option>
+                        </select>
 
+                        <label for="representative_reason" class="form-label">Reason</label>
+                        <textarea name="representative[reason]" class="form-control" rows="3" required></textarea>
 
-    <label for="representative_reason" class="form-label">Reason</label>
-    <textarea name="representative[reason]" class="form-control" rows="3" required></textarea>
+                        <label for="representative_profile_img" class="form-label">Profile Image</label>
+                        <input type="file" name="representative[profile_img]" class="form-control" accept="image/*" required>
 
-    <label for="representative_profile_img" class="form-label">Profile Image</label>
-    <input type="file" name="representative[profile_img]" class="form-control" accept="image/*" required>
-
-    <label for="representative_valid_id" class="form-label">Valid ID</label>
-    <input type="file" name="representative[valid_id]" class="form-control" accept="image/*" required>
-</div>
+                        <label for="representative_valid_id" class="form-label">Valid ID</label>
+                        <input type="file" name="representative[valid_id]" class="form-control" accept="image/*" required>
+                    </div>
 
                     <!-- Members Section -->
                     <div id="visitorGroupContainer">
@@ -297,7 +346,6 @@
                             <label for="visitor_name" class="form-label">Name</label>
                             <input type="text" name="members[0][name]" class="form-control" required>
 
-                            <label for="type_id" class="form-label">Type ID</label>
                             <label for="type_id" class="form-label">Type ID</label>
                             <select name="members[0][type_id]" class="form-control" required>
                                 <option value="">Select ID</option>
@@ -324,7 +372,7 @@
                     <button type="button" class="btn btn-secondary mb-3" id="addVisitorGroup">Add Another Member</button>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Save changes</button>
-                      </div>
+                    </div>
                 </form>
             </div>
         </div>

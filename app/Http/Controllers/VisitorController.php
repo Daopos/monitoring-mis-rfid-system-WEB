@@ -87,28 +87,42 @@ public function deny($id)
 
 public function indexGuard(Request $request)
 {
-    // Get the search term from the request, if any
+    // Get the search term and sorting parameters from the request
     $searchTerm = $request->input('search', '');
+    $sort = $request->input('sort', 'created_at'); // Default sort column
+    $direction = $request->input('direction', 'desc'); // Default sort direction
 
-    // Eager load visitors with their homeowner, filtered by search term if provided
+    // Eager load visitors with their homeowner and apply filtering and sorting
     $visitors = Visitor::with(['homeowner', 'visitorGroups'])
-        ->where(function($query) use ($searchTerm) {
-            $query->where('name', 'like', '%'.$searchTerm.'%')
-                  ->orWhere('plate_number', 'like', '%'.$searchTerm.'%')
-                  ->orWhere('relationship', 'like', '%'.$searchTerm.'%')
-                  ->orWhereHas('homeowner', function ($q) use ($searchTerm) {
-                    $q->whereRaw("CONCAT(fname, ' ', lname) LIKE ?", ['%' . $searchTerm . '%']); // Search homeowner's full name
+        ->where(function ($query) use ($searchTerm) {
+            $query->where('name', 'like', '%' . $searchTerm . '%')
+                ->orWhere('plate_number', 'like', '%' . $searchTerm . '%')
+                ->orWhere('relationship', 'like', '%' . $searchTerm . '%')
+                ->orWhere('rfid', 'like', '%' . $searchTerm . '%') // Add rfid to search
+                ->orWhereHas('homeowner', function ($q) use ($searchTerm) {
+                    $q->whereRaw("CONCAT(fname, ' ', lname) LIKE ?", ['%' . $searchTerm . '%']);
                 });
         })
-        ->orderBy('created_at', 'desc')
+        ->when($sort === 'homeowner_name', function ($query) use ($direction) {
+            $query->join('home_owners', 'visitors.home_owner_id', '=', 'home_owners.id')
+                ->orderByRaw("CONCAT(home_owners.fname, ' ', home_owners.lname) $direction")
+                ->select('visitors.*'); // Ensure only visitor columns are selected
+        }, function ($query) use ($sort, $direction) {
+            if ($sort === 'status') {
+                $query->orderBy($sort, $direction); // Explicitly sort by `status`
+            } else {
+                $query->orderBy($sort, $direction);
+            }
+        })
         ->paginate(10);
 
     // Fetch all homeowners to pass to the view for the dropdown
     $homeowners = Homeowner::orderBy('fname')->orderBy('lname')->get();
 
-    // Return the view with the visitors and homeowners
-    return view('guard.visitor', compact('visitors', 'homeowners', 'searchTerm'));
+    // Return the view with the visitors, homeowners, and search term
+    return view('guard.visitor', compact('visitors', 'homeowners', 'searchTerm', 'sort', 'direction'));
 }
+
 
 public function storeVisitor(Request $request)
 {
@@ -131,6 +145,7 @@ public function storeVisitor(Request $request)
         'members.*.type_id' => 'nullable|string',
         'members.*.valid_id' => 'nullable|image|max:22048',
         'members.*.profile_img' => 'nullable|image|max:22048',
+        'representative.car_type' => 'nullable|string',
     ]);
     // Handle file uploads for representative
     $repProfileImg = $request->file('representative.profile_img')
@@ -157,6 +172,7 @@ public function storeVisitor(Request $request)
         'valid_id' => $repValidId,
         'status' => 'requested',
         'guard' => 0,
+        'car_type' => $request->input('representative.car_type'), // Add this line
     ]);
 
     // Create members (visitor groups)
@@ -494,15 +510,18 @@ public function approvedVisitorAPI($id)
 }
 
 
-public function rejectVisitorAPI($id)
+public function rejectVisitorAPI( Request $request, $id)
 {
     $homeOwnerId = Auth::user()->id;
+
+    $reason = $request->input('reason');
 
     // Find the visitor record with the specified ID and home owner ID
     $visitor = Visitor::where('id', $id)->where('home_owner_id', $homeOwnerId)->firstOrFail();
 
     // Update the visitor's status to 'denied'
     $visitor->status = 'denied';
+    $visitor->reject_reason = $reason;
     $visitor->save();
 
     return response()->json(['message' => 'Visitor status updated to denied successfully']);

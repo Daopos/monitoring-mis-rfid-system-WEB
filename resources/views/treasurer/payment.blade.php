@@ -73,6 +73,21 @@
             </div>
         </div>
     </div>
+    <form action="{{ route('payment_reminders.generateReport') }}" method="GET" class="mb-4">
+        <div class="row">
+            <!-- Report Type Selection -->
+            <div class="col-md-4">
+                <select name="report_type" class="form-control">
+                    <option value="pending" {{ request('report_type') == 'pending' ? 'selected' : '' }}>Unpaid</option>
+                    <option value="overdue" {{ request('report_type') == 'overdue' ? 'selected' : '' }}>Overdue</option>
+                </select>
+            </div>
+
+            <div class="col-md-8">
+                <button type="submit" class="btn btn-primary">Generate Report</button>
+            </div>
+        </div>
+    </form>
     {{-- <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createReminderModal">
         Create New Reminder
     </button> --}}
@@ -80,6 +95,9 @@
     <div class="card">
         <div class="card-header">
             <h5 class="mb-0">Payment Reminders</h5>
+            <!-- Report Generation Button with Filter -->
+
+
         </div>
         <div class="card-body">
             <div class="table-responsive">

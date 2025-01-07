@@ -26,24 +26,14 @@ class GeneratePaymentReminders extends Command
         $dueDate = Carbon::now()->startOfMonth()->addDays(14); // Fixed to the 15th of the current month
 
         foreach ($homeOwners as $homeOwner) {
-            // Check if the homeowner already has an unpaid reminder
-            $existingReminder = PaymentReminder::where('home_owner_id', $homeOwner->id)
-                ->where('status', 'unpaid')
-                ->first();
-
-            if ($existingReminder) {
-                // Add the fixed amount to the existing reminder
-                $existingReminder->increment('amount', $fixedAmount);
-            } else {
-                // Create a new reminder
-                PaymentReminder::create([
-                    'home_owner_id' => $homeOwner->id,
-                    'title' => $fixedTitle,
-                    'amount' => $fixedAmount,
-                    'due_date' => $dueDate,
-                    'status' => 'unpaid', // Default status
-                ]);
-            }
+            // Create a new reminder (no need to check if one already exists)
+            PaymentReminder::create([
+                'home_owner_id' => $homeOwner->id,
+                'title' => $fixedTitle,
+                'amount' => $fixedAmount,
+                'due_date' => $dueDate,
+                'status' => 'unpaid', // Default status
+            ]);
 
             // Add a notification for the homeowner
             HomeownerNotification::create([

@@ -55,7 +55,7 @@ Route::get('/visitors', [VisitorController::class, 'getVisitorAPI'])->middleware
 Route::put('/visitor/{id}', [VisitorController::class, 'updateVisitorAPI'])->middleware('auth:sanctum');
 Route::delete('/visitor/{id}', [VisitorController::class, 'deleteVisitorAPI'])->middleware('auth:sanctum');
 Route::get('/visitor/approved/{id}', [VisitorController::class, 'approvedVisitorAPI'])->middleware('auth:sanctum');
-Route::get('/visitor/denied/{id}', [VisitorController::class, 'rejectVisitorAPI'])->middleware('auth:sanctum');
+Route::post('/visitor/denied/{id}', [VisitorController::class, 'rejectVisitorAPI'])->middleware('auth:sanctum');
 
 
 //reminder

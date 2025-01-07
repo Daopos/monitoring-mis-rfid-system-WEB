@@ -25,7 +25,7 @@
                     <form method="GET" action="{{ route('guard.visitorgatelist') }}" id="searchForm">
                         <div class="row mb-3">
                             <div class="col-md-4">
-                                <input type="text" name="search" class="form-control" placeholder="Search by name" value="{{ request('search') }}">
+                                <input type="text" name="search" class="form-control" placeholder="Search by name or plate number" value="{{ request('search') }}">
                             </div>
                             <div class="col-md-4">
                                 <button type="submit" class="btn btn-primary">Search</button>
@@ -40,10 +40,19 @@
                                 <select name="status" class="form-control" onchange="document.getElementById('statusFilterForm').submit();">
                                     <option value="">All</option>
                                     <option value="in" {{ request('status') == 'in' ? 'selected' : '' }}>Currently In</option>
+                                    <option value="out" {{ request('status') == 'out' ? 'selected' : '' }}>Currently Out</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <select name="vehicle_status" class="form-control" onchange="document.getElementById('statusFilterForm').submit();">
+                                    <option value="">All</option>
+                                    <option value="with_vehicle" {{ request('vehicle_status') == 'with_vehicle' ? 'selected' : '' }}>With Vehicle</option>
+                                    <option value="without_vehicle" {{ request('vehicle_status') == 'without_vehicle' ? 'selected' : '' }}>Without Vehicle</option>
                                 </select>
                             </div>
                         </div>
                     </form>
+
 
                     <!-- Date Filter Form -->
                     <form method="GET" action="{{ route('guard.visitorgatelist') }}" id="dateFilterForm">
@@ -110,10 +119,22 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        @if($gateMonitor->visitor->brand)
                         <p><strong>Brand:</strong> {{ $gateMonitor->visitor->brand }}</p>
+                    @endif
+
+                    @if($gateMonitor->visitor->color)
                         <p><strong>Color:</strong> {{ $gateMonitor->visitor->color }}</p>
+                    @endif
+
+                    @if($gateMonitor->visitor->model)
                         <p><strong>Model:</strong> {{ $gateMonitor->visitor->model }}</p>
+                    @endif
+
+                    @if($gateMonitor->visitor->plate_number)
                         <p><strong>Plate Number:</strong> {{ $gateMonitor->visitor->plate_number }}</p>
+                    @endif
+
                         <p><strong>RFID:</strong> {{ $gateMonitor->visitor->rfid }}</p>
                         <p><strong>Relationship:</strong> {{ $gateMonitor->visitor->relationship }}</p>
                         <p><strong>Date of Visit:</strong> {{ \Carbon\Carbon::parse($gateMonitor->visitor->date_visit)->format('F j, Y') }}</p>

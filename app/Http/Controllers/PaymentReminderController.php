@@ -230,5 +230,34 @@ public function getHomeownerReminders()
         return $pdf->stream('paid_list_report.pdf');
     }
 
+    public function generatePendingOverdueReport(Request $request)
+    {
+        // Start query to get reminders
+        $query = PaymentReminder::with('homeOwner')
+            ->where('status', 'unpaid'); // Only unpaid reminders
+
+        // Apply filter based on the selected report type (Pending or Overdue)
+        if ($request->has('report_type') && in_array($request->report_type, ['pending', 'overdue'])) {
+            if ($request->report_type == 'pending') {
+                // Filter for pending reminders (status is still unpaid)
+                $query->whereDate('due_date', '>=', now()->toDateString());
+            } elseif ($request->report_type == 'overdue') {
+                // Filter for overdue reminders (due_date is in the past)
+                $query->whereDate('due_date', '<', now()->toDateString());
+            }
+        }
+
+        // Retrieve the filtered data
+        $reminders = $query->get();
+
+        // Fetch the treasurer officer (or other relevant data)
+        $treasurer = Officer::where('position', 'Treasurer')->first();
+
+        // Generate PDF using the view
+        $pdf = Pdf::loadView('treasurer.pending_overdue_report', compact('reminders', 'treasurer'));
+
+        // Return the PDF for streaming
+        return $pdf->stream('pending_overdue_report.pdf');
+    }
 
 }

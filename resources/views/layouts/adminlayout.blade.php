@@ -46,7 +46,7 @@
          </a>
         <!-- Dropdown -->
        <!-- Homeowner List Dropdown -->
-<div class="sidebar-dropdown {{ Request::routeIs('admin.homeownerlist', 'admin.homeownerpending') ? 'open' : '' }}">
+<div class="sidebar-dropdown {{ Request::routeIs('admin.homeownerlist', 'admin.homeownerpending', 'admin.homeownerlistarchived') ? 'open' : '' }}">
     <button class="sidebar-dropdown-btn d-flex align-items-center gap-2">
         <i class="fa-solid fa-users"></i>
         Homeowner List
@@ -63,6 +63,12 @@
             <a href="{{ route('admin.homeownerpending') }}"
                class="dropdown-item {{ Request::routeIs('admin.homeownerpending') ? 'active' : '' }}">
                New Homeowners
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('admin.homeownerlistarchived') }}"
+               class="dropdown-item {{ Request::routeIs('admin.homeownerlistarchived') ? 'active' : '' }}">
+               Transferred Homeowners
             </a>
         </li>
     </ul>

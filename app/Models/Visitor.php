@@ -25,7 +25,9 @@ class Visitor extends Model
         'reason',
         'type_id',
         'valid_id',
-        'profile_img'
+        'profile_img',
+        'car_type'
+
     ];
 
     public function rfidRequest()

@@ -134,15 +134,20 @@ public function destroy($id)
 {
     $homeOwner = HomeOwner::findOrFail($id);
 
+    // Archive the homeowner instead of deleting
+    $homeOwner->archived = true;
+
     // Delete the associated image file if it exists
     if ($homeOwner->image) {
         Storage::disk('public')->delete($homeOwner->image);
     }
 
-    $homeOwner->delete();
+    // Save the changes
+    $homeOwner->save();
 
-    return redirect()->back()->with('success', 'Successfully deleted');
+    return redirect()->back()->with('success', 'Successfully archived');
 }
+
 
 public function getAllHomeOwner(Request $request) {
     // Get the search query and RFID filter from the request
@@ -151,6 +156,7 @@ public function getAllHomeOwner(Request $request) {
 
     // Query homeowners with status 'confirmed', applying the search and RFID filter if provided
     $homeowners = HomeOwner::where('status', 'confirmed')
+    ->where('archived', false)
         ->when($search, function ($query, $search) {
             return $query->where('fname', 'like', "%{$search}%")
                          ->orWhere('email', 'like', "%{$search}%");
@@ -166,6 +172,31 @@ public function getAllHomeOwner(Request $request) {
         ->paginate(10); // Paginate by 10
 
     return view('admin.adminhomeownerlist', compact('homeowners'));
+}
+
+public function getAllHomeOwnerArchived(Request $request) {
+    // Get the search query and RFID filter from the request
+    $search = $request->input('search');
+    $rfidFilter = $request->input('rfid_filter');
+
+    // Query homeowners with status 'confirmed', applying the search and RFID filter if provided
+    $homeowners = HomeOwner::where('status', 'confirmed')
+    ->where('archived', true)
+        ->when($search, function ($query, $search) {
+            return $query->where('fname', 'like', "%{$search}%")
+                         ->orWhere('email', 'like', "%{$search}%");
+        })
+        ->when($rfidFilter, function ($query, $rfidFilter) {
+            // Apply RFID filter: show with or without RFID
+            if ($rfidFilter == 'with_rfid') {
+                return $query->whereNotNull('rfid');
+            } elseif ($rfidFilter == 'without_rfid') {
+                return $query->whereNull('rfid');
+            }
+        })
+        ->paginate(10); // Paginate by 10
+
+    return view('admin.archivedhomeowner', compact('homeowners'));
 }
 
 public function getHomeOwnerPending(Request $request) {

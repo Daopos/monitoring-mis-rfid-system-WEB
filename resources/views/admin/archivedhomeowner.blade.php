@@ -35,17 +35,7 @@
                     <input type="text" name="search" class="form-control me-2" placeholder="Search by name or email" aria-label="Search" value="{{ request('search') }}">
                     <button type="submit" class="btn btn-primary">Search</button>
                 </form>
-            <!-- RFID Filter Buttons -->
-            <form action="{{ route('admin.homeownerlist') }}" method="GET" class="d-flex mb-3">
-                <input type="hidden" name="search" value="{{ request('search') }}"> <!-- Carry over the search value -->
 
-                <button type="submit" name="rfid_filter" value="with_rfid" class="btn btn-success me-2">
-                    With RFID
-                </button>
-                <button type="submit" name="rfid_filter" value="without_rfid" class="btn btn-danger">
-                    Without RFID
-                </button>
-            </form>
         </div>
 
         @if(session('success'))
@@ -68,8 +58,6 @@
                             <th>Phase</th>
                             <th>Email</th>
                             <th>Contact</th>
-                            <th>RFID</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -81,21 +69,8 @@
                             <td>{{ $homeowner->phase }}</td>
                             <td>{{ $homeowner->email }}</td>
                             <td>{{ $homeowner->phone }}</td>
-                            <td>{{ $homeowner->rfid ? 'Registered' : 'Unregistered' }}</td>
 
-                            <td>
-                                <button data-bs-toggle="modal" class="btn btn-secondary" data-bs-target="#modal{{ $homeowner->id }}">View</button>
-                                <a href="{{ route('homeowner.edit', $homeowner->id) }}" class="btn btn-warning">Modify</a>
-                                <form action="{{ route('homeowner.delete', $homeowner->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove this homeowner?');">Transfer</button>
-                                </form>
-                                <!-- Vehicles Button -->
-                                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#vehiclesModal{{ $homeowner->id }}">Vehicles</button>
-                                {{-- <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#householdModal{{ $homeowner->id }}">Household</button> --}}
 
-                            </td>
                         </tr>
 
                        <!-- Modal for Homeowner Details -->

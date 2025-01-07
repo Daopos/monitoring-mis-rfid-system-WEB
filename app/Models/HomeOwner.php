@@ -32,6 +32,8 @@ class HomeOwner extends Model implements CanResetPassword
         'rfid',         // If applicable, depending on your application
         'password',     // For storing the hashed password
         'document_image',     // Add the document field if storing files (if relevant)
+        'car_type',
+        'archived',
     ];
       /**
      * The attributes that should be hidden for serialization.
