@@ -270,7 +270,7 @@
                             <div id="homeownerDropdown" class="dropdown-menu w-100" style="display: none; max-height: 200px; overflow-y: auto;">
                                 @foreach ($homeowners as $homeowner)
                                     <div class="dropdown-item" onclick="selectHomeowner(this)" data-value="{{ $homeowner->id }}">
-                                        {{ $homeowner->fname }} {{ $homeowner->lname }}
+                                        {{ $homeowner->lname}} {{ $homeowner->fname}}
                                     </div>
                                 @endforeach
                             </div>

@@ -117,7 +117,7 @@ public function indexGuard(Request $request)
         ->paginate(10);
 
     // Fetch all homeowners to pass to the view for the dropdown
-    $homeowners = Homeowner::orderBy('fname')->orderBy('lname')->get();
+    $homeowners = Homeowner::orderBy('lname')->orderBy('fname')->get();
 
     // Return the view with the visitors, homeowners, and search term
     return view('guard.visitor', compact('visitors', 'homeowners', 'searchTerm', 'sort', 'direction'));

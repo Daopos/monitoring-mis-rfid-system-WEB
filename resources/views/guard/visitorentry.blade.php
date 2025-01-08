@@ -144,19 +144,29 @@
                     <div class="row p-1">
                         <div class="col-md-6 text-center">
                             <h6>In Image</h6>
-                            <img src="{{ asset('storage/' . $gateMonitor->in_img) }}" alt="In Image" class="img-fluid" width="500">
+                            @if($gateMonitor->in_img)
+                                <img src="{{ asset('storage/'.$gateMonitor->in_img) }}" alt="In Image" class="img-fluid" width="500">
+                            @else
+                                <p>No image available</p>
+                            @endif
                         </div>
                         <div class="col-md-6 text-center">
                             <h6>Out Image</h6>
-                            <img src="{{ asset('storage/' . $gateMonitor->out_img) }}" alt="Out Image" class="img-fluid" width="500">
+                            @if($gateMonitor->out_img)
+                                <img src="{{ asset('storage/'.$gateMonitor->out_img) }}" alt="Out Image" class="img-fluid" width="500">
+                            @else
+                                <p>No image available</p>
+                            @endif
                         </div>
                     </div>
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
         </div>
+
     @endforeach
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

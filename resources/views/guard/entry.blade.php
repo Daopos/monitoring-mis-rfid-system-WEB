@@ -97,11 +97,19 @@
                                                         <div class="row">
                                                             <div class="col-md-6 text-center">
                                                                 <h6>In Image</h6>
-                                                                <img src="{{ asset('storage/' . $gateMonitor->in_img) }}" alt="In Image" class="img-fluid" width="500">
+                                                                @if($gateMonitor->in_img)
+                                                                    <img src="{{ asset('storage/'.$gateMonitor->in_img) }}" alt="In Image" class="img-fluid" width="500">
+                                                                @else
+                                                                    <p>No image available</p>
+                                                                @endif
                                                             </div>
                                                             <div class="col-md-6 text-center">
                                                                 <h6>Out Image</h6>
-                                                                <img src="{{ asset('storage/' . $gateMonitor->out_img) }}" alt="Out Image" class="img-fluid" width="500">
+                                                                @if($gateMonitor->out_img)
+                                                                    <img src="{{ asset('storage/'.$gateMonitor->out_img) }}" alt="Out Image" class="img-fluid" width="500">
+                                                                @else
+                                                                    <p>No image available</p>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                     </div>
